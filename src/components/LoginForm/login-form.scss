@@ -1,0 +1,164 @@
+.login-form-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo-section {
+  margin-bottom: 48px;
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .logo-text {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+  }
+}
+
+.form-content {
+  .welcome-section {
+    margin-bottom: 32px;
+    
+    .welcome-title {
+      font-size: 30px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    
+    .welcome-subtitle {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+  }
+  
+  .google-button {
+    height: 44px;
+    border: 1.5px solid #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: #d1d5db;
+      background-color: #f9fafb;
+    }
+  }
+  
+  .divider {
+    margin: 24px 0;
+    
+    .mantine-Divider-label {
+      color: #6b7280;
+      font-size: 14px;
+    }
+  }
+  
+  .email-input,
+  .password-input {
+    .mantine-Input-wrapper {
+      .mantine-Input-label {
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 6px;
+      }
+      
+      .mantine-Input-input {
+        height: 44px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.2s ease;
+        
+        &:focus {
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        &::placeholder {
+          color: #9ca3af;
+        }
+      }
+    }
+  }
+  
+  .form-options {
+    margin: 20px 0;
+    
+    .remember-checkbox {
+      .mantine-Checkbox-label {
+        font-size: 14px;
+        color: #374151;
+      }
+      
+      .mantine-Checkbox-input {
+        &:checked {
+          background-color: #667eea;
+          border-color: #667eea;
+        }
+      }
+    }
+    
+    .forgot-link {
+      font-size: 14px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .login-button {
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+  }
+  
+  .signup-text {
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 24px;
+    
+    .signup-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
