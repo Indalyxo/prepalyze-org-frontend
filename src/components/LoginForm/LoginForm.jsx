@@ -2,12 +2,8 @@ import {
   TextInput,
   PasswordInput,
   Button,
-  Checkbox,
   Text,
   Stack,
-  Group,
-  Anchor,
-  Divider
 } from '@mantine/core'
 import { IconBrandGoogle } from '@tabler/icons-react'
 import { useState } from 'react'
@@ -16,11 +12,10 @@ import './login-form.scss'
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log('Login attempt:', { email, password, rememberMe })
+    console.log('Login attempt:', { email, password })
   }
 
   const handleGoogleLogin = () => {
@@ -34,10 +29,6 @@ export default function LoginForm() {
         <div className="decoration-circle decoration-circle-1"></div>
         <div className="decoration-circle decoration-circle-2"></div>
         <div className="decoration-circle decoration-circle-3"></div>
-        <div className="decoration-circle decoration-circle-4"></div>
-        <div className="decoration-circle decoration-circle-5"></div>
-        <div className="decoration-circle decoration-circle-6"></div>
-        <div className="decoration-circle decoration-circle-7"></div>
         <div className="decoration-dots">
           <div className="dot"></div>
           <div className="dot"></div>
@@ -55,7 +46,7 @@ export default function LoginForm() {
             <Text className="logo-text">Untitled UI</Text>
           </div>
         </div>
-              
+
         <form onSubmit={handleSubmit} className="form-content">
           <Stack gap="lg">
             <div className="welcome-section">
@@ -66,27 +57,26 @@ export default function LoginForm() {
             <Stack gap="md">
               <TextInput
                 label="Email"
-                placeholder="Enter your email"
+                placeholder="demo@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.currentTarget.value)}
                 className="email-input"
                 required
               />
+
               <PasswordInput
                 label="Password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.currentTarget.value)}
                 className="password-input"
                 required
               />
 
-
               <Button type="submit" className="login-button" fullWidth>
                 Log in
               </Button>
             </Stack>
-
           </Stack>
         </form>
       </div>
