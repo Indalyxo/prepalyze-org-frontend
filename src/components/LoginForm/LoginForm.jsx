@@ -23,77 +23,73 @@ export default function LoginForm() {
     console.log('Login attempt:', { email, password, rememberMe })
   }
 
+  const handleGoogleLogin = () => {
+    console.log('Google login clicked')
+  }
+
   return (
     <div className="login-form-container">
-      <div className="logo-section">
-        <div className="logo">
-          <div className="logo-icon">✦</div>
-          <Text className="logo-text">Untitled UI</Text>
+      {/* Decorative background elements */}
+      <div className="background-decoration">
+        <div className="decoration-circle decoration-circle-1"></div>
+        <div className="decoration-circle decoration-circle-2"></div>
+        <div className="decoration-circle decoration-circle-3"></div>
+        <div className="decoration-circle decoration-circle-4"></div>
+        <div className="decoration-circle decoration-circle-5"></div>
+        <div className="decoration-circle decoration-circle-6"></div>
+        <div className="decoration-circle decoration-circle-7"></div>
+        <div className="decoration-dots">
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
         </div>
       </div>
-      
-      <form onSubmit={handleSubmit} className="form-content">
-        <Stack gap="lg">
-          <div className="welcome-section">
-            <Text className="welcome-title">Welcome back, Olivia</Text>
-            <Text className="welcome-subtitle">Welcome back! Please enter your details.</Text>
+
+      <div className="form-wrapper">
+        <div className="logo-section">
+          <div className="logo">
+            <div className="logo-icon">✦</div>
+            <Text className="logo-text">Untitled UI</Text>
           </div>
+        </div>
+              
+        <form onSubmit={handleSubmit} className="form-content">
+          <Stack gap="lg">
+            <div className="welcome-section">
+              <Text className="welcome-title">Welcome back!</Text>
+              <Text className="welcome-subtitle">Please enter your details.</Text>
+            </div>
 
-          <Button
-            variant="outline"
-            leftSection={<IconBrandGoogle size={18} />}
-            className="google-button"
-            fullWidth
-          >
-            Log in with Google
-          </Button>
-
-          <Divider label="or" labelPosition="center" className="divider" />
-
-          <Stack gap="md">
-            <TextInput
-              label="Email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
-              className="email-input"
-              required
-            />
-
-            <PasswordInput
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-              className="password-input"
-              required
-            />
-
-            <Group justify="space-between" className="form-options">
-              <Checkbox
-                label="Remember for 30 days"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.currentTarget.checked)}
-                className="remember-checkbox"
+            <Stack gap="md">
+              <TextInput
+                label="Email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.currentTarget.value)}
+                className="email-input"
+                required
               />
-              <Anchor href="#" className="forgot-link">
-                Forgot password
-              </Anchor>
-            </Group>
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.currentTarget.value)}
+                className="password-input"
+                required
+              />
 
-            <Button type="submit" className="login-button" fullWidth>
-              Log in
-            </Button>
 
-            <Text className="signup-text">
-              {"Don't have an account? "}
-              <Anchor href="#" className="signup-link">
-                Sign up for free
-              </Anchor>
-            </Text>
+              <Button type="submit" className="login-button" fullWidth>
+                Log in
+              </Button>
+            </Stack>
+
           </Stack>
-        </Stack>
-      </form>
+        </form>
+      </div>
     </div>
   )
 }
