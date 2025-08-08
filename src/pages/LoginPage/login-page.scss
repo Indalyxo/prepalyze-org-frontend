@@ -13,7 +13,6 @@
   max-height: 100vh;
   background: white;
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 
   @media (max-width: 968px) {
@@ -26,7 +25,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
   background: white;
 
   @media (max-width: 768px) {
