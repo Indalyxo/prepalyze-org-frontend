@@ -12,10 +12,30 @@ import './login-form.scss'
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login attempt:', { email, password })
+    setLoading(true)
+    setError('')
+    try {
+      const response = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      const data = await response.json()
+      if (response.ok) {
+        // Login successful, handle user session (e.g., save token, redirect)
+        console.log('Login success:', data)
+      } else {
+        setError(data.message || 'Login failed')
+      }
+    } catch (err) {
+      setError('Network error')
+    }
+    setLoading(false)
   }
 
   const handleGoogleLogin = () => {
@@ -53,7 +73,9 @@ export default function LoginForm() {
               <Text className="welcome-title">Welcome back!</Text>
               <Text className="welcome-subtitle">Please enter your details.</Text>
             </div>
-
+            {error && (
+              <Text color="red" size="sm" className="error-message">{error}</Text>
+            )}
             <Stack gap="md">
               <TextInput
                 label="Email"
@@ -62,6 +84,7 @@ export default function LoginForm() {
                 onChange={(e) => setEmail(e.currentTarget.value)}
                 className="email-input"
                 required
+                disabled={loading}
               />
 
               <PasswordInput
@@ -71,9 +94,10 @@ export default function LoginForm() {
                 onChange={(e) => setPassword(e.currentTarget.value)}
                 className="password-input"
                 required
+                disabled={loading}
               />
 
-              <Button type="submit" className="login-button" fullWidth>
+              <Button type="submit" className="login-button" fullWidth loading={loading}>
                 Log in
               </Button>
             </Stack>
