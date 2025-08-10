@@ -1,26 +1,57 @@
-import {
-  TextInput,
-  PasswordInput,
-  Button,
-  Text,
-  Stack,
-} from '@mantine/core'
-import { IconBrandGoogle } from '@tabler/icons-react'
-import { useState } from 'react'
-import './login-form.scss'
+import { TextInput, PasswordInput, Button, Text, Stack } from "@mantine/core";
+import { IconBrandGoogle, IconLock, IconMail } from "@tabler/icons-react";
+import { useState } from "react";
+import useAuthStore from "../../context/auth-store";
+import "./login-form.scss";
+import { useForm } from "@mantine/form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Login attempt:', { email, password })
-  }
+  const form = useForm({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validate: {
+      email: (value) =>
+        /^\S+@\S+\.\S+$/.test(value)
+          ? null
+          : "Please enter a valid email address",
+      password: (value) =>
+        value.trim().length < 8
+          ? "Password must be at least 8 characters"
+          : null,
+    },
+  });
 
-  const handleGoogleLogin = () => {
-    console.log('Google login clicked')
-  }
+  const handleSubmit = async (e) => {
+    const isValid = form.validate();
+
+    if (!isValid.hasErrors) {
+      const { email, password } = form.values;
+
+      try {
+        const response = await login(email, password);
+        console.log(response);
+
+        if (response.user.role === "organizer") {
+          navigate("/organization");
+        } else {
+          navigate("/student");
+        }
+        toast.success(response?.data?.data || "Login Successful");
+      } catch (error) {
+        console.error(error);
+        const errorMessage =
+          error.response?.data?.message || "Login failed. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
 
   return (
     <div className="login-form-container">
@@ -47,33 +78,45 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="form-content">
+        <form onSubmit={(e) => e.preventDefault()} className="form-content">
           <Stack gap="lg">
             <div className="welcome-section">
               <Text className="welcome-title">Welcome back!</Text>
-              <Text className="welcome-subtitle">Please enter your details.</Text>
+              <Text className="welcome-subtitle">
+                Please enter your details.
+              </Text>
             </div>
 
             <Stack gap="md">
               <TextInput
                 label="Email"
-                placeholder="demo@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
+                placeholder="Enter your email"
+                type="email"
+                leftSection={<IconMail size={18} />}
+                size="md"
+                radius="md"
+                {...form.getInputProps("email")}
                 className="email-input"
                 required
               />
 
               <PasswordInput
                 label="Password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.currentTarget.value)}
+                placeholder="•••••••"
+                leftSection={<IconLock size={18} />}
+                size="md"
+                radius="md"
+                {...form.getInputProps("password")}
                 className="password-input"
                 required
               />
 
-              <Button type="submit" className="login-button" fullWidth>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                className="login-button"
+                fullWidth
+              >
                 Log in
               </Button>
             </Stack>
@@ -81,5 +124,5 @@ export default function LoginForm() {
         </form>
       </div>
     </div>
-  )
+  );
 }

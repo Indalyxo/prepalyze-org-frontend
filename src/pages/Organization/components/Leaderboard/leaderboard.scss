@@ -1,0 +1,74 @@
+.leaderboard-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  
+  .leaderboard-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    
+    h3 {
+      margin-bottom: 0.5rem;
+      color: #212529;
+    }
+  }
+  
+  .leaderboard-item {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .rank-icon-wrapper {
+      width: 32px; // Fixed width for consistent alignment
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0; // Prevent shrinking
+    }
+
+    .rank-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px; // Match icon size
+      height: 24px; // Match icon size
+      font-size: 1rem; // Slightly larger for better visibility
+      font-weight: bold;
+      color: #868e96;
+    }
+    
+    // Specific styles for top 3 ranks
+    &.rank-1 {
+      background: linear-gradient(135deg, #fffbe0 0%, #fff9db 100%); // Light goldish background
+      border-color: #ffd43b; // Gold border
+      .rank-icon-wrapper svg { color: #ffd43b; } // Gold icon
+    }
+    
+    &.rank-2 {
+      background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%); // Light silverish background
+      border-color: #ced4da; // Silver border
+      .rank-icon-wrapper svg { color: #adb5bd; } // Silver icon
+    }
+    
+    &.rank-3 {
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%); // Light bronze/orange background
+      border-color: #fab005; // Bronze border
+      .rank-icon-wrapper svg { color: #fab005; } // Bronze icon
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .leaderboard-container {
+    .leaderboard-item {
+      padding: 0.75rem;
+    }
+  }
+}
