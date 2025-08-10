@@ -1,0 +1,27 @@
+.chart-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  
+  .chart-header {
+    margin-bottom: 1rem;
+    text-align: center;
+    
+    h3 {
+      margin-bottom: 0.5rem;
+      color: #212529;
+    }
+  }
+  
+  .chart-wrapper {
+    width: 100%;
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    .chart-wrapper {
+      height: 250px;
+    }
+  }
+}

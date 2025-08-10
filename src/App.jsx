@@ -2,29 +2,64 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import StudentLayout from "./layout/StudentLayout";
 import OrganizerLayout from "./layout/OrganizerLayout";
+import useAuthStore from "./context/auth-store";
+import { Suspense, useEffect } from "react";
+import { Toaster } from "sonner";
+import OrganizationIntellihub from "./pages/Organization/OrganizationIntellihub/OrganizationIntellihub";
 
 const App = () => {
+  const { isAuthenticated, isInitializing, initializeAuth, user } = useAuthStore();
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  if (isInitializing) return <div>Loading...</div>;
+
   return (
     <main>
-      <Routes>
-        <Route index path="/login" element={<LoginPage />} />
+      <Toaster position="top-center" richColors />
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          {/* Login Route */}
+          {!isAuthenticated ? (
+            <Route path="/login" element={<LoginPage />} />
+          ) : (
+            <Route path="/login" element={<Navigate to={user?.role === "student" ? "/student" : "/organizer"} replace />} />
+          )}
 
-        <Route path="/student" element={<StudentLayout />}>
-          <Route path="intellihub" element={<p>Intellihub</p>} />
-          <Route path="tests" element={<p>Tests</p>} />
-          {/* <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="profile" element={<StudentProfile />} /> */}
-        </Route>
+          {/* Redirect root to appropriate dashboard */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated
+                ? <Navigate to={user?.role === "student" ? "/student" : "/organizer"} replace />
+                : <Navigate to="/login" replace />
+            }
+          />
 
-        <Route path="/organizer" element={<OrganizerLayout />}>
-          <Route path="intellihub" element={<p>Intellihub</p>} />
-          <Route path="tests" element={<p>Tests</p>} />
-          {/* <Route path="dashboard" element={<OrganizerDashboard />} />
-          <Route path="profile" element={<OrganizerProfile />} /> */}
-        </Route>
-      </Routes>
+          {/* Student Routes */}
+          {isAuthenticated && user?.role === "student" && (
+            <Route path="/student" element={<StudentLayout />}>
+              <Route path="intellihub" element={<p>Intellihub</p>} />
+              <Route path="tests" element={<p>Tests</p>} />
+            </Route>
+          )}
+
+          {/* Organizer Routes */}
+          {isAuthenticated && user?.role === "organizer" && (
+            <Route path="/organization" element={<OrganizerLayout />}>
+              <Route path="" element={<OrganizationIntellihub />} />
+              <Route path="question" element={<p>Tests</p>} />
+              <Route path="tests" element={<p>Tests</p>} />
+            </Route>
+          )}
+
+          {/* 404 Route */}
+          <Route path="*" element={<p>404 - Page Not Found</p>} />
+        </Routes>
+      </Suspense>
     </main>
   );
 };
