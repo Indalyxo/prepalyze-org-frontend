@@ -6,6 +6,7 @@ import useAuthStore from "./context/auth-store";
 import { Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 import OrganizationIntellihub from "./pages/Organization/OrganizationIntellihub/OrganizationIntellihub";
+import Organization_group from "./pages/Organization/Groups/Organization_group";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } = useAuthStore();
@@ -51,7 +52,7 @@ const App = () => {
           {isAuthenticated && user?.role === "organizer" && (
             <Route path="/organization" element={<OrganizerLayout />}>
               <Route path="" element={<OrganizationIntellihub />} />
-              <Route path="question" element={<p>Tests</p>} />
+              <Route path="question" element={<Organization_group/>} />
               <Route path="tests" element={<p>Tests</p>} />
             </Route>
           )}

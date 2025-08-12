@@ -4,7 +4,7 @@ import { AppShell, Group, Title } from "@mantine/core";
 import {
   IconContract,
   IconDashboard,
-  IconQuestionMark,
+  IconUsers  ,
 } from "@tabler/icons-react";
 
 import Sidebar, { MobileSidebarTrigger } from "../../components/Sidebar/Sidebar";
@@ -25,10 +25,10 @@ const OrganizerLayout = () => {
       description: "Your Performance Zone",
     },
     {
-      name: "Question",
-      icon: <IconQuestionMark />,
+      name: "Groups",
+    icon: <IconUsers  />,
       redirectTo: "/organization/question",
-      description: "Your Question Zone",
+      description: "Your Group Management Area",
     },
     {
       name: "Tests",
