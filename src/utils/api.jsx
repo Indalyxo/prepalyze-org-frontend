@@ -9,6 +9,9 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -88,3 +91,38 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+
+// Group API functions
+export const groupAPI = {
+  // Get all groups for an organization
+  getGroups: (organizationId) => apiClient.get(`/api/group/${organizationId}`),
+  
+  // Get a specific group
+  getGroup: (organizationId, groupId) => apiClient.get(`/api/group/${organizationId}/${groupId}`),
+  
+  // Create a new group
+  createGroup: (organizationId, groupData) => apiClient.post(`/api/group/${organizationId}`, groupData),
+  
+  // Update a group
+  updateGroup: (organizationId, groupId, groupData) => apiClient.put(`/api/group/${organizationId}/${groupId}`, groupData),
+  
+  // Delete a group
+  deleteGroup: (organizationId, groupId) => apiClient.delete(`/api/group/${organizationId}/${groupId}`),
+  
+  // Add student to group
+  addStudentToGroup: (organizationId, groupId, studentId) => apiClient.post(`/api/group/${organizationId}/${groupId}/students`, { studentId }),
+  
+  // Remove student from group
+  removeStudentFromGroup: (organizationId, groupId, studentId) => apiClient.delete(`/api/group/${organizationId}/${groupId}/students/${studentId}`)
+};
+
+// User API functions
+export const userAPI = {
+  // Get all students for an organization
+  getStudents: (organizationId) => apiClient.get(`/api/user/${organizationId}/students`),
+  
+  // Get all users for an organization
+  getUsers: (organizationId) => apiClient.get(`/api/user/${organizationId}`)
+};
+
