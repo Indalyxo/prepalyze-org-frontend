@@ -52,7 +52,7 @@ const App = () => {
           {isAuthenticated && user?.role === "organizer" && (
             <Route path="/organization" element={<OrganizerLayout />}>
               <Route path="" element={<OrganizationIntellihub />} />
-              <Route path="question" element={<Organization_group/>} />
+              <Route path="group" element={<Organization_group/>} />
               <Route path="tests" element={<p>Tests</p>} />
             </Route>
           )}
