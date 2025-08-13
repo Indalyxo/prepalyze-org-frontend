@@ -13,7 +13,10 @@ const useAuthStore = create(
       login: async (email, password) => {
         set({ isLoading: true });
         try {
-          const response = await apiClient.post("/auth/login", { email, password });
+          const response = await apiClient.post("/auth/login", {
+            email,
+            password,
+          });
           const { user, accessToken, refreshToken } = response.data.data;
 
           set({ user, isAuthenticated: true, isLoading: false });
@@ -31,33 +34,32 @@ const useAuthStore = create(
           return { success: false, message };
         }
       },
-      refresh: async () => {
+      refreshToken: async () => {
         try {
           const refreshToken = localStorage.getItem("prepalyze-refreshToken");
-
           if (!refreshToken) {
-            throw new Error("No refresh token found");
+            throw new Error("No refresh token available");
           }
 
-          const response = await apiClient.post("/auth/refresh", { refreshToken });
+          // Use axios directly to avoid circular interceptor
+          const response = await axios.post(`${API_BASE_URL}/api/v1/refresh`, {
+            refreshToken: refreshToken,
+          });
 
           const { accessToken, refreshToken: newRefreshToken } =
             response.data.data;
 
           localStorage.setItem("prepalyze-accessToken", accessToken);
-
           if (newRefreshToken) {
             localStorage.setItem("prepalyze-refreshToken", newRefreshToken);
           }
 
-          return { success: true, accessToken: accessToken };
+          return { success: true, accessToken };
         } catch (error) {
-          console.error(error);
-          get().logout();
-          const message =
-            error.response?.data?.message ||
-            "An error occurred during token refresh.";
-          return { success: false, message };
+          return {
+            success: false,
+            message: error.response?.data?.message || "Token refresh failed",
+          };
         }
       },
       checkTokenExpiry: () => {
@@ -157,6 +159,5 @@ const useAuthStore = create(
     }
   )
 );
-
 
 export default useAuthStore;

@@ -2,21 +2,22 @@ import axios from "axios";
 
 import useAuthStore from "../context/auth-store";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
 });
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
       prom.resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -38,60 +39,52 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Only handle 401 errors and avoid infinite retries
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        // If already refreshing, queue the request
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return apiClient(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
+      // Clear the queue if this is the first 401
+      if (!isRefreshing) {
+        failedQueue = [];
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem("prepalyze-refreshToken");
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
+        const { refreshToken: refresh } = useAuthStore.getState();
+        const refreshResult = await refresh();
+
+        if (refreshResult.success) {
+          // Update the original request header
+          originalRequest.headers.Authorization = `Bearer ${localStorage.getItem(
+            "accessToken"
+          )}`;
+
+          // Retry the original request
+          return apiClient(originalRequest);
+        } else {
+          // Refresh failed - logout
+          const { logout } = useAuthStore.getState();
+          await logout();
+          return Promise.reject(error);
         }
-
-        const response = await axios.post("/auth/refresh-token", {
-          refreshToken: refreshToken
-        });
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-
-        localStorage.setItem("prepalyze-accessToken", accessToken);
-        if (newRefreshToken) {
-          localStorage.setItem("prepalyze-refreshToken", newRefreshToken);
-        }
-
-        processQueue(null, accessToken);
-        
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        return apiClient(originalRequest);
-
       } catch (refreshError) {
-        processQueue(refreshError, null);
-        
-        // Refresh failed, logout user
+        // Refresh failed - logout
         const { logout } = useAuthStore.getState();
-        logout();
-        
+        await logout();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
+    // If we have a 401 and it's already been retried, or it's another error
+    if (error.response?.status === 401) {
+      const { logout } = useAuthStore.getState();
+      await logout();
+    }
+
     return Promise.reject(error);
   }
 );
-
 
 export default apiClient;
