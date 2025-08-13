@@ -1,0 +1,205 @@
+.organization-groups {
+  .groups-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .header-content {
+      flex: 1;
+
+      .page-title {
+        margin-bottom: 0.5rem;
+        color: var(--mantine-color-gray-9);
+        font-weight: 600;
+      }
+
+      .page-description {
+        font-size: 0.95rem;
+      }
+    }
+
+    .create-button {
+      flex-shrink: 0;
+      
+      @media (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+
+  .groups-grid {
+    .group-card {
+      height: 100%;
+      transition: all 0.2s ease;
+      border: 1px solid var(--mantine-color-gray-3);
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        .group-info {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          flex: 1;
+
+          .group-icon {
+            color: var(--mantine-color-blue-6);
+            flex-shrink: 0;
+          }
+
+          .group-name {
+            margin: 0;
+            font-weight: 600;
+            color: var(--mantine-color-gray-9);
+            word-break: break-word;
+          }
+        }
+
+        .menu-trigger {
+          flex-shrink: 0;
+        }
+      }
+
+      .card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+
+        .student-count {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--mantine-color-gray-6);
+        }
+
+        .status-badge {
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+
+    .empty-icon {
+      color: var(--mantine-color-gray-4);
+      margin-bottom: 1.5rem;
+    }
+
+    .empty-title {
+      margin-bottom: 0.5rem;
+      color: var(--mantine-color-gray-7);
+    }
+
+    .empty-description {
+      margin-bottom: 2rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .empty-action {
+      // Inherits button styles
+    }
+  }
+
+  .group-modal {
+    .students-section {
+      .students-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid var(--mantine-color-gray-3);
+        border-radius: var(--mantine-radius-sm);
+        padding: 0.75rem;
+
+        .mantine-Checkbox-root {
+          margin-bottom: 0.5rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .view-modal {
+    .group-details {
+      .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--mantine-color-gray-3);
+
+        h3 {
+          margin: 0;
+          color: var(--mantine-color-gray-9);
+        }
+      }
+
+      .detail-tabs {
+        .students-table {
+          th {
+            font-weight: 600;
+            color: var(--mantine-color-gray-7);
+            background-color: var(--mantine-color-gray-1);
+          }
+
+          td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--mantine-color-gray-2);
+          }
+
+          tr:hover {
+            background-color: var(--mantine-color-gray-0);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Professional color overrides
+:root {
+  --group-primary: #2563eb;
+  --group-success: #059669;
+  --group-danger: #dc2626;
+  --group-warning: #d97706;
+}
+
+// Dark mode support
+[data-mantine-color-scheme="dark"] {
+  .organization-groups {
+    .groups-grid .group-card {
+      border-color: var(--mantine-color-dark-4);
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .empty-state .empty-icon {
+      color: var(--mantine-color-dark-3);
+    }
+  }
+}

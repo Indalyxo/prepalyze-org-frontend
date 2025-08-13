@@ -9,402 +9,468 @@ import {
   Card,
   Stack,
   Badge,
-  Box,
   Modal,
   TextInput,
   Checkbox,
   Menu,
   ActionIcon,
   LoadingOverlay,
-  Notification,
+  Alert,
+  Table,
+  Tabs,
+  Box,
 } from "@mantine/core";
-import { IconPlus, IconBuilding, IconUsers, IconDots, IconX } from "@tabler/icons-react";
+import {
+  IconPlus,
+  IconBuilding,
+  IconUsers,
+  IconDots,
+  IconEye,
+  IconEdit,
+  IconTrash,
+  IconAlertCircle,
+} from "@tabler/icons-react";
 import { groupAPI, userAPI } from "../../../utils/api.jsx";
-import useAuthStore from "../../../context/auth-store";
+import useAuthStore from "../../../context/auth-store.js";
+import { useMediaQuery } from "@mantine/hooks";
+import ViewGroup from "./ViewGroup.jsx";
+import CreateGroupModal from "./CreateGroupModal.jsx";
+import DeleteModal from "./DeleteModal.jsx";
 
-export default function Organization_group() {
+// Inline styles object for professional appearance
+const styles = {
+  organizationGroups: {
+    minHeight: "100vh",
+    backgroundColor: "#FFF9E9",
+  },
+  groupsHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "2rem",
+    gap: "1rem",
+  },
+  headerContent: {
+    flex: 1,
+  },
+  pageTitle: {
+    marginBottom: "0.5rem",
+    fontWeight: 600,
+    color: "#212529",
+  },
+  pageDescription: {
+    fontSize: "0.95rem",
+    color: "#6c757d",
+  },
+  groupCard: {
+    height: "100%",
+    transition: "all 0.2s ease",
+    border: "1px solid #dee2e6",
+    cursor: "pointer",
+  },
+  cardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "1rem",
+  },
+  groupInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+    flex: 1,
+  },
+  groupIcon: {
+    color: "#0066cc",
+    flexShrink: 0,
+  },
+  groupName: {
+    margin: 0,
+    fontWeight: 600,
+    color: "#212529",
+    wordBreak: "break-word",
+  },
+  cardContent: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "1rem",
+  },
+  studentCount: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    color: "#6c757d",
+  },
+  emptyState: {
+    textAlign: "center",
+    padding: "4rem 2rem",
+  },
+  emptyIcon: {
+    color: "#adb5bd",
+    marginBottom: "1.5rem",
+  },
+  emptyTitle: {
+    marginBottom: "0.5rem",
+    color: "#495057",
+  },
+  emptyDescription: {
+    marginBottom: "2rem",
+    maxWidth: "400px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    color: "#6c757d",
+  },
+  studentsSection: {
+    marginTop: "1rem",
+  },
+  studentsList: {
+    maxHeight: "300px",
+    overflowY: "auto",
+    border: "1px solid #dee2e6",
+    borderRadius: "0.375rem",
+    padding: "0.75rem",
+    backgroundColor: "#f8f9fa",
+  },
+  detailHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "1.5rem",
+    paddingBottom: "1rem",
+    borderBottom: "1px solid #dee2e6",
+  },
+  studentsTable: {
+    "& th": {
+      fontWeight: 600,
+      color: "#495057",
+      backgroundColor: "#f8f9fa",
+    },
+    "& td": {
+      padding: "0.75rem",
+      borderBottom: "1px solid #e9ecef",
+    },
+    "& tr:hover": {
+      backgroundColor: "#f8f9fa",
+    },
+  },
+};
+
+export default function OrganizationGroup() {
   const { user } = useAuthStore();
-  const [groupOpened, setGroupOpened] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  // State management
   const [groups, setGroups] = useState([]);
+  const [availableStudents, setAvailableStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [notification, setNotification] = useState(null);
 
+  // Modal states
+  const [groupModalOpened, setGroupModalOpened] = useState(false);
+  const [viewModalOpened, setViewModalOpened] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [deleteModalOpened, setDeleteModalOpened] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+
+  // Form states
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [editGroupId, setEditGroupId] = useState(null);
-  const [availableStudents, setAvailableStudents] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // Get organization ID from user context with better error handling
-  const organizationId = user?.organization;
+  const organizationId = typeof user?.organization === "object" ? user.organization._id : user?.organization;
 
-  // Debug logging
-  useEffect(() => {
-    console.log("User object:", user);
-    console.log("Organization ID:", organizationId);
-    console.log("Available students:", availableStudents);
-    console.log("Groups:", groups);
-  }, [user, organizationId, availableStudents, groups]);
-
-  // Fetch groups and students on component mount
+  // Data fetching
   useEffect(() => {
     if (organizationId) {
-      console.log("Fetching data for organization:", organizationId);
-      fetchGroups();
-      fetchStudents();
+      fetchData();
     } else {
-      console.warn("No organization ID found. User:", user);
-      setError("Organization ID not found. Please ensure you're logged in and have an organization assigned.");
+      setError(
+        "Organization not found. Please ensure you're properly logged in."
+      );
     }
   }, [organizationId]);
 
-  // Fetch groups from API with better error handling
-  const fetchGroups = async () => {
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-      
-      console.log("Calling groupAPI.getGroups with organizationId:", organizationId);
-      const response = await groupAPI.getGroups(organizationId);
-      
-      console.log("Groups API response:", response);
-      
-      // Handle different possible response structures
-      let groupsData = [];
-      if (response?.data?.data?.groups) {
-        groupsData = response.data.data.groups;
-      } else if (response?.data?.groups) {
-        groupsData = response.data.groups;
-      } else if (response?.groups) {
-        groupsData = response.groups;
-      } else if (Array.isArray(response?.data)) {
-        groupsData = response.data;
-      } else if (Array.isArray(response)) {
-        groupsData = response;
-      }
-      
-      console.log("Processed groups data:", groupsData);
-      setGroups(groupsData);
-      
+      await Promise.all([fetchGroups(), fetchStudents()]);
     } catch (err) {
-      console.error("Error fetching groups:", err);
-      console.error("Error response:", err.response);
-      console.error("Error message:", err.message);
-      
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          "Failed to fetch groups";
-      setError(errorMessage);
+      setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch students from API with better error handling
+  const fetchGroups = async () => {
+    try {
+      const response = await groupAPI.getGroups(organizationId);
+      const groupsData = extractData(response, "groups") || [];
+      setGroups(groupsData);
+    } catch (err) {
+      throw new Error("Failed to fetch groups");
+    }
+  };
+
   const fetchStudents = async () => {
     try {
-      console.log("Calling userAPI.getStudents with organizationId:", organizationId);
       const response = await userAPI.getStudents(organizationId);
-      
-      console.log("Students API response:", response);
-      
-      // Handle different possible response structures
-      let studentsData = [];
-      if (response?.data?.data?.students) {
-        studentsData = response.data.data.students;
-      } else if (response?.data?.students) {
-        studentsData = response.data.students;
-      } else if (response?.students) {
-        studentsData = response.students;
-      } else if (Array.isArray(response?.data)) {
-        studentsData = response.data;
-      } else if (Array.isArray(response)) {
-        studentsData = response;
-      }
-      
-      console.log("Processed students data:", studentsData);
+      const studentsData = extractData(response, "students") || [];
       setAvailableStudents(studentsData);
-      
     } catch (err) {
-      console.error("Error fetching students:", err);
-      console.error("Error response:", err.response);
-      
-      // Don't show error for students fetch failure, just log it
-      // This allows the component to still work for group management
-      setNotification({
-        type: "error",
-        message: "Failed to fetch students. You may not be able to assign students to groups."
-      });
+      // Students fetch failure shouldn't break the component
+      console.warn("Failed to fetch students:", err);
     }
   };
 
-  const handleStudentChange = (studentId) => {
-    setSelectedStudents((prev) =>
-      prev.includes(studentId)
-        ? prev.filter((s) => s !== studentId)
-        : [...prev, studentId]
-    );
+  // Utility function to extract data from various response structures
+  const extractData = (response, key) => {
+    if (response?.data?.data?.[key]) return response.data.data[key];
+    if (response?.data?.[key]) return response.data[key];
+    if (response?.[key]) return response[key];
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response)) return response;
+    return [];
   };
 
-  const handleGroupSubmit = async (e) => {
+  // Group operations
+  const handleCreateGroup = () => {
+    resetForm();
+    setGroupModalOpened(true);
+  };
+
+  const handleEditGroup = (group) => {
+    setNewGroupName(group.name);
+    setSelectedStudents(getStudentIds(group.students));
+    setEditGroupId(group._id || group.id);
+    setGroupModalOpened(true);
+  };
+
+  const handleViewGroup = (group) => {
+    setSelectedGroup(group);
+    setViewModalOpened(true);
+  };
+
+  const handleDeleteClass = (group) => {
+    setGroupToDelete(group);
+    setDeleteError(null);
+    setDeleteModalOpened(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!groupToDelete) return;
+
+    try {
+      await groupAPI.deleteGroup(
+        organizationId,
+        groupToDelete._id || groupToDelete.id
+      );
+      await fetchGroups();
+      setDeleteModalOpened(false);
+      setGroupToDelete(null);
+      setDeleteError(null);
+    } catch (err) {
+      setDeleteError("Failed to delete class. Please try again.");
+      throw err; // Re-throw to let DeleteModal handle loading state
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteModalOpened(false);
+    setGroupToDelete(null);
+    setDeleteError(null);
+  };
+  
+  const handleSubmitGroup = async (e) => {
     e.preventDefault();
-    
-    if (!newGroupName.trim()) {
-      setNotification({ type: "error", message: "Group name is required" });
-      return;
-    }
-    
-    if (!organizationId) {
-      setNotification({ type: "error", message: "Organization ID not found" });
-      return;
-    }
-    
-    setSubmitting(true);
+    if (!newGroupName.trim()) return;
 
+    setSubmitting(true);
     try {
       const groupData = {
         name: newGroupName.trim(),
-        students: selectedStudents
+        students: selectedStudents,
       };
 
-      console.log("Submitting group data:", groupData);
-
       if (editGroupId) {
-        // Update existing group
-        console.log("Updating group with ID:", editGroupId);
-        const response = await groupAPI.updateGroup(organizationId, editGroupId, groupData);
-        console.log("Update response:", response);
-        setNotification({ type: "success", message: "Group updated successfully" });
+        await groupAPI.updateGroup(organizationId, editGroupId, groupData);
       } else {
-        // Create new group
-        console.log("Creating new group for organization:", organizationId);
-        const response = await groupAPI.createGroup(organizationId, groupData);
-        console.log("Create response:", response);
-        setNotification({ type: "success", message: "Group created successfully" });
+        await groupAPI.createGroup(organizationId, groupData);
       }
 
-      // Refresh groups
       await fetchGroups();
-      
-      // Reset form
-      setNewGroupName("");
-      setSelectedStudents([]);
-      setEditGroupId(null);
-      setGroupOpened(false);
+      handleCloseModal();
     } catch (err) {
-      console.error("Error saving group:", err);
-      console.error("Error response:", err.response);
-      
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          (editGroupId ? "Failed to update group" : "Failed to create group");
-      
-      setNotification({ 
-        type: "error", 
-        message: errorMessage
-      });
+      setError(
+        `Failed to ${
+          editGroupId ? "update" : "create"
+        } group. Please try again.`
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEdit = (group) => {
-    console.log("Editing group:", group);
-    setNewGroupName(group.name);
-    
-    // Handle different possible student data structures
-    let studentIds = [];
-    if (group.students) {
-      if (Array.isArray(group.students)) {
-        studentIds = group.students.map(student => 
-          typeof student === 'object' ? (student._id || student.id) : student
-        );
-      }
-    }
-    
-    setSelectedStudents(studentIds);
-    setEditGroupId(group._id || group.id);
-    setGroupOpened(true);
+  // Helper functions
+  const getStudentIds = (students) => {
+    if (!Array.isArray(students)) return [];
+    return students.map((student) =>
+      typeof student === "object" ? student._id || student.id : student
+    );
   };
 
-  const handleDelete = async (groupId) => {
-    if (!confirm("Are you sure you want to delete this group?")) {
-      return;
-    }
-    
-    try {
-      console.log("Deleting group with ID:", groupId);
-      await groupAPI.deleteGroup(organizationId, groupId);
-      setNotification({ type: "success", message: "Group deleted successfully" });
-      await fetchGroups();
-    } catch (err) {
-      console.error("Error deleting group:", err);
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          "Failed to delete group";
-      setNotification({ 
-        type: "error", 
-        message: errorMessage
-      });
-    }
+  const handleStudentToggle = (studentId) => {
+    setSelectedStudents((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId]
+    );
   };
 
-  const handleToggleStatus = async (groupId, currentStatus) => {
-    try {
-      console.log("Toggling status for group:", groupId, "Current status:", currentStatus);
-      
-      // This is a placeholder implementation since you mentioned the backend doesn't have a toggle endpoint
-      // You should implement a proper toggle endpoint in your backend
-      if (currentStatus) {
-        await groupAPI.deleteGroup(organizationId, groupId);
-        setNotification({ type: "success", message: "Group deactivated successfully" });
-      } else {
-        // This logic is problematic - you can't reactivate a deleted group
-        setNotification({ 
-          type: "error", 
-          message: "Cannot reactivate group. Please implement a proper toggle endpoint in your backend." 
-        });
-        return;
-      }
-      
-      await fetchGroups();
-    } catch (err) {
-      console.error("Error toggling group status:", err);
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          "Failed to toggle group status";
-      setNotification({ 
-        type: "error", 
-        message: errorMessage
-      });
-    }
-  };
-
-  const handleCloseModal = () => {
-    setGroupOpened(false);
+  const resetForm = () => {
     setNewGroupName("");
     setSelectedStudents([]);
     setEditGroupId(null);
   };
 
-  // Auto-hide notifications after 5 seconds
-  useEffect(() => {
-    if (notification) {
-      const timer = setTimeout(() => {
-        setNotification(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
+  const handleCloseModal = () => {
+    setGroupModalOpened(false);
+    resetForm();
+  };
 
-  // Show loading state if no organizationId yet
+  const getStudentDetails = (studentIds) => {
+    return availableStudents.filter((student) =>
+      studentIds.includes(student._id || student.id)
+    );
+  };
+
   if (!organizationId && !error) {
     return (
       <Container size="xl" py="xl">
-        <LoadingOverlay visible={true} />
-        <Text>Loading organization data...</Text>
+        <LoadingOverlay visible />
       </Container>
     );
   }
 
   return (
-    <div className="organizations-page">
-      <Container size="xl" py="xl" pos="relative">
+    <div style={styles.organizationGroups}>
+      <Container size="xl" py="xl">
         <LoadingOverlay visible={loading} />
-        
-        {/* Notification */}
-        {notification && (
-          <Notification
-            title={notification.type === "success" ? "Success" : "Error"}
-            color={notification.type === "success" ? "green" : "red"}
-            onClose={() => setNotification(null)}
-            mb="md"
-            withCloseButton
-          >
-            {notification.message}
-          </Notification>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <Notification
-            title="Error"
-            color="red"
-            onClose={() => setError(null)}
-            mb="md"
-            withCloseButton
-          >
-            {error}
-          </Notification>
-        )}
 
         {/* Header */}
-        <Group justify="space-between" mb="xl">
-          <Box>
-            <Title order={1}>Groups</Title>
-            <Text c="dimmed" size="lg">
-              Manage and view all your groups
+        <div
+          style={
+            isMobile
+              ? { ...styles.groupsHeader, flexDirection: "column" }
+              : styles.groupsHeader
+          }
+        >
+          <div style={styles.headerContent}>
+            <Title order={2} style={styles.pageTitle}>
+              Groups Management
+            </Title>
+            <Text style={styles.pageDescription}>
+              Manage and organize your student groups
             </Text>
-          </Box>
-          <Button 
-            onClick={() => setGroupOpened(true)} 
-            disabled={!organizationId || loading}
+          </div>
+          <Button
+            onClick={handleCreateGroup}
             leftSection={<IconPlus size={16} />}
+            disabled={!organizationId || loading}
+            style={isMobile ? { width: "100%" } : {}}
           >
             Create Group
           </Button>
-        </Group>
+        </div>
 
-        {/* Data Grid */}
+        {/* Error Alert */}
+        {error && (
+          <Alert
+            icon={<IconAlertCircle size={16} />}
+            title="Error"
+            color="red"
+            onClose={() => setError(null)}
+            withCloseButton
+            mb="lg"
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/* Groups Grid */}
         {!loading && groups.length > 0 && (
-          <Grid gutter="lg">
+          <Grid gutter="md">
             {groups.map((group) => (
-              <Grid.Col key={group._id || group.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                  <Stack gap="sm">
-                    <Group justify="space-between">
-                      <Group gap="sm">
-                        <IconBuilding size={24} />
-                        <Title order={4}>{group.name}</Title>
-                      </Group>
+              <Grid.Col
+                key={group._id || group.id}
+                span={{ base: 12, sm: 6, lg: 4 }}
+              >
+                <Card
+                  style={{
+                    ...styles.groupCard,
+                    ":hover": {
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                      transform: "translateY(-2px)",
+                    },
+                  }}
+                  withBorder
+                >
+                  <div style={styles.cardHeader}>
+                    <div style={styles.groupInfo}>
+                      <IconBuilding size={20} style={styles.groupIcon} />
+                      <Title order={4} style={styles.groupName}>
+                        {group.name}
+                      </Title>
+                    </div>
+                    <Menu position="bottom-end">
+                      <Menu.Target>
+                        <ActionIcon variant="subtle">
+                          <IconDots size={16} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item
+                          leftSection={<IconEye size={14} />}
+                          onClick={() => handleViewGroup(group)}
+                        >
+                          View Details
+                        </Menu.Item>
+                        <Menu.Item
+                          leftSection={<IconEdit size={14} />}
+                          onClick={() => handleEditGroup(group)}
+                        >
+                          Edit
+                        </Menu.Item>
+                        <Menu.Item
+                          leftSection={<IconTrash size={14} />}
+                          color="red"
+                          onClick={() => handleDeleteClass(group)}
+                        >
+                          Delete
+                        </Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
+                  </div>
 
-                      {/* 3-dot Menu */}
-                      <Menu position="bottom-end" withArrow>
-                        <Menu.Target>
-                          <ActionIcon variant="subtle">
-                            <IconDots size={20} />
-                          </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                          <Menu.Item onClick={() => handleEdit(group)}>Edit</Menu.Item>
-                          <Menu.Item onClick={() => handleToggleStatus(group._id || group.id, group.isActive)}>
-                            {group.isActive ? "Deactivate" : "Activate"}
-                          </Menu.Item>
-                          <Menu.Item color="red" onClick={() => handleDelete(group._id || group.id)}>
-                            Delete
-                          </Menu.Item>
-                        </Menu.Dropdown>
-                      </Menu>
-                    </Group>
-
-                    <Group gap="xs">
-                      <IconUsers size={18} />
+                  <div style={styles.cardContent}>
+                    <div style={styles.studentCount}>
+                      <IconUsers size={16} />
                       <Text size="sm">
-                        {group.studentCount || group.students?.length || 0} Students
+                        {group.studentCount || group.students?.length || 0}{" "}
+                        Students
                       </Text>
-                    </Group>
+                    </div>
                     <Badge
                       color={group.isActive !== false ? "green" : "gray"}
                       variant="light"
                     >
                       {group.isActive !== false ? "Active" : "Inactive"}
                     </Badge>
-                  </Stack>
+                  </div>
                 </Card>
               </Grid.Col>
             ))}
@@ -413,88 +479,57 @@ export default function Organization_group() {
 
         {/* Empty State */}
         {!loading && groups.length === 0 && !error && (
-          <Box ta="center" py="xl">
-            <IconBuilding size={48} style={{ opacity: 0.5 }} />
-            <Text size="lg" c="dimmed" mt="md">No groups found</Text>
-            <Text size="sm" c="dimmed" mt="xs">Create your first group to get started</Text>
-            {organizationId && (
-              <Button 
-                mt="md" 
-                onClick={() => setGroupOpened(true)}
-                leftSection={<IconPlus size={16} />}
-              >
-                Create Your First Group
-              </Button>
-            )}
-          </Box>
+          <div style={styles.emptyState}>
+            <IconBuilding size={48} style={styles.emptyIcon} />
+            <Title order={3} style={styles.emptyTitle}>
+              No Groups Found
+            </Title>
+            <Text style={styles.emptyDescription}>
+              Create your first group to start organizing students
+            </Text>
+            <Button
+              onClick={handleCreateGroup}
+              leftSection={<IconPlus size={16} />}
+            >
+              Create Your First Group
+            </Button>
+          </div>
         )}
       </Container>
 
-      {/* Add/Edit Group Modal */}
-      <Modal
-        opened={groupOpened}
-        onClose={handleCloseModal}
-        title={editGroupId ? "Edit Group" : "Create New Group"}
-        size="md"
-        closeOnClickOutside={!submitting}
-        closeOnEscape={!submitting}
-      >
-        <form onSubmit={handleGroupSubmit}>
-          <Stack>
-            <TextInput
-              label="Group Name"
-              placeholder="Enter group name"
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-              required
-              disabled={submitting}
-            />
+      {/* Create/Edit Group Modal */}
+      <CreateGroupModal
+        groupModalOpened={groupModalOpened}
+        handleCloseModal={handleCloseModal}
+        editGroupId={editGroupId}
+        newGroupName={newGroupName}
+        setNewGroupName={setNewGroupName}
+        availableStudents={availableStudents}
+        selectedStudents={selectedStudents}
+        handleStudentToggle={handleStudentToggle}
+        submitting={submitting}
+        handleSubmitGroup={handleSubmitGroup}
+        styles={styles}
+      />
+      {/* View Group Modal */}
+      <ViewGroup
+        viewModalOpened={viewModalOpened}
+        setViewModalOpened={setViewModalOpened}
+        selectedGroup={selectedGroup}
+        styles={styles}
+        getStudentDetails={getStudentDetails}
+        getStudentIds={getStudentIds}
+      />
 
-            <Box>
-              <Title order={5} mb="xs">
-                Select Students ({selectedStudents.length} selected)
-              </Title>
-              {availableStudents.length === 0 ? (
-                <Text size="sm" c="dimmed">
-                  No students available. Make sure students are added to your organization.
-                </Text>
-              ) : (
-                <Stack gap="xs" mah={300} style={{ overflowY: 'auto' }}>
-                  {availableStudents.map((student) => (
-                    <Checkbox
-                      key={student._id || student.id}
-                      label={`${student.name || student.firstName || 'Unnamed'} ${
-                        student.email ? `(${student.email})` : ''
-                      }`}
-                      checked={selectedStudents.includes(student._id || student.id)}
-                      onChange={() => handleStudentChange(student._id || student.id)}
-                      disabled={submitting}
-                    />
-                  ))}
-                </Stack>
-              )}
-            </Box>
-
-            <Group justify="flex-end" mt="md">
-              <Button 
-                variant="default" 
-                onClick={handleCloseModal}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                variant="filled"
-                loading={submitting}
-                disabled={!newGroupName.trim()}
-              >
-                {editGroupId ? "Update Group" : "Create Group"}
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
+      {/* Delete Modal */}
+      <DeleteModal
+        opened={deleteModalOpened}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        itemName={groupToDelete?.name || ""}
+        itemType="class"
+        error={deleteError}
+      />
     </div>
   );
 }
