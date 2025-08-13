@@ -27,7 +27,7 @@ const App = () => {
           {!isAuthenticated ? (
             <Route path="/login" element={<LoginPage />} />
           ) : (
-            <Route path="/login" element={<Navigate to={user?.role === "student" ? "/student" : "/organizer"} replace />} />
+            <Route path="/login" element={<Navigate to={user?.role === "student" ? "/student" : "/organization"} replace />} />
           )}
 
           {/* Redirect root to appropriate dashboard */}
@@ -35,7 +35,7 @@ const App = () => {
             path="/"
             element={
               isAuthenticated
-                ? <Navigate to={user?.role === "student" ? "/student" : "/organizer"} replace />
+                ? <Navigate to={user?.role === "student" ? "/student" : "/organization"} replace />
                 : <Navigate to="/login" replace />
             }
           />

@@ -30,10 +30,6 @@ const IntellihubHeader = () => {
 
   return (
     <div className="dashboard-header-section">
-      <Text size="lg" color="dimmed" align="center" mb="xl">
-        Track progress and key metrics across all academic assessments.
-      </Text>
-
       <SimpleGrid cols={3} spacing="lg" breakpoints={[{ maxWidth: 'md', cols: 1 }]}>
         {stats.map((stat) => (
           <Paper key={stat.title} shadow="sm" p="md" className="stat-card">
