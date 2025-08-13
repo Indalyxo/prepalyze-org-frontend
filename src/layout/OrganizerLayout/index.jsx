@@ -27,7 +27,7 @@ const OrganizerLayout = () => {
     {
       name: "Groups",
     icon: <IconUsers  />,
-      redirectTo: "/organization/question",
+      redirectTo: "/organization/group",
       description: "Your Group Management Area",
     },
     {
