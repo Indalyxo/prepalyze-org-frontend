@@ -7,9 +7,11 @@ import { Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 import OrganizationIntellihub from "./pages/Organization/OrganizationIntellihub/OrganizationIntellihub";
 import Organization_group from "./pages/Organization/Groups/Organization_group";
+import ExamPage from "./pages/Exam/ExamPage";
 
 const App = () => {
-  const { isAuthenticated, isInitializing, initializeAuth, user } = useAuthStore();
+  const { isAuthenticated, isInitializing, initializeAuth, user } =
+    useAuthStore();
 
   useEffect(() => {
     initializeAuth();
@@ -17,8 +19,9 @@ const App = () => {
 
   if (isInitializing) return <div>Loading...</div>;
 
+
   return (
-    <main>
+    <main style={{ backgroundColor: "#f7f9fc" }}>
       <Toaster position="top-center" richColors />
 
       <Suspense fallback={<div>Loading...</div>}>
@@ -27,16 +30,29 @@ const App = () => {
           {!isAuthenticated ? (
             <Route path="/login" element={<LoginPage />} />
           ) : (
-            <Route path="/login" element={<Navigate to={user?.role === "student" ? "/student" : "/organization"} replace />} />
+            <Route
+              path="/login"
+              element={
+                <Navigate
+                  to={user?.role === "student" ? "/student" : "/organization"}
+                  replace
+                />
+              }
+            />
           )}
 
           {/* Redirect root to appropriate dashboard */}
           <Route
             path="/"
             element={
-              isAuthenticated
-                ? <Navigate to={user?.role === "student" ? "/student" : "/organization"} replace />
-                : <Navigate to="/login" replace />
+              isAuthenticated ? (
+                <Navigate
+                  to={user?.role === "student" ? "/student" : "/organization"}
+                  replace
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
 
@@ -52,10 +68,12 @@ const App = () => {
           {isAuthenticated && user?.role === "organizer" && (
             <Route path="/organization" element={<OrganizerLayout />}>
               <Route path="" element={<OrganizationIntellihub />} />
-              <Route path="group" element={<Organization_group/>} />
+              <Route path="group" element={<Organization_group />} />
               <Route path="tests" element={<p>Tests</p>} />
             </Route>
           )}
+
+          {isAuthenticated && <Route path="exam" element={<ExamPage />} />}
 
           {/* 404 Route */}
           <Route path="*" element={<p>404 - Page Not Found</p>} />

@@ -41,7 +41,7 @@ import DeleteModal from "./DeleteModal.jsx";
 const styles = {
   organizationGroups: {
     minHeight: "100vh",
-    backgroundColor: "#FFF9E9",
+    backgroundColor: "#f7f9fc",
   },
   groupsHeader: {
     display: "flex",
@@ -180,7 +180,10 @@ export default function OrganizationGroup() {
   const [editGroupId, setEditGroupId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const organizationId = typeof user?.organization === "object" ? user.organization._id : user?.organization;
+  const organizationId =
+    typeof user?.organization === "object"
+      ? user.organization.id || user.organization._id
+      : user?.organization;
 
   // Data fetching
   useEffect(() => {
@@ -284,7 +287,7 @@ export default function OrganizationGroup() {
     setGroupToDelete(null);
     setDeleteError(null);
   };
-  
+
   const handleSubmitGroup = async (e) => {
     e.preventDefault();
     if (!newGroupName.trim()) return;
@@ -434,12 +437,6 @@ export default function OrganizationGroup() {
                       </Menu.Target>
                       <Menu.Dropdown>
                         <Menu.Item
-                          leftSection={<IconEye size={14} />}
-                          onClick={() => handleViewGroup(group)}
-                        >
-                          View Details
-                        </Menu.Item>
-                        <Menu.Item
                           leftSection={<IconEdit size={14} />}
                           onClick={() => handleEditGroup(group)}
                         >
@@ -464,12 +461,13 @@ export default function OrganizationGroup() {
                         Students
                       </Text>
                     </div>
-                    <Badge
-                      color={group.isActive !== false ? "green" : "gray"}
+                    <Button
                       variant="light"
+                      size="xs"
+                      onClick={() => handleViewGroup(group)}
                     >
-                      {group.isActive !== false ? "Active" : "Inactive"}
-                    </Badge>
+                      View
+                    </Button>
                   </div>
                 </Card>
               </Grid.Col>
