@@ -1,40 +1,41 @@
-import { Card, Text, Group, Badge, Stack, Box } from "@mantine/core";
+import { Card, Text, Group, Badge, Stack, Box, Flex, Button } from "@mantine/core";
 import { IconStar } from "@tabler/icons-react";
 import useAuthStore from "../../../../context/auth-store.js";
+import { useNavigate } from "react-router-dom";
 
 import "./leaderboard.scss";
 
 const leaderboardData = [
   {
-    rank: 1,
+    rank: 2,
     name: "Emma Johnson",
     title: "Grade 12",
     time: "09:55min",
     score: 300,
   },
   {
-    rank: 2,
+    rank: 3,
     name: "Alex Chen",
     title: "Grade 11",
     time: "08:55min",
     score: 280,
   },
   {
-    rank: 3,
+    rank: 4,
     name: "Sarah Williams",
     title: "Grade 12",
     time: "10:15min",
     score: 275,
   },
   {
-    rank: 4,
+    rank: 5,
     name: "Michael Brown",
     title: "Grade 10",
     time: "10:40min",
     score: 260,
   },
   {
-    rank: 5,
+    rank: 6,
     name: "Jessica Davis",
     title: "Grade 11",
     time: "10:45min",
@@ -72,10 +73,14 @@ const getRankSuffix = (rank) => {
   }
 };
 
+
 export default function Leaderboard() {
   const topPerformer = leaderboardData[0];
   const { user } = useAuthStore();
   console.log(user);
+  const navigate = useNavigate();
+
+
   return (
     <div className="leaderboard-container">
       {/* Header */}
@@ -199,9 +204,20 @@ export default function Leaderboard() {
                     </Stack>
                   </Badge>
                 </Stack>
+
               </Group>
+
             </Card>
+
           ))}
+
+          <Flex justify="center" mt="md" w="100%">
+            <Button className="view-button"
+             onClick={() => navigate("/organization/leaderboard")}
+           >
+              View All
+            </Button>
+          </Flex>
         </Stack>
       </div>
     </div>

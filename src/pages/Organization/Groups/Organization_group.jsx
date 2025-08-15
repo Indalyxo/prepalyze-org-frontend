@@ -41,7 +41,7 @@ import DeleteModal from "./DeleteModal.jsx";
 const styles = {
   organizationGroups: {
     minHeight: "100vh",
-    backgroundColor: "#FFF9E9",
+    backgroundColor: "rgb(244, 241, 241)",
   },
   groupsHeader: {
     display: "flex",
