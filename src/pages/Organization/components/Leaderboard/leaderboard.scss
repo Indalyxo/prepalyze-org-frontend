@@ -150,7 +150,10 @@
   min-width: 80px;
   text-align: center;
 }
-
+.view-button{
+  width: 200px;
+  height: 40px;
+}
 // Responsive design
 @media (max-width: 768px) {
   .leaderboard-container {

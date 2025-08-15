@@ -7,6 +7,8 @@ import { Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 import OrganizationIntellihub from "./pages/Organization/OrganizationIntellihub/OrganizationIntellihub";
 import Organization_group from "./pages/Organization/Groups/Organization_group";
+import LeaderboardVeiw from "./pages/Organization/components/LeaderboardView";
+import StudentDetails from "./pages/Organization/components/StudentDetails/StudentDetails";
 import ExamPage from "./pages/Exam/ExamPage";
 
 const App = () => {
@@ -70,6 +72,8 @@ const App = () => {
               <Route path="" element={<OrganizationIntellihub />} />
               <Route path="group" element={<Organization_group />} />
               <Route path="tests" element={<p>Tests</p>} />
+             <Route path="leaderboard" element={<LeaderboardVeiw/>}/>
+             <Route path="student/:id" element={<StudentDetails />} />
             </Route>
           )}
 
