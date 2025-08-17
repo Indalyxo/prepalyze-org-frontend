@@ -10,6 +10,10 @@ import Organization_group from "./pages/Organization/Groups/Organization_group";
 import LeaderboardVeiw from "./pages/Organization/components/LeaderboardView";
 import StudentDetails from "./pages/Organization/components/StudentDetails/StudentDetails";
 import ExamPage from "./pages/Exam/ExamPage";
+import ExamDetailsPage from "./pages/Generic/ExamDetailsPage";
+import UserDetailsPage from "./pages/Generic/UserDetailsPage";
+import NotFoundPage from "./pages/Generic/NotFoundPage";
+import LoadingPage from "./components/Loading/LoadingPage";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -19,14 +23,13 @@ const App = () => {
     initializeAuth();
   }, [initializeAuth]);
 
-  if (isInitializing) return <div>Loading...</div>;
-
+  if (isInitializing) return <LoadingPage />;
 
   return (
     <main style={{ backgroundColor: "#f7f9fc" }}>
       <Toaster position="top-center" richColors />
 
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingPage />}>
         <Routes>
           {/* Login Route */}
           {!isAuthenticated ? (
@@ -72,15 +75,28 @@ const App = () => {
               <Route path="" element={<OrganizationIntellihub />} />
               <Route path="group" element={<Organization_group />} />
               <Route path="tests" element={<p>Tests</p>} />
-             <Route path="leaderboard" element={<LeaderboardVeiw/>}/>
-             <Route path="student/:id" element={<StudentDetails />} />
+              <Route path="leaderboard" element={<LeaderboardVeiw />} />
+              <Route path="student/:id" element={<StudentDetails />} />
+              <Route path="exam" element={<p>Exam Page</p>} />
+              <Route
+                path="exam/details/:examId"
+                element={<ExamDetailsPage />}
+              />
+              <Route
+                path="exam/results/:userId"
+                element={<UserDetailsPage />}
+              />
             </Route>
           )}
 
-          {isAuthenticated && <Route path="exam" element={<ExamPage />} />}
+          {isAuthenticated && (
+            <>
+              <Route path="/exam/:examId" element={<ExamPage />} />
+            </>
+          )}
 
           {/* 404 Route */}
-          <Route path="*" element={<p>404 - Page Not Found</p>} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </main>
