@@ -43,8 +43,11 @@ const ExamHeader = ({
               <Text size="xl" fw={700} className="exam-title">
                 {examData.title || "Test Exam"}
               </Text>
-              <Text size="sm" c="dark" className="exam-subtitle">
+              <Text size="sm" c="dimmed" className="exam-subtitle">
                 Secure Online Assessment Platform
+              </Text>
+              <Text size="sm" c="white" className="exam-description">
+                Powered by Prepalyze
               </Text>
             </div>
           </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Container,
@@ -14,16 +12,6 @@ import {
   Card,
   Divider,
 } from "@mantine/core";
-import {
-  IconDownload,
-  IconHelp,
-  IconClock,
-  IconShield,
-  IconBookmark,
-  IconCheck,
-  IconX,
-  IconInfoCircle,
-} from "@tabler/icons-react";
 import InstructionModal from "./InstructionModal";
 import "./exam-interface.scss";
 import QuestionContent from "./Helpers/QuestionContent";
@@ -300,16 +288,10 @@ const ExamInterface = ({ examData }) => {
         handleSubmit={handleSubmit}
       />
 
-      <ActionIcon
-        className="help-btn"
-        variant="filled"
-        color="blue"
-        size="xl"
-        radius="xl"
-        onClick={handleShowInstructions}
-      >
-        <IconHelp size={24} />
-      </ActionIcon>
+      <Text size="sm" c="gray" fw={500} fs="italic" className="help-btn">
+        Powered by{" "}
+        <span style={{ fontWeight: 700, color: "#228be6" }}>Prepalyze</span>
+      </Text>
     </div>
   );
 };
