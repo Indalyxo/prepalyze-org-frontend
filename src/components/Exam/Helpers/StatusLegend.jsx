@@ -32,7 +32,7 @@ const StatusLegend = ({ statusCounts }) => (
         <Text size="sm" className="status-label">
           Not Visited
         </Text>
-        <Badge size="sm" variant="filled" color="gray">
+        <Badge size="sm" variant="filled" color="black">
           {statusCounts.notVisited}
         </Badge>
       </div>
@@ -42,7 +42,7 @@ const StatusLegend = ({ statusCounts }) => (
         <Text size="sm" className="status-label">
           Marked for Review
         </Text>
-        <Badge size="sm" variant="filled" color="orange">
+        <Badge size="sm" variant="filled" color="#9333ea">
           {statusCounts.marked}
         </Badge>
       </div>

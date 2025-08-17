@@ -26,6 +26,11 @@
   --blue-500: #3b82f6;
   --blue-600: #2563eb;
 
+  --purple-50: #f5f0ff;
+  --purple-100: #e9d5ff;
+  --purple-500: #a855f7;
+  --purple-600: #9333ea;
+
   --gray-50: #f8fafc;
   --gray-100: #f1f5f9;
   --gray-200: #e2e8f0;
@@ -322,7 +327,7 @@
   }
 
   .question-area {
-    max-height: 65vh;
+    max-height: 70vh;
     overflow: scroll;
     .instructions-panel {
       background: linear-gradient(135deg, var(--primary-50) 0%, white 100%);
@@ -500,11 +505,11 @@
           }
 
           &.not-visited {
-            background: var(--gray-400);
+            background: var(--gray-900);
           }
 
           &.marked {
-            background: var(--warning-500);
+            background: var(--purple-600);
           }
 
           &.answered-marked {
@@ -576,7 +581,7 @@
           }
 
           &.marked {
-            background: var(--warning-500);
+            background: var(--purple-600);
             color: white;
 
             &:hover {
@@ -595,7 +600,7 @@
           }
 
           &.not-visited {
-            background: var(--gray-400);
+            background: var(--gray-900);
             color: white;
 
             &:hover {
