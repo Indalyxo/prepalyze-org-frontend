@@ -1,0 +1,84 @@
+.loadingContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.owlContainer {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 2rem;
+}
+
+.owlImage {
+  width: 80px;
+  height: 80px;
+  animation: owlBreathe 3s infinite ease-in-out;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+.loadingContent {
+  text-align: center;
+  z-index: 10;
+  max-width: 300px;
+  padding: 0 1rem;
+}
+
+.loadingSubtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+
+.progressContainer {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background-color: #f1f5f9;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressText {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.75rem;
+  font-weight: 400;
+}
+
+
+@keyframes owlBreathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .owlImage {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .loadingSubtitle {
+    font-size: 0.875rem;
+  }
+  
+  .progressContainer {
+    max-width: 180px;
+  }
+}
