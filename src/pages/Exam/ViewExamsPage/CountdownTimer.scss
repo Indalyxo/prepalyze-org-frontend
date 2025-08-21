@@ -1,0 +1,253 @@
+$countdown-colors: (
+  default: #2563eb,
+  waiting: #6b7280,
+  running: #059669,
+  finished: #dc2626
+);
+
+$countdown-vars: (
+  background: var(--mantine-color-gray-1),
+  border: var(--mantine-color-gray-3),
+  text: var(--mantine-color-gray-8),
+  hover: var(--mantine-color-gray-0),
+);
+
+$countdown-dark-vars: (
+  background: var(--mantine-color-dark-6),
+  border: var(--mantine-color-dark-4),
+  text: var(--mantine-color-gray-1),
+  hover: var(--mantine-color-dark-5),
+);
+
+.countdown-timer {
+  padding: 1rem;
+  width: 100%;
+  max-width: 350px;
+
+  &.countdown-sm {
+    max-width: 250px;
+    padding: 0.75rem;
+  }
+
+  &.countdown-lg {
+    max-width: 450px;
+    padding: 1.25rem;
+  }
+}
+
+.countdown-title {
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time-units {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-separator {
+  display: flex;
+  align-items: center;
+  margin: 0 0.5rem;
+  padding-bottom: 1.5rem;
+  color: var(--mantine-color-gray-6);
+}
+
+.time-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 11px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.time-number {
+  color: white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-label {
+  color: var(--mantine-color-gray-6);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// Status modifiers
+@each $state, $color in $countdown-colors {
+  .countdown-#{$state} {
+    .time-card {
+      background: #{$color};
+      box-shadow: 0 2px 8px rgba($color, 0.15);
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba($color, 0.2);
+      }
+    }
+
+    @if $state == running {
+      .time-units {
+        animation: subtle-pulse 2s ease-in-out infinite;
+      }
+    }
+
+    @if $state == finished {
+      .finished-message {
+        animation: bounce-in 0.5s ease-out;
+      }
+    }
+  }
+}
+
+// Minimal variant
+.countdown-minimal {
+  .time-card {
+    background: map-get($countdown-vars, background);
+    border: 1px solid map-get($countdown-vars, border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .time-number {
+      color: map-get($countdown-vars, text);
+    }
+
+    &:hover {
+      background: map-get($countdown-vars, hover);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  @each $state, $color in $countdown-colors {
+    &.countdown-#{$state} .time-card {
+      background: var(--mantine-color-#{$state}-0);
+      border-color: var(--mantine-color-#{$state}-2);
+
+      .time-number {
+        color: var(--mantine-color-#{$state}-7);
+      }
+    }
+  }
+}
+
+// Outline variant
+.countdown-outline {
+  .time-card {
+    background: transparent;
+    border: 2px solid map-get($countdown-colors, default);
+    box-shadow: none;
+
+    .time-number {
+      color: map-get($countdown-colors, default);
+    }
+
+    &:hover {
+      background: rgba(map-get($countdown-colors, default), 0.05);
+    }
+  }
+
+  @each $state, $color in $countdown-colors {
+    &.countdown-#{$state} .time-card {
+      border-color: $color;
+
+      .time-number {
+        color: $color;
+      }
+
+      &:hover {
+        background: rgba($color, 0.05);
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Dark mode
+[data-mantine-color-scheme="dark"] {
+  .countdown-minimal {
+    .time-card {
+      background: map-get($countdown-dark-vars, background);
+      border-color: map-get($countdown-dark-vars, border);
+
+      .time-number {
+        color: map-get($countdown-dark-vars, text);
+      }
+
+      &:hover {
+        background: map-get($countdown-dark-vars, hover);
+      }
+    }
+
+    @each $state in (running, finished) {
+      &.countdown-#{$state} .time-card {
+        background: var(--mantine-color-dark-6);
+        border-color: var(--mantine-color-#{$state}-4);
+        .time-number {
+          color: var(--mantine-color-#{$state}-4);
+        }
+      }
+    }
+  }
+
+  .time-label {
+    color: var(--mantine-color-gray-4);
+  }
+
+  .time-separator {
+    color: var(--mantine-color-gray-5);
+  }
+}
+
+// Mobile styles
+@media (max-width: 480px) {
+  .countdown-timer {
+    padding: 0.75rem;
+
+    &.countdown-lg {
+      padding: 1rem;
+    }
+  }
+
+  .time-separator {
+    margin: 0 0.25rem;
+  }
+}

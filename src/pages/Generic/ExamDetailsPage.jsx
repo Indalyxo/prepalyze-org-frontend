@@ -9,6 +9,10 @@ import {
   Group,
   Modal,
   ScrollArea,
+  Card,
+  Avatar,
+  Progress,
+  Divider,
 } from "@mantine/core";
 import {
   IconUsers,
@@ -18,6 +22,10 @@ import {
   IconEye,
   IconFileTypePdf,
   IconFileTypeDoc,
+  IconTrophy,
+  IconMedal,
+  IconAward,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import "./generic.scss";
 import useAuthStore from "../../context/auth-store";
@@ -26,6 +34,7 @@ const ExamDetailsPage = () => {
   const navigate = useNavigate();
   const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
   const { user } = useAuthStore();
+
   const examData = {
     name: "Advanced JavaScript & React Assessment",
     description:
@@ -139,6 +148,10 @@ const ExamDetailsPage = () => {
 
   const section = user?.role === "student" ? "student" : "organization";
 
+  const topPerformers = [...examData.attendees]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
   const handleAttendeeClick = (userId) => {
     navigate(`/${section}/exam/results/${userId}`);
   };
@@ -153,35 +166,57 @@ const ExamDetailsPage = () => {
     // Word download logic would go here
   };
 
+  const getRankIcon = (rank) => {
+    switch (rank) {
+      case 1:
+        return <IconTrophy size={24} className="rank-icon gold" />;
+      case 2:
+        return <IconMedal size={24} className="rank-icon silver" />;
+      case 3:
+        return <IconAward size={24} className="rank-icon bronze" />;
+      default:
+        return <span className="rank-number">#{rank}</span>;
+    }
+  };
+
+  const getScoreColor = (score) => {
+    if (score >= 90) return "green";
+    if (score >= 80) return "blue";
+    if (score >= 70) return "yellow";
+    return "red";
+  };
+
   return (
     <div className="exam-details-container">
       <div className="exam-header">
-        <Title order={1} className="exam-title">
-          {examData.name}
-        </Title>
-        <Text className="exam-description">{examData.description}</Text>
+        <div className="header-content">
+          <Title order={1} className="exam-title">
+            {examData.name}
+          </Title>
+          <Text className="exam-description">{examData.description}</Text>
 
-        <div className="exam-meta">
-          <div className="meta-item">
-            <IconCalendar size={20} className="meta-icon" />
-            <span>{examData.date}</span>
-          </div>
-          <div className="meta-item">
-            <IconClock size={20} className="meta-icon" />
-            <span>{examData.duration}</span>
-          </div>
-          <div className="meta-item">
-            <IconQuestionMark size={20} className="meta-icon" />
-            <span>{examData.totalQuestions} Questions</span>
-          </div>
-          <div className="meta-item">
-            <IconUsers size={20} className="meta-icon" />
-            <span>{examData.attendees.length} Attendees</span>
+          <div className="exam-meta">
+            <div className="meta-item">
+              <IconCalendar size={20} className="meta-icon" />
+              <span>{examData.date}</span>
+            </div>
+            <div className="meta-item">
+              <IconClock size={20} className="meta-icon" />
+              <span>{examData.duration}</span>
+            </div>
+            <div className="meta-item">
+              <IconQuestionMark size={20} className="meta-icon" />
+              <span>{examData.totalQuestions} Questions</span>
+            </div>
+            <div className="meta-item">
+              <IconUsers size={20} className="meta-icon" />
+              <span>{examData.attendees.length} Attendees</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="options-section">
+      <Card className="options-section" shadow="sm" padding="lg" radius="md">
         <Title order={3} className="options-title">
           Exam Options
         </Title>
@@ -191,6 +226,7 @@ const ExamDetailsPage = () => {
             variant="filled"
             color="blue"
             onClick={() => setQuestionsModalOpen(true)}
+            size="md"
           >
             View Questions
           </Button>
@@ -199,6 +235,7 @@ const ExamDetailsPage = () => {
             variant="outline"
             color="red"
             onClick={handleDownloadPDF}
+            size="md"
           >
             Download PDF
           </Button>
@@ -207,16 +244,90 @@ const ExamDetailsPage = () => {
             variant="outline"
             color="blue"
             onClick={handleDownloadWord}
+            size="md"
           >
             Download Word
           </Button>
         </Group>
-      </div>
+      </Card>
 
-      <div className="attendance-section">
+      <Card
+        className="leaderboard-section"
+        shadow="sm"
+        padding="lg"
+        radius="md"
+      >
+        <Title order={2} className="section-title">
+          <IconTrophy size={28} className="title-icon" />
+          Top Performers
+        </Title>
+        <Text size="sm" c="dimmed" mb="lg">
+          Celebrating our highest achievers in this examination
+        </Text>
+
+        <div className="leaderboard-list">
+          {topPerformers.map((performer, index) => (
+            <div
+              key={performer.id}
+              className={`leaderboard-item ${index < 3 ? "podium" : ""}`}
+              onClick={() => handleAttendeeClick(performer.id)}
+            >
+              <div className="rank-section">{getRankIcon(index + 1)}</div>
+
+              <Avatar
+                size="lg"
+                radius="xl"
+                color={getScoreColor(performer.score)}
+                className="performer-avatar"
+              >
+                {performer.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </Avatar>
+
+              <div className="performer-info">
+                <Text fw={600} size="lg" className="performer-name">
+                  {performer.name}
+                </Text>
+                <Text size="sm" c="dimmed">
+                  {performer.email}
+                </Text>
+                <Text size="xs" c="dimmed" mt={4}>
+                  Completed in {performer.timeSpent}
+                </Text>
+              </div>
+
+              <div className="performance-metrics">
+                <div className="score-display">
+                  <Text size="xl" fw={700} c={getScoreColor(performer.score)}>
+                    {performer.score}%
+                  </Text>
+                  <Progress
+                    value={performer.score}
+                    color={getScoreColor(performer.score)}
+                    size="sm"
+                    radius="xl"
+                    mt={4}
+                  />
+                </div>
+                <Text size="xs" c="dimmed" ta="center" mt={4}>
+                  {performer.correctAnswers}/{examData.totalQuestions} correct
+                </Text>
+              </div>
+
+              <IconChevronRight size={20} className="chevron-icon" />
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Divider my="xl" />
+
+      <Card className="attendance-section" shadow="sm" padding="lg" radius="md">
         <Title order={2} className="section-title">
           <IconUsers size={24} className="title-icon" />
-          Exam Attendees ({examData.attendees.length})
+          All Attendees ({examData.attendees.length})
         </Title>
 
         <div className="attendees-grid">
@@ -226,12 +337,15 @@ const ExamDetailsPage = () => {
               className="attendee-card-new"
               onClick={() => handleAttendeeClick(attendee.id)}
             >
-              <div className="attendee-avatar">
-                {attendee.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </div>
+              <Avatar
+                size="lg"
+                radius="xl"
+                color={getScoreColor(attendee.score)}
+                className="attendee-avatar"
+              >
+               <img src={user.organization.logoUrl || user.organization.logo} alt={attendee.name} />
+              </Avatar>
+
               <div className="attendee-details">
                 <div className="attendee-name">{attendee.name}</div>
                 <div className="attendee-email">{attendee.email}</div>
@@ -252,11 +366,19 @@ const ExamDetailsPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="attendee-score-badge">{attendee.score}%</div>
+
+              <Badge
+                color={getScoreColor(attendee.score)}
+                variant="filled"
+                size="lg"
+                className="attendee-score-badge"
+              >
+                {attendee.score}%
+              </Badge>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       <Modal
         opened={questionsModalOpen}

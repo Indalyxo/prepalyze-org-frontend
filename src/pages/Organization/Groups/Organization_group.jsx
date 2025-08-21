@@ -5,27 +5,19 @@ import {
   Title,
   Text,
   Group,
-  Grid,
-  Card,
   Stack,
-  Badge,
-  Modal,
-  TextInput,
-  Checkbox,
   Menu,
   ActionIcon,
   LoadingOverlay,
   Alert,
-  Table,
-  Tabs,
   Box,
+  Paper,
+  Flex,
 } from "@mantine/core";
 import {
   IconPlus,
-  IconBuilding,
   IconUsers,
   IconDots,
-  IconEye,
   IconEdit,
   IconTrash,
   IconAlertCircle,
@@ -36,125 +28,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import ViewGroup from "./ViewGroup.jsx";
 import CreateGroupModal from "./CreateGroupModal.jsx";
 import DeleteModal from "./DeleteModal.jsx";
-
-// Inline styles object for professional appearance
-const styles = {
-  organizationGroups: {
-    minHeight: "100vh",
-    backgroundColor: "#f7f9fc",
-  },
-  groupsHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "2rem",
-    gap: "1rem",
-  },
-  headerContent: {
-    flex: 1,
-  },
-  pageTitle: {
-    marginBottom: "0.5rem",
-    fontWeight: 600,
-    color: "#212529",
-  },
-  pageDescription: {
-    fontSize: "0.95rem",
-    color: "#6c757d",
-  },
-  groupCard: {
-    height: "100%",
-    transition: "all 0.2s ease",
-    border: "1px solid #dee2e6",
-    cursor: "pointer",
-  },
-  cardHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1rem",
-  },
-  groupInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    flex: 1,
-  },
-  groupIcon: {
-    color: "#0066cc",
-    flexShrink: 0,
-  },
-  groupName: {
-    margin: 0,
-    fontWeight: 600,
-    color: "#212529",
-    wordBreak: "break-word",
-  },
-  cardContent: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "1rem",
-  },
-  studentCount: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    color: "#6c757d",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "4rem 2rem",
-  },
-  emptyIcon: {
-    color: "#adb5bd",
-    marginBottom: "1.5rem",
-  },
-  emptyTitle: {
-    marginBottom: "0.5rem",
-    color: "#495057",
-  },
-  emptyDescription: {
-    marginBottom: "2rem",
-    maxWidth: "400px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    color: "#6c757d",
-  },
-  studentsSection: {
-    marginTop: "1rem",
-  },
-  studentsList: {
-    maxHeight: "300px",
-    overflowY: "auto",
-    border: "1px solid #dee2e6",
-    borderRadius: "0.375rem",
-    padding: "0.75rem",
-    backgroundColor: "#f8f9fa",
-  },
-  detailHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1.5rem",
-    paddingBottom: "1rem",
-    borderBottom: "1px solid #dee2e6",
-  },
-  studentsTable: {
-    "& th": {
-      fontWeight: 600,
-      color: "#495057",
-      backgroundColor: "#f8f9fa",
-    },
-    "& td": {
-      padding: "0.75rem",
-      borderBottom: "1px solid #e9ecef",
-    },
-    "& tr:hover": {
-      backgroundColor: "#f8f9fa",
-    },
-  },
-};
+import classes from "./OrganizationGroup.module.scss";
 
 export default function OrganizationGroup() {
   const { user } = useAuthStore();
@@ -199,7 +73,6 @@ export default function OrganizationGroup() {
   const fetchData = async () => {
     setLoading(true);
     setError(null);
-
     try {
       await Promise.all([fetchGroups(), fetchStudents()]);
     } catch (err) {
@@ -225,7 +98,6 @@ export default function OrganizationGroup() {
       const studentsData = extractData(response, "students") || [];
       setAvailableStudents(studentsData);
     } catch (err) {
-      // Students fetch failure shouldn't break the component
       console.warn("Failed to fetch students:", err);
     }
   };
@@ -266,7 +138,6 @@ export default function OrganizationGroup() {
 
   const handleConfirmDelete = async () => {
     if (!groupToDelete) return;
-
     try {
       await groupAPI.deleteGroup(
         organizationId,
@@ -278,7 +149,7 @@ export default function OrganizationGroup() {
       setDeleteError(null);
     } catch (err) {
       setDeleteError("Failed to delete class. Please try again.");
-      throw err; // Re-throw to let DeleteModal handle loading state
+      throw err;
     }
   };
 
@@ -360,35 +231,24 @@ export default function OrganizationGroup() {
   }
 
   return (
-    <div style={styles.organizationGroups}>
+    <div className={classes.container}>
       <Container size="xl" py="xl">
         <LoadingOverlay visible={loading} />
 
         {/* Header */}
-        <div
-          style={
-            isMobile
-              ? { ...styles.groupsHeader, flexDirection: "column" }
-              : styles.groupsHeader
-          }
-        >
-          <div style={styles.headerContent}>
-            <Title order={2} style={styles.pageTitle}>
-              Groups Management
-            </Title>
-            <Text style={styles.pageDescription}>
-              Manage and organize your student groups
-            </Text>
-          </div>
+        <Group justify="space-between" mb="xl" className={classes.header}>
+          <Title order={1} className={classes.title}>
+            Groups
+          </Title>
           <Button
             onClick={handleCreateGroup}
-            leftSection={<IconPlus size={16} />}
             disabled={!organizationId || loading}
-            style={isMobile ? { width: "100%" } : {}}
+            variant="light"
+            className={classes.createButton}
           >
             Create Group
           </Button>
-        </div>
+        </Group>
 
         {/* Error Alert */}
         {error && (
@@ -404,94 +264,86 @@ export default function OrganizationGroup() {
           </Alert>
         )}
 
-        {/* Groups Grid */}
+        {/* Groups Section */}
         {!loading && groups.length > 0 && (
-          <Grid gutter="md">
-            {groups.map((group) => (
-              <Grid.Col
-                key={group._id || group.id}
-                span={{ base: 12, sm: 6, lg: 4 }}
-              >
-                <Card
-                  style={{
-                    ...styles.groupCard,
-                    ":hover": {
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
-                  withBorder
+          <Box>
+            <Title order={3} mb="md" className={classes.sectionTitle}>
+              Your Groups
+            </Title>
+            <Flex gap="xs">
+              {groups.map((group) => (
+                <Paper
+                  key={group._id || group.id}
+                  className={classes.groupItem}
+                  onClick={() => handleViewGroup(group)}
                 >
-                  <div style={styles.cardHeader}>
-                    <div style={styles.groupInfo}>
-                      <IconBuilding size={20} style={styles.groupIcon} />
-                      <Title order={4} style={styles.groupName}>
-                        {group.name}
-                      </Title>
-                    </div>
+                  <Group justify="space-between" align="center">
+                    <Group gap="md" align="center">
+                      <IconUsers size={20} className={classes.groupIcon} />
+                      <Box>
+                        <Text className={classes.groupName}>{group.name}</Text>
+                        <Text className={classes.memberCount}>
+                          {group.studentCount || group.students?.length || 0}{" "}
+                          members
+                        </Text>
+                      </Box>
+                    </Group>
                     <Menu position="bottom-end">
                       <Menu.Target>
-                        <ActionIcon variant="subtle">
+                        <ActionIcon
+                          variant="subtle"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <IconDots size={16} />
                         </ActionIcon>
                       </Menu.Target>
                       <Menu.Dropdown>
                         <Menu.Item
                           leftSection={<IconEdit size={14} />}
-                          onClick={() => handleEditGroup(group)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditGroup(group);
+                          }}
                         >
                           Edit
                         </Menu.Item>
                         <Menu.Item
                           leftSection={<IconTrash size={14} />}
                           color="red"
-                          onClick={() => handleDeleteClass(group)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClass(group);
+                          }}
                         >
                           Delete
                         </Menu.Item>
                       </Menu.Dropdown>
                     </Menu>
-                  </div>
-
-                  <div style={styles.cardContent}>
-                    <div style={styles.studentCount}>
-                      <IconUsers size={16} />
-                      <Text size="sm">
-                        {group.studentCount || group.students?.length || 0}{" "}
-                        Students
-                      </Text>
-                    </div>
-                    <Button
-                      variant="light"
-                      size="xs"
-                      onClick={() => handleViewGroup(group)}
-                    >
-                      View
-                    </Button>
-                  </div>
-                </Card>
-              </Grid.Col>
-            ))}
-          </Grid>
+                  </Group>
+                </Paper>
+              ))}
+            </Flex>
+          </Box>
         )}
 
         {/* Empty State */}
         {!loading && groups.length === 0 && !error && (
-          <div style={styles.emptyState}>
-            <IconBuilding size={48} style={styles.emptyIcon} />
-            <Title order={3} style={styles.emptyTitle}>
+          <Box className={classes.emptyState}>
+            <IconUsers size={48} className={classes.emptyIcon} />
+            <Title order={3} className={classes.emptyTitle}>
               No Groups Found
             </Title>
-            <Text style={styles.emptyDescription}>
+            <Text className={classes.emptyDescription}>
               Create your first group to start organizing students
             </Text>
             <Button
               onClick={handleCreateGroup}
               leftSection={<IconPlus size={16} />}
+              mt="md"
             >
               Create Your First Group
             </Button>
-          </div>
+          </Box>
         )}
       </Container>
 
@@ -507,14 +359,13 @@ export default function OrganizationGroup() {
         handleStudentToggle={handleStudentToggle}
         submitting={submitting}
         handleSubmitGroup={handleSubmitGroup}
-        styles={styles}
       />
+
       {/* View Group Modal */}
       <ViewGroup
         viewModalOpened={viewModalOpened}
         setViewModalOpened={setViewModalOpened}
         selectedGroup={selectedGroup}
-        styles={styles}
         getStudentDetails={getStudentDetails}
         getStudentIds={getStudentIds}
       />

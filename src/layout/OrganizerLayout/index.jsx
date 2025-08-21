@@ -31,9 +31,9 @@ const OrganizerLayout = () => {
       description: "Your Group Management Area",
     },
     {
-      name: "Tests",
+      name: "Exams",
       icon: <IconContract />,
-      redirectTo: "/organization/tests",
+      redirectTo: "/organization/exams",
       description: "Your Assessment Zone",
     },
   ];
