@@ -1,63 +1,31 @@
-import { Badge, Card, Stack, Text } from "@mantine/core";
+import { Card, Text, Badge } from "@mantine/core"
 
-const StatusLegend = ({ statusCounts }) => (
-  <Card className="status-legend" withBorder radius="lg" p="md">
-    <Text fw={600} size="md" mb="md" className="legend-title">
-      Question Status Overview
-    </Text>
+const StatusLegend = ({ statusCounts }) => {
+  const statusItems = [
+    { key: "answered", label: "Answered", color: "green", count: statusCounts.answered },
+    { key: "not-answered", label: "Not Answered", color: "red", count: statusCounts.notAnswered },
+    { key: "not-visited", label: "Not Visited", color: "gray", count: statusCounts.notVisited },
+    { key: "marked", label: "Marked for Review", color: "yellow", count: statusCounts.marked },
+    { key: "answered-marked", label: "Answered & Marked", color: "blue", count: statusCounts.answeredMarked },
+  ]
 
-    <Stack gap="sm">
-      <div className="status-item">
-        <div className="status-indicator answered"></div>
-        <Text size="sm" className="status-label">
-          Answered
-        </Text>
-        <Badge size="sm" variant="filled" color="green">
-          {statusCounts.answered}
-        </Badge>
-      </div>
+  return (
+    <Card className="status-legend" withBorder radius="lg" p="lg">
+      <Text className="legend-title" fw={600} size="md" mb="md">
+        Question Status
+      </Text>
 
-      <div className="status-item">
-        <div className="status-indicator not-answered"></div>
-        <Text size="sm" className="status-label">
-          Not Answered
-        </Text>
-        <Badge size="sm" variant="filled" color="red">
-          {statusCounts.notAnswered}
-        </Badge>
-      </div>
+      {statusItems.map((item) => (
+        <div key={item.key} className="status-item">
+          <div className={`status-indicator ${item.key}`} />
+          <Text className="status-label">{item.label}</Text>
+          <Badge size="sm" variant="light" color={item.color}>
+            {item.count}
+          </Badge>
+        </div>
+      ))}
+    </Card>
+  )
+}
 
-      <div className="status-item">
-        <div className="status-indicator not-visited"></div>
-        <Text size="sm" className="status-label">
-          Not Visited
-        </Text>
-        <Badge size="sm" variant="filled" color="black">
-          {statusCounts.notVisited}
-        </Badge>
-      </div>
-
-      <div className="status-item">
-        <div className="status-indicator marked"></div>
-        <Text size="sm" className="status-label">
-          Marked for Review
-        </Text>
-        <Badge size="sm" variant="filled" color="#9333ea">
-          {statusCounts.marked}
-        </Badge>
-      </div>
-
-      <div className="status-item">
-        <div className="status-indicator answered-marked"></div>
-        <Text size="sm" className="status-label">
-          Answered & Marked
-        </Text>
-        <Badge size="sm" variant="filled" color="blue">
-          {statusCounts.answeredMarked}
-        </Badge>
-      </div>
-    </Stack>
-  </Card>
-);
-
-export default StatusLegend;
+export default StatusLegend

@@ -14,6 +14,7 @@ import ExamDetailsPage from "./pages/Generic/ExamDetailsPage";
 import UserDetailsPage from "./pages/Generic/UserDetailsPage";
 import NotFoundPage from "./pages/Generic/NotFoundPage";
 import LoadingPage from "./components/Loading/LoadingPage";
+import ViewExamsPage from "./pages/Exam/ViewExamsPage";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -74,16 +75,15 @@ const App = () => {
             <Route path="/organization" element={<OrganizerLayout />}>
               <Route path="" element={<OrganizationIntellihub />} />
               <Route path="group" element={<Organization_group />} />
-              <Route path="tests" element={<p>Tests</p>} />
               <Route path="leaderboard" element={<LeaderboardVeiw />} />
               <Route path="student/:id" element={<StudentDetails />} />
-              <Route path="exam" element={<p>Exam Page</p>} />
+              <Route path="exams" element={<ViewExamsPage />} />
               <Route
-                path="exam/details/:examId"
+                path="exams/details/:examId"
                 element={<ExamDetailsPage />}
               />
               <Route
-                path="exam/results/:userId"
+                path="exams/results/:userId"
                 element={<UserDetailsPage />}
               />
             </Route>

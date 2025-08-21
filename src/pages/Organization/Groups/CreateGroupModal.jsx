@@ -1,15 +1,7 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Group,
-  Modal,
-  Stack,
-  Text,
-  TextInput,
-} from "@mantine/core";
+import { Modal, Title, TextInput, Button, Stack, Checkbox, Group, Text, ScrollArea } from "@mantine/core"
+import { IconUsers, IconPlus } from "@tabler/icons-react"
 
-const CreateGroupModal = ({
+export default function CreateGroupModal({
   groupModalOpened,
   handleCloseModal,
   editGroupId,
@@ -20,13 +12,17 @@ const CreateGroupModal = ({
   handleStudentToggle,
   submitting,
   handleSubmitGroup,
-  styles,
-}) => {
+}) {
   return (
     <Modal
       opened={groupModalOpened}
       onClose={handleCloseModal}
-      title={editGroupId ? "Edit Group" : "Create New Group"}
+      title={
+        <Group gap="sm">
+          <IconUsers size={20} />
+          <Title order={3}>{editGroupId ? "Edit Group" : "Create New Group"}</Title>
+        </Group>
+      }
       size="md"
     >
       <form onSubmit={handleSubmitGroup}>
@@ -37,59 +33,38 @@ const CreateGroupModal = ({
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             required
-            disabled={submitting}
           />
 
-          <div style={styles.studentsSection}>
-            <Text fw={500} size="sm" mb="xs">
-              Select Students ({selectedStudents.length} selected)
-            </Text>
-            {availableStudents.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                No students available
+          {availableStudents.length > 0 && (
+            <div>
+              <Text size="sm" fw={500} mb="xs">
+                Select Students
               </Text>
-            ) : (
-              <div style={styles.studentsList}>
-                {availableStudents.map((student) => (
-                  <Box key={student._id || student.id} mb="xs">
+              <ScrollArea h={200} type="scroll">
+                <Stack gap="xs">
+                  {availableStudents.map((student) => (
                     <Checkbox
-                      label={`${
-                        student.name || student.firstName || "Unnamed"
-                      } ${student.email ? `(${student.email})` : ""}`}
-                      checked={selectedStudents.includes(
-                        student._id || student.id
-                      )}
-                      onChange={() =>
-                        handleStudentToggle(student._id || student.id)
-                      }
-                      disabled={submitting}
+                      key={student._id || student.id}
+                      label={`${student.name} (${student.email})`}
+                      checked={selectedStudents.includes(student._id || student.id)}
+                      onChange={() => handleStudentToggle(student._id || student.id)}
                     />
-                  </Box>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </Stack>
+              </ScrollArea>
+            </div>
+          )}
 
-          <Group justify="flex-end" mt="md">
-            <Button
-              variant="default"
-              onClick={handleCloseModal}
-              disabled={submitting}
-            >
+          <Group justify="flex-end" gap="sm">
+            <Button variant="subtle" onClick={handleCloseModal} disabled={submitting}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              loading={submitting}
-              disabled={!newGroupName.trim()}
-            >
+            <Button type="submit" loading={submitting} leftSection={<IconPlus size={16} />}>
               {editGroupId ? "Update Group" : "Create Group"}
             </Button>
           </Group>
         </Stack>
       </form>
     </Modal>
-  );
-};
-
-export default CreateGroupModal;
+  )
+}

@@ -454,6 +454,23 @@
           }
         }
       }
+
+      .numerical-input-container {
+        .numerical-input {
+          input {
+            font-size: 1.125rem !important;
+            padding: 1rem !important;
+            border: 2px solid var(--gray-200) !important;
+            border-radius: 0.75rem !important;
+            transition: all 0.2s ease !important;
+            
+            &:focus {
+              border-color: var(--primary-500) !important;
+              box-shadow: 0 0 0 3px var(--primary-100) !important;
+            }
+          }
+        }
+      }
     }
 
     .question-controls {

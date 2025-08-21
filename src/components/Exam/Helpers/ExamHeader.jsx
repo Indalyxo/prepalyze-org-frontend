@@ -1,31 +1,21 @@
-import { ActionIcon, Badge, Card, Container, Text } from "@mantine/core";
-import {
-  IconClock,
-  IconDownload,
-  IconInfoCircle,
-  IconShield,
-} from "@tabler/icons-react";
+import { Container, Button, Text, Badge } from "@mantine/core"
+import { IconClock, IconBook, IconInfoCircle } from "@tabler/icons-react"
 
-const ExamHeader = ({
-  examData,
-  currentSection,
-  timeLeft,
-  onSectionChange,
-  onShowInstructions,
-}) => {
+const ExamHeader = ({ examData, currentSection, timeLeft, onSectionChange, onShowInstructions }) => {
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
-      .padStart(2, "0")}`;
-  };
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
 
-  const getTimeStatus = () => {
-    if (timeLeft > 1800) return "safe"; // > 30 minutes
-    if (timeLeft > 600) return "warning"; // > 10 minutes
-    return "danger"; // <= 10 minutes
-  };
+  const getTimerStatus = () => {
+    if (timeLeft > 1800) return "safe" // > 30 minutes
+    if (timeLeft > 300) return "warning" // > 5 minutes
+    return "danger" // <= 5 minutes
+  }
 
   return (
     <div className="exam-header">
@@ -33,85 +23,58 @@ const ExamHeader = ({
         <div className="header-main">
           <div className="exam-branding">
             <div className="exam-icon">
-              <img
-                src="/logo.svg"
-                alt="Exam Logo"
-                style={{ width: 40, height: 40 }}
-              />
+              <IconBook size={24} />
             </div>
             <div className="exam-details">
-              <Text size="xl" fw={700} className="exam-title">
-                {examData.title || "Test Exam"}
-              </Text>
-              <Text size="sm" c="dimmed" className="exam-subtitle">
-                Secure Online Assessment Platform
-              </Text>
-              <Text size="sm" c="white" className="exam-description">
-                Powered by Prepalyze
-              </Text>
+              <Text className="exam-title">{examData.title}</Text>
+              <Text className="exam-subtitle">{examData.subtitle}</Text>
             </div>
           </div>
 
           <div className="header-status">
             <div className="candidate-info">
-              <IconShield size={16} />
-              <Text size="sm">
-                Candidate ID: {examData.candidateId || "EX001"}
-              </Text>
+              <Text>Candidate: John Doe</Text>
             </div>
 
-            <div className={`timer-container ${getTimeStatus()}`}>
+            <div className={`timer-container ${getTimerStatus()}`}>
               <IconClock size={20} />
               <div className="timer-content">
-                <Text size="lg" fw={700} className="timer-text">
-                  {formatTime(timeLeft)}
-                </Text>
+                <Text className="timer-text">{formatTime(timeLeft)}</Text>
               </div>
             </div>
 
-            <ActionIcon
-              variant="light"
-              size="lg"
-              className="download-btn"
+            <Button
+              variant="outline"
+              leftSection={<IconInfoCircle size={16} />}
               onClick={onShowInstructions}
+              className="download-btn"
             >
-              <IconInfoCircle size={18} />
-            </ActionIcon>
-
-            <ActionIcon variant="light" size="lg" className="download-btn">
-              <IconDownload size={18} />
-            </ActionIcon>
+              Instructions
+            </Button>
           </div>
         </div>
 
         <div className="section-navigation">
           <div className="section-tabs">
             {examData.sections.map((section, index) => (
-              <Card
-                key={section.id}
-                className={`section-card ${
-                  index === currentSection ? "active" : ""
-                }`}
+              <div
+                key={index}
+                className={`section-card ${index === currentSection ? "active" : ""}`}
                 onClick={() => onSectionChange(index)}
-                withBorder
-                radius="md"
-                p="sm"
               >
                 <div className="section-content">
-                  <Text fw={600} size="md" className="section-name">
-                    {section.name}
-                  </Text>
-                  <Badge size="sm" variant="light" className="question-count">
-                    {section.questions.length} Q
+                  <Text className="section-name">{section.name}</Text>
+                  <Badge className="question-count" size="sm">
+                    {section.questions.length}
                   </Badge>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default ExamHeader;
+export default ExamHeader
