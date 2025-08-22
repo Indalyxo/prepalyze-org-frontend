@@ -141,7 +141,7 @@ const Sidebar = ({
         navigate("/settings")
         break
       case "notifications":
-        navigate("/notifications")
+        navigate("/organization/notification")
         break
       default:
         break
