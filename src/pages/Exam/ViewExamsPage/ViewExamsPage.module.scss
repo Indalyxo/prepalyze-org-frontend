@@ -1,103 +1,380 @@
 .availableExams {
   min-height: 100vh;
-  background-color: #fafafa;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 2rem 0;
+}
+
+.headerSection {
+  margin-bottom: 2rem;
 }
 
 .pageTitle {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
-.pageDescription {
-  font-size: 1rem;
-  color: #6b7280;
-  line-height: 1.6;
-  max-width: 600px;
+.addButton {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px #0000001a;
+  }
 }
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.searchSection {
+  margin-bottom: 2rem;
+}
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+.searchInput {
+  max-width: 300px;
+
+  .mantine-TextInput-input {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    &:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.dateSelect {
+  min-width: 150px;
+
+  .mantine-Select-input {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: white;
+
+    &:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+  }
+}
+
+.categoryButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #374151;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+  }
+}
+
+.filterSidebar {
+  .mantine-Drawer-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.5rem;
+  }
+
+  .mantine-Drawer-body {
+    padding: 1.5rem;
+  }
+
+  .mantine-Drawer-title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 1.125rem;
   }
 }
 
 .filterSelect {
-  min-width: 150px;
-
-  @media (max-width: 768px) {
-    width: 100%;
+  .mantine-Select-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
   }
+
+  .mantine-Select-input {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+  }
+}
+
+.clearFiltersButton {
+  margin-top: 1rem;
+  width: 100%;
+  border-radius: 12px;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+}
+
+.examGrid {
+  padding: 0;
+  margin-bottom: 3rem;
 }
 
 .examCard {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #d1d5db;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   }
 }
 
-.examInfo {
+.cardHeader {
+  height: 120px; // smaller than before
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconContainer {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%; // circular instead of square
+  padding: 0.9rem;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardIcon {
+  color: white;
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.2;
+}
+
+.cardBody {
+  padding: 10px;
   flex: 1;
-  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
 }
 
 .examTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.4rem;
 }
 
-.examSubject {
-  font-size: 0.875rem;
+.examDuration {
+  font-size: 0.9rem;
   color: #6b7280;
+  margin-bottom: 0.6rem;
+}
+
+.examInfo {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.createdDate {
+  font-size: 0.8rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.viewMoreButton {
+  width: 100%;
+  border-radius: 10px;
+  font-weight: 600;
+  background: #f9fafb;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  transition: 0.2s ease;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+}
+
+.cardHeader {
+  height: 180px; // Making header much taller to match reference design (60% of card height)
+  display: flex;
+  padding: 18px;
+  border-radius: 16px 16px 16px 16px; // Ensuring header has same border radius as card
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+
+.iconContainer {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.15
+  ); // Making icon container smaller and more subtle
+  border-radius: 12px;
+  padding: 0.75rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cardIcon {
+  color: white;
+  width: 24px; // Making icon smaller to match reference design
+  height: 24px;
+  stroke-width: 2;
+}
+
+.cardContent {
+  padding: 10px;
+  flex: 1;
+  background-color: white;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.examTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.examDuration {
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.4;
   margin-bottom: 0.75rem;
 }
 
-.viewDetailsBtn {
-  align-self: flex-start;
-  padding: 0.5rem 1rem;
+.examInfo {
+  color: #64748b;
   font-weight: 500;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  color: #fff;
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  font-size: 0.875rem;
+}
+
+.createdDate {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.cardFooter {
+  padding: 0 10px 10px;
+  background-color: white;
+  margin-top: auto;
+}
+
+.viewMoreButton {
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #000;
+  border: 1px solid #e2e8f0;
+  transition: all 0.4s ease;
+  background: #fff;
 
   &:hover {
-    scale: 1.05;
-    color: white  ;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #cbd5e1;
+    color: #fff;
   }
 }
 
-.timerContainer {
+@media (max-width: 768px) {
+  .searchSection {
+    .mantine-Group-root {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+  }
+
+  .searchInput {
+    max-width: none;
+    width: 100%;
+  }
+
+  .dateSelect,
+  .categoryButton {
+    width: 100%;
+  }
+
+  .examCard {
+    height: auto;
+    min-height: 380px;
+  }
+}
+
+.paginationContainer {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-width: 280px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    margin-top: 1rem;
-  }
+  padding: 2rem 0;
 }
 
 .pagination {
-  margin-top: 2rem;
+  .mantine-Pagination-control {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    &[data-active] {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border-color: #8b5cf6;
+      color: white;
+    }
+  }
 }

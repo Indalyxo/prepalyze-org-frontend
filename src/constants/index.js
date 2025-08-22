@@ -1,3 +1,5 @@
+import { IconApple, IconFlask2, IconMathFunction, IconPaw, IconPlant } from "@tabler/icons-react";
+
 // Sample exam data
 export const examData = {
   title: "Sample Exam",
@@ -78,3 +80,20 @@ export const examData = {
     },
   ],
 };
+
+
+export const SubjectIcons = {
+  Botany: IconPlant,
+  Zoology: IconPaw,
+  Chemistry: IconFlask2,
+  Mathematics: IconMathFunction,
+  Physics: IconApple,
+};
+
+export const SubjectColors = {
+  Botany: "green",
+  Zoology: "orange",
+  Chemistry: "blue",
+  Mathematics: "purple",
+  Physics: "red",
+}

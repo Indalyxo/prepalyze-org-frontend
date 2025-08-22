@@ -225,6 +225,7 @@
           min-width: 160px;
           position: relative;
           overflow: hidden;
+          border-radius: 10px;
 
           &::before {
             content: "";
@@ -277,6 +278,8 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: var(--spacing-xs);
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-md);
 
             .section-name {
               color: white;
@@ -393,9 +396,9 @@
         border-bottom: 2px solid var(--gray-100);
 
         .question-number {
-          background: var(--blue-500);
-          color: white;
+          color: black;
           font-weight: 700;
+          font-size: 1.5em;
         }
       }
 

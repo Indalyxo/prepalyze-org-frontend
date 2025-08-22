@@ -20,25 +20,27 @@ $countdown-dark-vars: (
 );
 
 .countdown-timer {
-  padding: 1rem;
+  padding: 0.75rem; // reduced padding for more compact design
   width: 100%;
-  max-width: 350px;
+  max-width: 280px; // reduced max-width for more compact design
 
   &.countdown-sm {
-    max-width: 250px;
-    padding: 0.75rem;
+    max-width: 220px; // adjusted for new proportions
+    padding: 0.5rem; // increased padding
   }
 
   &.countdown-lg {
-    max-width: 450px;
-    padding: 1.25rem;
+    max-width: 320px; // adjusted for new proportions
+    padding: 1rem; // increased padding
   }
 }
 
 .countdown-title {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem; // reduced margin for better spacing
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px; // slightly increased letter spacing
+  font-weight: 600; // increased font weight
+  font-size: 0.75rem; // reduced font size for compact design
 }
 
 .time-units {
@@ -57,9 +59,10 @@ $countdown-dark-vars: (
 .time-separator {
   display: flex;
   align-items: center;
-  margin: 0 0.5rem;
-  padding-bottom: 1.5rem;
-  color: var(--mantine-color-gray-6);
+  margin: 0 0.5rem; // reduced margins for tighter spacing
+  padding-bottom: 1.25rem; // adjusted padding
+  color: var(--mantine-color-gray-5);
+  font-size: 1.2rem; // increased font size for better visibility
 }
 
 .time-card {
@@ -67,13 +70,34 @@ $countdown-dark-vars: (
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 11px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px; // reduced border radius for modern look
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); // smoother transition with easing
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06); // enhanced shadow with layered effect
+  position: relative; // for pseudo-element positioning
+  overflow: hidden; // for pseudo-element clipping
+  width: 3.5rem; // added specific dimensions for consistent compact sizing
+  height: 3.5rem; // added specific dimensions for consistent compact sizing
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px) scale(1.01); // reduced hover transform for subtler effect
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1); // enhanced hover shadow
+
+    &::before {
+      opacity: 1; // show gradient overlay on hover
+    }
   }
 }
 
@@ -82,36 +106,49 @@ $countdown-dark-vars: (
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   user-select: none;
   font-variant-numeric: tabular-nums;
+  position: relative; // for layering above pseudo-element
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); // subtle text shadow for depth
+  font-size: 1.25rem; // reduced font size for compact design
+  font-weight: 700; // increased font weight
 }
 
 .time-label {
   color: var(--mantine-color-gray-6);
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 600; // increased font weight
+  letter-spacing: 0.5px; // increased letter spacing
   text-transform: uppercase;
+  transition: color 0.2s ease; // smooth color transition
+  font-size: 0.65rem; // reduced font size for compact design
+  margin-top: 0.25rem; // added margin for better spacing
 }
 
 // Status modifiers
 @each $state, $color in $countdown-colors {
   .countdown-#{$state} {
     .time-card {
-      background: #{$color};
-      box-shadow: 0 2px 8px rgba($color, 0.15);
+      background: linear-gradient(135deg, #{$color} 0%, #{darken($color, 8%)} 100%); // subtle gradient background
+      box-shadow: 0 4px 12px rgba($color, 0.2), 0 2px 4px rgba($color, 0.1); // enhanced colored shadow
 
       &:hover {
-        box-shadow: 0 4px 12px rgba($color, 0.2);
+        box-shadow: 0 8px 20px rgba($color, 0.25), 0 4px 8px rgba($color, 0.15); // enhanced hover shadow
       }
     }
 
     @if $state == running {
       .time-units {
-        animation: subtle-pulse 2s ease-in-out infinite;
+        animation: subtle-pulse 2.5s ease-in-out infinite; // slightly slower animation
+      }
+      
+      .time-label {
+        animation: label-glow 2.5s ease-in-out infinite;
       }
     }
 
     @if $state == finished {
       .finished-message {
-        animation: bounce-in 0.5s ease-out;
+        animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); // enhanced bounce animation
+        font-weight: 700; // increased font weight
       }
     }
   }
@@ -181,23 +218,34 @@ $countdown-dark-vars: (
 @keyframes subtle-pulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.9;
+    opacity: 0.95; // more subtle opacity change
+    transform: scale(1.01); // added subtle scale effect
   }
 }
 
 @keyframes bounce-in {
   0% {
-    transform: scale(0.8);
+    transform: scale(0.7); // more dramatic initial scale
     opacity: 0;
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.08); // slightly more bounce
   }
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes label-glow {
+  0%, 100% {
+    color: var(--mantine-color-gray-6);
+  }
+  50% {
+    color: var(--mantine-color-gray-5);
   }
 }
 
@@ -240,14 +288,28 @@ $countdown-dark-vars: (
 // Mobile styles
 @media (max-width: 480px) {
   .countdown-timer {
-    padding: 0.75rem;
+    padding: 0.5rem; // further reduced padding for mobile
 
     &.countdown-lg {
-      padding: 1rem;
+      padding: 0.75rem;
     }
   }
 
   .time-separator {
     margin: 0 0.25rem;
+    font-size: 1rem; // reduced font size for mobile
+  }
+
+  .time-card {
+    width: 3rem; // smaller dimensions for mobile
+    height: 3rem; // smaller dimensions for mobile
+  }
+
+  .time-number {
+    font-size: 1.1rem; // reduced font size for mobile
+  }
+
+  .time-label {
+    font-size: 0.6rem; // reduced font size for mobile
   }
 }
