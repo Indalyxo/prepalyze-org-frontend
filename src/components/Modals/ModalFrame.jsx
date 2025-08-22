@@ -1,6 +1,6 @@
-import React from "react"
-import { Overlay, Text, Group, Stack, Box, ActionIcon } from "@mantine/core"
-import { IconX } from "@tabler/icons-react"
+import React from "react";
+import { Overlay, Text, Group, Stack, Box, ActionIcon } from "@mantine/core";
+import { IconX } from "@tabler/icons-react";
 
 const ModalFrame = ({
   opened,
@@ -9,99 +9,46 @@ const ModalFrame = ({
   subtitle,
   children,
   sidebarContent,
-  showHeader = true,
+  showHeader = false,
   headerContent,
 }) => {
-  const defaultHeaderContent = (
-    <Group justify="space-between" mb="xl" pb="md" style={{ borderBottom: "1px solid var(--mantine-color-gray-2)" }}>
-      <Group gap="md">
-        <Box
-          style={{
-            width: 32,
-            height: 32,
-            backgroundColor: "var(--mantine-color-dark-8)",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text size="sm" fw={700} c="white">
-            S
-          </Text>
-        </Box>
-        <Text size="lg" fw={600}>
-          StudySmart
-        </Text>
-      </Group>
-
-      <Group gap="lg">
-        <Text size="sm" c="dimmed">
-          Dashboard
-        </Text>
-        <Text size="sm" c="dimmed">
-          Courses
-        </Text>
-        <Text size="sm" c="dimmed">
-          Exams
-        </Text>
-        <Text size="sm" c="dimmed">
-          Resources
-        </Text>
-        <Text size="sm" c="dimmed">
-          Community
-        </Text>
-      </Group>
-    </Group>
-  )
-
-  const defaultSidebarContent = (
-    <Stack gap="lg" style={{ height: "100%" }}>
-      <Group justify="space-between" align="center">
-        <Text size="lg" fw={600} c="white">
-          Options
-        </Text>
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          size="sm"
-          onClick={onClose}
-          style={{ color: "white" }}
-        >
-          <IconX size={16} />
-        </ActionIcon>
-      </Group>
-      <Text size="sm" c="gray.3">
-        Additional options and controls can be placed here.
-      </Text>
-    </Stack>
-  )
-
-  if (!opened) return null
+  if (!opened) return null;
 
   return (
     <>
-      <Overlay color="#000" backgroundOpacity={0.55} onClick={onClose} />
+      {/* Overlay with blur */}
+      <Overlay
+        color="#000"
+        backgroundOpacity={0.4}
+        blur={6}
+        onClick={onClose}
+        style={{ zIndex: 999 }}
+      />
 
       <Box
+        className="modal-frame"
         style={{
           position: "fixed",
           top: "50%",
           left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "90vw",
+          transform: "translate(-50%, -50%) scale(1)",
+          width: "92vw",
           maxWidth: "1200px",
           height: "85vh",
           maxHeight: "800px",
           display: "flex",
-          borderRadius: "12px",
+          flexDirection: "row", // default desktop
+          borderRadius: "16px",
           overflow: "hidden",
-          boxShadow: "var(--mantine-shadow-xl)",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
+          background: "white",
           zIndex: 1000,
+          animation: "fadeIn 0.2s ease-out",
         }}
       >
-        {/* Left Section - Main Content (White Background) */}
+        {/* Left Section - Main Content */}
         <Box
+          className="modal-main"
           style={{
             flex: 1,
             backgroundColor: "white",
@@ -109,43 +56,96 @@ const ModalFrame = ({
             overflowY: "auto",
           }}
         >
-          {/* Header Section */}
-          {showHeader && (headerContent || defaultHeaderContent)}
+          {showHeader && headerContent}
 
-          {/* Title Section */}
           {(title || subtitle) && (
-            <Stack gap={4} mb="xl">
-              {title && (
-                <Text size="2rem" fw={600} c="dark">
-                  {title}
-                </Text>
-              )}
+            <Stack gap={4} mb="lg">
               {subtitle && (
-                <Text size="md" c="dimmed">
+                <Text size="sm" c="dimmed">
                   {subtitle}
                 </Text>
               )}
             </Stack>
           )}
 
-          {/* Main Content */}
           {children}
         </Box>
 
-        {/* Right Section - Sidebar (Dark Background) */}
+        {/* Right Section - Sidebar */}
         <Box
+          className="modal-sidebar"
           style={{
             width: "320px",
-            backgroundColor: "var(--mantine-color-dark-8)",
+            backgroundColor: "var(--mantine-color-dark-7)",
             padding: "1.5rem",
-            borderLeft: "1px solid var(--mantine-color-gray-7)",
+            borderLeft: "1px solid var(--mantine-color-dark-5)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
           }}
         >
-          {sidebarContent || defaultSidebarContent}
+          <Group justify="space-between" align="center" mb="lg">
+            {title && (
+              <Text size="lg" fw={600} c="white">
+                {title}
+              </Text>
+            )}
+            <ActionIcon
+              variant="light"
+              color="gray"
+              onClick={onClose}
+              style={{ color: "white" }}
+            >
+              <IconX size={18} />
+            </ActionIcon>
+          </Group>
+
+          {sidebarContent && sidebarContent}
         </Box>
       </Box>
-    </>
-  )
-}
 
-export default ModalFrame
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translate(-50%, -50%) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translate(-50%, -50%) scale(1);
+            }
+          }
+
+          /* Mobile responsiveness */
+          @media (max-width: 768px) {
+            .modal-frame {
+              flex-direction: column;
+              width: 95vw;
+              height: 90vh;
+            }
+            .modal-main {
+              padding: 1rem;
+            }
+            .modal-sidebar {
+              width: 100%;
+              border-left: none;
+              border-top: 1px solid var(--mantine-color-dark-5);
+              padding: 1rem;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .modal-sidebar h1,
+            .modal-sidebar span,
+            .modal-sidebar div {
+              font-size: 1rem !important;
+            }
+          }
+        `}
+      </style>
+    </>
+  );
+};
+
+export default ModalFrame;
