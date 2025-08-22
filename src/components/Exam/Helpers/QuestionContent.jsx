@@ -1,7 +1,10 @@
 import { Card, Text, Radio, Stack, TextInput } from "@mantine/core"
+import WatermarkWrapper from "../../../utils/AntiCheat/WatermarkWrapper"
 
 const QuestionContent = ({ questionData, currentAnswer, onAnswerChange, questionNumber }) => {
   return (
+    <WatermarkWrapper text={"Confidential - Do Not Distribute"}>
+
     <Card className="question-panel" withBorder radius="lg" p="xl">
       <div className="question-header">
         <Text className="question-number" size="lg" fw={700}>
@@ -70,7 +73,10 @@ const QuestionContent = ({ questionData, currentAnswer, onAnswerChange, question
           </Radio.Group>
         </div>
       )}
+
     </Card>
+    </WatermarkWrapper>
+
   )
 }
 

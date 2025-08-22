@@ -32,7 +32,7 @@ const NotFoundPage = () => {
         }}
       >
         <img
-          src="/404.png"
+          src="/images/not-found.webp"
           alt="Page not found"
           style={{
             maxWidth: "200px",
@@ -41,17 +41,6 @@ const NotFoundPage = () => {
             filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))",
           }}
         />
-        
-        <h1
-          style={{
-            fontSize: "48px",
-            fontWeight: "700",
-            margin: "0 0 16px 0",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)",
-          }}
-        >
-          404
-        </h1>
         
         <h2
           style={{
@@ -78,8 +67,8 @@ const NotFoundPage = () => {
         <button
           onClick={() => window.history.back()}
           style={{
-            backgroundColor: "#fff",
-            color: "#667eea",
+            color: "#fff",
+            backgroundColor: "#667eea",
             border: "none",
             padding: "12px 30px",
             fontSize: "16px",
@@ -105,9 +94,9 @@ const NotFoundPage = () => {
         <button
           onClick={() => navigate("/")}
           style={{
-            backgroundColor: "transparent",
-            color: "#b15a5aff",
-            border: "2px solid rgba(215, 141, 141, 0.5)",
+            color: "#fff",
+            backgroundColor: "#b15a5aff",
+            border: "0",
             padding: "10px 28px",
             fontSize: "16px",
             fontWeight: "600",
