@@ -15,8 +15,7 @@ import UserDetailsPage from "./pages/Generic/UserDetailsPage";
 import NotFoundPage from "./pages/Generic/NotFoundPage";
 import LoadingPage from "./components/Loading/LoadingPage";
 import ViewExamsPage from "./pages/Exam/ViewExamsPage";
-import Notification from "./components/Notification/Notification";
-
+import Notification from "./pages/Notification/Notification";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -80,9 +79,8 @@ const App = () => {
               <Route path="leaderboard" element={<LeaderboardVeiw />} />
               <Route path="student/:id" element={<StudentDetails />} />
               <Route path="exams" element={<ViewExamsPage />} />
-                <Route path="notification" element={<Notification/>} />
-             
-         
+              <Route path="notification" element={<Notification />} />
+
               <Route
                 path="exams/details/:examId"
                 element={<ExamDetailsPage />}
@@ -91,7 +89,6 @@ const App = () => {
                 path="exams/results/:userId"
                 element={<UserDetailsPage />}
               />
-             
             </Route>
           )}
 
