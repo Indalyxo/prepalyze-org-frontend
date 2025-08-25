@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import {
   IconAlertTriangle,
+  IconBell,
   IconInfoCircle,
   IconMail,
   IconSearch,
@@ -23,6 +24,7 @@ import NoData from "../../components/Generics/NoData";
 import { useQuery } from "@tanstack/react-query";
 import LoadingPage from "../../components/Loading/LoadingPage";
 import ModalFrame from "../../components/Modals/ModalFrame";
+import { formatKey } from "../../utils/generals";
 
 const notificationSidebarContent = {
   malpractice: (
@@ -247,17 +249,34 @@ const Notification = () => {
       />
 
       {/* Sections */}
-      {renderSection("Today", "today")}
-      {notifications?.today?.length > 0 &&
-        notifications?.yesterday?.length > 0 && <Divider my="lg" />}
-      {renderSection("Yesterday", "yesterday")}
+      {Object.keys(notifications).map((section, index, arr) => {
+        const isNotEmpty = notifications?.[section]?.length > 0;
+        const nextSection = arr[index + 1];
+        const nextNotEmpty =
+          nextSection && notifications?.[nextSection]?.length > 0;
+
+        return (
+          <React.Fragment key={section}>
+            {renderSection(formatKey(section), section)}
+            {isNotEmpty && nextNotEmpty && <Divider my="lg" />}
+          </React.Fragment>
+        );
+      })}
 
       <ModalFrame
         opened={opened}
         onClose={() => setOpened(false)}
         title={selectedNotification?.title}
         subtitle={""}
-        showHeader={false}
+        showHeader={true}
+        headerContent={
+          <Group spacing="sm">
+            <IconBell size={28} color="#000" />
+            <Title order={3} fw={700} c="dark">
+              Notifications
+            </Title>
+          </Group>
+        }
       >
         {selectedNotification?.message && (
           <div

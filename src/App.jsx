@@ -16,6 +16,7 @@ import NotFoundPage from "./pages/Generic/NotFoundPage";
 import LoadingPage from "./components/Loading/LoadingPage";
 import ViewExamsPage from "./pages/Exam/ViewExamsPage";
 import Notification from "./pages/Notification/Notification";
+import Settings from "./pages/Settings/settings";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -80,6 +81,7 @@ const App = () => {
               <Route path="student/:id" element={<StudentDetails />} />
               <Route path="exams" element={<ViewExamsPage />} />
               <Route path="notification" element={<Notification />} />
+              <Route path="settings" element={<Settings />} />
 
               <Route
                 path="exams/details/:examId"

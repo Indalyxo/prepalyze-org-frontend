@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Text, Stack, Grid, Card } from "@mantine/core";
 import InstructionModal from "./InstructionModal";
-import "./exam-interface.scss";
 import QuestionContent from "./Helpers/QuestionContent";
 import ExamFooter from "./Helpers/ExamFooter";
 import ExamHeader from "./Helpers/ExamHeader";
@@ -9,6 +8,8 @@ import StatusLegend from "./Helpers/StatusLegend";
 import { useClipboardBlocker } from "../../utils/AntiCheat/ClipboardBlocker";
 import TabSwitchTracker from "../../utils/AntiCheat/TabSwitchTracker";
 import DetentionModal from "./ViolationModal/ViolationModal";
+import "./exam-interface.scss";
+import { renderWithLatexAndImages } from "../../utils/render/render";
 
 const QuestionNavigation = ({
   sectionData,
@@ -41,7 +42,7 @@ const QuestionNavigation = ({
   </Card>
 );
 
-const ExamInterface = ({ examData }) => {
+const ExamInterface = ({ examData, questions }) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -153,12 +154,12 @@ const ExamInterface = ({ examData }) => {
     const currentQuestionData =
       examData.sections[currentSection].questions[currentQuestion];
 
+    console.log(value, "<--value");
+
     setAnswers((prev) => ({
       ...prev,
       [getCurrentQuestionKey()]:
-        currentQuestionData.type === "numerical"
-          ? value
-          : Number.parseInt(value),
+        currentQuestionData.type === "Numerical" ? value : value,
     }));
   };
 
@@ -221,8 +222,62 @@ const ExamInterface = ({ examData }) => {
   };
 
   const handleSubmit = () => {
-    console.log("Exam submitted", { answers, markedForReview });
-    alert("Exam submitted successfully!");
+    let correctCount = 0;
+    let wrongCount = 0;
+    const review = [];
+
+    examData.sections.forEach((section, sIndex) => {
+      section.questions.forEach((question, qIndex) => {
+        const key = `${sIndex}-${qIndex}`;
+        const userAnswerId = answers[key];
+
+        if (userAnswerId) {
+          // Find the correct option object
+          const correctOptionObj = question.options.find(
+            (opt) => opt.text === question.correctOption
+          );
+
+          // Find the option user selected
+          const userAnswerObj = question.options.find(
+            (opt) => opt._id === userAnswerId
+          );
+
+          const isCorrect =
+            correctOptionObj &&
+            userAnswerObj &&
+            userAnswerObj._id === correctOptionObj._id;
+
+          if (isCorrect) {
+            correctCount++;
+          } else {
+            wrongCount++;
+          }
+
+          review.push({
+            question: question.text,
+            correctAnswer: correctOptionObj?.text || "N/A",
+            yourAnswer: userAnswerObj?.text || "Not answered",
+            isCorrect,
+          });
+        }
+      });
+    });
+
+    console.log("Exam Results:", {
+      correctCount,
+      wrongCount,
+      review,
+    });
+
+    // Example: simple result display
+    let resultMessage = `✅ Correct: ${correctCount}\n❌ Wrong: ${wrongCount}\n\n`;
+    review.forEach((r, idx) => {
+      resultMessage += `Q${idx + 1}: ${r.question}\nYour Answer: ${
+        r.yourAnswer
+      }\nCorrect Answer: ${r.correctAnswer}\n\n`;
+    });
+
+    alert(resultMessage);
   };
 
   const currentSectionData = examData.sections[currentSection];
@@ -243,12 +298,12 @@ const ExamInterface = ({ examData }) => {
         section={currentSectionData}
         gradeSchema={{}}
       />
-      <TabSwitchTracker
+      {/* <TabSwitchTracker
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
-      />
+      /> */}
       <DetentionModal opened={disabled} onClose={() => setDisabled(false)} />
 
       <ExamHeader
@@ -264,6 +319,7 @@ const ExamInterface = ({ examData }) => {
           <Grid.Col span={8}>
             <div className="question-area invisible-scrollbar">
               <QuestionContent
+                questionTest={examData[currentQuestion]}
                 questionData={currentQuestionData}
                 currentAnswer={answers[getCurrentQuestionKey()]}
                 onAnswerChange={handleAnswerChange}
@@ -287,6 +343,7 @@ const ExamInterface = ({ examData }) => {
           </Grid.Col>
         </Grid>
       </Container>
+
 
       <ExamFooter
         answers={answers}

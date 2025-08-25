@@ -53,7 +53,7 @@ const useAuthStore = create(
           }
 
           // Use axios directly to avoid circular interceptor
-          const response = await axios.post(`${API_BASE_URL}/api/v1/refresh`, {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken: refreshToken,
           }, {
             timeout: 10000 // 10 second timeout for refresh
