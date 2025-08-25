@@ -24,6 +24,7 @@ import styles from "./ViewExamsPage.module.scss";
 import { useNavigate } from "react-router-dom";
 import { getIcons } from "../../../utils/get-ui";
 import { SubjectColors } from "../../../constants";
+import ExamCreationForm from "../../../components/Exam/ExamCreationForm/ExamCreationForm";
 
 const mockExams = [
   {
@@ -126,6 +127,7 @@ export default function ViewExamsPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState("All Levels");
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpened, setSidebarOpened] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -143,6 +145,7 @@ export default function ViewExamsPage() {
             <Button
               leftSection={<IconPlus size={16} />}
               className={styles.addButton}
+              onClick={() => setOpenCreateModal(true)}
               size="md"
             >
               Add New Exam
@@ -179,6 +182,11 @@ export default function ViewExamsPage() {
             </Group>
           </Group>
         </div>
+
+        <ExamCreationForm
+          opened={openCreateModal}
+          onClose={() => setOpenCreateModal(false)}
+        />
 
         <Drawer
           opened={sidebarOpened}
@@ -233,11 +241,7 @@ export default function ViewExamsPage() {
           className={styles.examGrid}
         >
           {mockExams.map((exam) => (
-            <Card
-              key={exam.id}
-              className={`${styles.examCard}`}
-              radius="md"
-            >
+            <Card key={exam.id} className={`${styles.examCard}`} radius="md">
               <div
                 className={styles.cardHeader}
                 style={{ backgroundColor: SubjectColors[exam.subject] }}
