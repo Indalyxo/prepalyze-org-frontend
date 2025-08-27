@@ -48,6 +48,67 @@
   justify-content: space-between;
 }
 
+.mantine-Accordion-item {
+  border: 1px solid #e9ecef;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.mantine-Accordion-control {
+  padding: 16px;
+  font-weight: 500;
+}
+
+.mantine-Accordion-panel {
+  padding: 16px;
+}
+
+.mantine-Tabs-tab {
+  padding: 12px 20px;
+  font-weight: 500;
+}
+
+.mantine-Modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.mantine-Modal-body {
+  padding: 0;
+}
+
+/* Custom checkbox styling */
+.topic-checkbox-container {
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.topic-checkbox-container:hover {
+  border-color: #228be6;
+  background-color: rgba(34, 139, 230, 0.05);
+}
+
+/* Summary box styling */
+.summary-box {
+  background-color: rgba(34, 139, 230, 0.1);
+  border: 1px solid rgba(34, 139, 230, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.chapter-summary-box {
+  background-color: rgba(34, 139, 34, 0.1);
+  border: 1px solid rgba(34, 139, 34, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .steps-sidebar {
