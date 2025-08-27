@@ -56,7 +56,6 @@ const cleanLatexText = (text) => {
     .replace(/\s*([=<>±×÷])\s*/g, " $1 ");
 };
 
-// ...existing code...
 
 const parseListEnvironment = (text) => {
   // Ensure text is a string

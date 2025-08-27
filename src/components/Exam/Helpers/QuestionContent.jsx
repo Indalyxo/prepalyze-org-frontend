@@ -58,7 +58,7 @@ const QuestionContent = ({
             >
               <Stack gap="md">
                 {questionData.options?.map((option, index) => (
-                  <Card
+                  <Radio.Card
                     key={option._id}
                     className={`option-card ${
                       currentAnswer === option._id ? "selected" : ""
@@ -75,16 +75,24 @@ const QuestionContent = ({
                             {String.fromCharCode(65 + index)}
                           </div>
                           <Text className="option-text">
-                            {renderWithLatexAndImages(option.text)}
+                            {renderWithLatexAndImages(
+                              option.text,
+                              questionData.type === "Assertion & Reason"
+                            )}
                           </Text>
                         </div>
                       }
                       styles={{
-                        label: { width: "100%", cursor: "pointer" },
+                        label: {
+                          display: "flex",
+                          alignItems: "center", // ✅ aligns radio, letter, and text vertically
+                          gap: "12px", // space between radio and content
+                          width: "100%",
+                        },
                         radio: { display: "none" },
                       }}
                     />
-                  </Card>
+                  </Radio.Card>
                 ))}
               </Stack>
             </Radio.Group>

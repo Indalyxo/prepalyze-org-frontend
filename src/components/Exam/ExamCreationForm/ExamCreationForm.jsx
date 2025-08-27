@@ -1,7 +1,5 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { z } from "zod"
+import { useState, useEffect } from "react";
+import { z } from "zod";
 import {
   Stack,
   Text,
@@ -19,7 +17,11 @@ import {
   Alert,
   Divider,
   Card,
-} from "@mantine/core"
+  Accordion,
+  Title,
+  Tabs,
+  Grid,
+} from "@mantine/core";
 import {
   IconCheck,
   IconFileText,
@@ -28,437 +30,673 @@ import {
   IconCalculator,
   IconSend,
   IconAlertCircle,
-} from "@tabler/icons-react"
-import ModalFrame from "../../Modals/ModalFrame"
+} from "@tabler/icons-react";
+import ModalFrame from "../../Modals/ModalFrame";
+import "./exam-creation-form.scss";
+import {
+  examMetadataSchema,
+  finalizeSchema,
+  marksGradingSchema,
+  participantsSchema,
+  questionsSetupSchema,
+  completeFormSchema,
+} from "../../../utils/Schemas/createExamFormSchema";
+import Step0 from "./Steps/Step0";
+import Step1 from "./Steps/Step1";
+import Step3 from "./Steps/Step3";
+import Step4 from "./Steps/Step4";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import apiClient from "../../../utils/api";
 
-const examMetadataSchema = z.object({
-  examTitle: z.string().min(1, "Exam title is required").max(100, "Title too long"),
-  subtitle: z.string().optional(),
-  instructions: z.string().min(1, "Instructions are required"),
-  examDate: z.string().min(1, "Exam date is required"),
-  duration: z.number().min(1, "Duration must be greater than 0"),
-  examType: z.enum(["Single Subject", "Multi Subject"], {
-    errorMap: () => ({ message: "Please select exam type" }),
-  }),
-  examMode: z.enum(["Online", "Offline"], {
-    errorMap: () => ({ message: "Please select exam mode" }),
-  }),
-  examCategory: z.enum(["NEET", "JEE", "Custom"], {
-    errorMap: () => ({ message: "Please select exam category" }),
-  }),
-})
+const initialFormData = {
+  // Exam Metadata
+  examTitle: "",
+  subtitle: "",
+  instructions: "",
+  examDate: null,
+  duration: 60,
+  examType: "",
+  examMode: "",
+  examCategory: "",
 
-const participantsSchema = z.object({
-  selectedGroups: z.array(z.string()).min(1, "At least one group must be selected"),
-})
+  // Participants
+  selectedGroups: [],
 
-const questionsSetupSchema = z.object({
-  selectedSubjects: z.array(z.string()).min(1, "At least one subject must be selected"),
-  selectedChapters: z.array(z.string()).min(1, "At least one chapter must be selected"),
-  selectedTopics: z.array(z.string()).optional(),
-  questionCounts: z.record(
-    z.object({
-      mcqs: z.number().min(0, "MCQs count must be 0 or greater"),
-      assertionReason: z.number().min(0, "Assertion & Reason count must be 0 or greater"),
-      numerical: z.number().min(0, "Numerical count must be 0 or greater"),
-    }),
-  ),
-})
+  // Questions Setup
+  selectedSubjects: [],
+  selectedChapters: [],
+  selectedTopics: [],
+  topicQuestionCounts: {}, // Changed structure: { topicId: { mcq: 0, assertionReason: 0, numerical: 0 } }
+  questionCounts: {},
 
-const marksGradingSchema = z.object({
-  totalQuestions: z.number().min(1, "Must have at least one question"),
-  totalMarks: z.number().min(1, "Must have at least one mark"),
-})
+  // Marks & Grading
+  totalQuestions: 0,
+  totalMarks: 0,
 
-const finalizeSchema = z.object({
-  confirmed: z.boolean().refine((val) => val === true, "Please confirm to create the exam"),
-})
-
-const completeFormSchema = z.object({
-  ...examMetadataSchema.shape,
-  ...participantsSchema.shape,
-  ...questionsSetupSchema.shape,
-  ...marksGradingSchema.shape,
-  ...finalizeSchema.shape,
-})
-
+  // Finalize
+  confirmed: false,
+};
 const ExamCreationForm = ({ opened, onClose }) => {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [errors, setErrors] = useState({})
+  const [currentStep, setCurrentStep] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState(initialFormData);
+  const [tabValue, setTabValue] = useState("");
 
-  const [formData, setFormData] = useState({
-    // Exam Metadata
-    examTitle: "",
-    subtitle: "",
-    instructions: "",
-    examDate: "",
-    duration: 60,
-    examType: "",
-    examMode: "",
-    examCategory: "",
+  const fetchExamData = async () => {
+    try {
+      const response = await apiClient.get("/api/exam/data");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch exam data");
+      throw error;
+    }
+  };
 
-    // Participants
-    selectedGroups: [],
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["GET_EXAM_DATA"],
+    queryFn: fetchExamData,
+  });
 
-    // Questions Setup
-    selectedSubjects: [],
-    selectedChapters: [],
-    selectedTopics: [],
-    questionCounts: {},
-
-    // Marks & Grading
-    totalQuestions: 0,
-    totalMarks: 0,
-
-    // Finalize
-    confirmed: false,
-  })
-
-  // Fixed: Correct data format for Mantine v8
-  const examTypeData = [
-    { value: "Single Subject", label: "Single Subject" },
-    { value: "Multi Subject", label: "Multi Subject" }
-  ]
-
-  const examModeData = [
-    { value: "Online", label: "Online" },
-    { value: "Offline", label: "Offline" }
-  ]
-
-  const examCategoryData = [
-    { value: "NEET", label: "NEET" },
-    { value: "JEE", label: "JEE" },
-    { value: "Custom", label: "Custom" }
-  ]
-
-  const [availableGroups] = useState([
+  const [availableGroups, setAvailableGroups] = useState([
     { value: "batch-1", label: "Batch 1 - Morning" },
     { value: "batch-2", label: "Batch 2 - Evening" },
     { value: "group-a", label: "Group A - Advanced" },
     { value: "group-b", label: "Group B - Intermediate" },
-  ])
+  ]);
 
-  const [availableSubjects] = useState([
-    { value: "physics", label: "Physics" },
-    { value: "chemistry", label: "Chemistry" },
-    { value: "mathematics", label: "Mathematics" },
-    { value: "biology", label: "Biology" },
-  ])
+  const [availableSubjects, setAvailableSubjects] = useState([]);
 
-  const [availableChapters] = useState({
-    physics: [
-      { value: "mechanics", label: "Mechanics" },
-      { value: "thermodynamics", label: "Thermodynamics" },
-      { value: "optics", label: "Optics" },
-    ],
-    chemistry: [
-      { value: "organic", label: "Organic Chemistry" },
-      { value: "inorganic", label: "Inorganic Chemistry" },
-      { value: "physical", label: "Physical Chemistry" },
-    ],
-    mathematics: [
-      { value: "calculus", label: "Calculus" },
-      { value: "algebra", label: "Algebra" },
-      { value: "geometry", label: "Geometry" },
-    ],
-    biology: [
-      { value: "botany", label: "Botany" },
-      { value: "zoology", label: "Zoology" },
-      { value: "genetics", label: "Genetics" },
-    ],
-  })
+  const [availableChapters, setAvailableChapters] = useState({});
 
-  const [availableTopics] = useState({
-    mechanics: [
-      { value: "kinematics", label: "Kinematics" },
-      { value: "dynamics", label: "Dynamics" },
-      { value: "statics", label: "Statics" },
-    ],
-    thermodynamics: [
-      { value: "laws", label: "Laws of Thermodynamics" },
-      { value: "entropy", label: "Entropy" },
-    ],
-    // Add more topics as needed
-  })
+  const [availableTopics, setAvailableTopics] = useState({});
 
-  // Fixed: Better calculation logic
   useEffect(() => {
-    let totalQuestions = 0
-    let totalMarks = 0
+    if (data) {
+      console.log(data);
+      setAvailableChapters(data.availableChapters);
+      setAvailableGroups(data.groups);
+      setAvailableSubjects(data.availableSubjects);
+      setAvailableTopics(data.availableTopics);
+    }
+  }, [data]);
 
-    Object.values(formData.questionCounts).forEach((counts) => {
-      if (counts) {
-        totalQuestions += (counts.mcqs || 0) + (counts.assertionReason || 0) + (counts.numerical || 0)
+  // Calculate totals when topic question counts change
+  useEffect(() => {
+    let totalQuestions = 0;
+    let totalMarks = 0;
+
+    Object.entries(formData.topicQuestionCounts).forEach(
+      ([topicId, counts]) => {
+        if (counts && typeof counts === "object") {
+          totalQuestions +=
+            (counts.mcq || 0) +
+            (counts.assertionReason || 0) +
+            (counts.numerical || 0);
+        }
       }
-    })
+    );
 
     const markingScheme = {
-      JEE: { positive: 4, negative: -1 },
-      NEET: { positive: 4, negative: -1 },
-      Custom: { positive: 1, negative: 0 },
-    }
+      JEE: { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
+      NEET: { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
+      Custom: { mcq: 1, assertionReason: 1, numerical: 1, negative: 0 },
+    };
 
-    const scheme = markingScheme[formData.examCategory] || markingScheme["Custom"]
-    totalMarks = totalQuestions * scheme.positive
+    const scheme =
+      markingScheme[formData.examCategory] || markingScheme["Custom"];
+
+    Object.entries(formData.topicQuestionCounts).forEach(
+      ([topicId, counts]) => {
+        if (counts && typeof counts === "object") {
+          totalMarks += (counts.mcq || 0) * scheme.mcq;
+          totalMarks += (counts.assertionReason || 0) * scheme.assertionReason;
+          totalMarks += (counts.numerical || 0) * scheme.numerical;
+        }
+      }
+    );
 
     setFormData((prev) => ({
       ...prev,
       totalQuestions,
       totalMarks,
-    }))
-  }, [formData.questionCounts, formData.examCategory])
+    }));
+  }, [formData.topicQuestionCounts, formData.examCategory]);
+
+  // Manage tab selection
+  useEffect(() => {
+    if (formData.selectedSubjects.length > 0) {
+      if (!tabValue || !formData.selectedSubjects.includes(tabValue)) {
+        setTabValue(formData.selectedSubjects[0]);
+      }
+    } else {
+      setTabValue("");
+    }
+  }, [formData.selectedSubjects, tabValue]);
+
+  // Auto-select chapters based on selected topics
+  useEffect(() => {
+    const chaptersToSelect = [];
+
+    (formData.selectedTopics || []).forEach((topicId) => {
+      for (const [chapterId, topics] of Object.entries(availableTopics)) {
+        if (topics.some((topic) => topic.value === topicId)) {
+          if (!chaptersToSelect.includes(chapterId)) {
+            chaptersToSelect.push(chapterId);
+          }
+          break;
+        }
+      }
+    });
+
+    if (
+      JSON.stringify(chaptersToSelect.sort()) !==
+      JSON.stringify((formData.selectedChapters || []).sort())
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        selectedChapters: chaptersToSelect,
+      }));
+    }
+  }, [formData.selectedTopics, availableTopics, formData.selectedChapters]);
+
+  // Clean up invalid selections
+  useEffect(() => {
+    const validChapters = (formData.selectedChapters || []).filter(
+      (chapterId) => {
+        return (formData.selectedSubjects || []).some((subjectId) => {
+          const chapters = availableChapters[subjectId] || [];
+          return chapters.some((chapter) => chapter.value === chapterId);
+        });
+      }
+    );
+
+    const validTopics = (formData.selectedTopics || []).filter((topicId) => {
+      return validChapters.some((chapterId) => {
+        const topics = availableTopics[chapterId] || [];
+        return topics.some((topic) => topic.value === topicId);
+      });
+    });
+
+    if (
+      validChapters.length !== (formData.selectedChapters || []).length ||
+      validTopics.length !== (formData.selectedTopics || []).length
+    ) {
+      const newTopicQuestionCounts = { ...formData.topicQuestionCounts };
+      let countsChanged = false;
+
+      Object.keys(newTopicQuestionCounts).forEach((topicId) => {
+        if (!validTopics.includes(topicId)) {
+          delete newTopicQuestionCounts[topicId];
+          countsChanged = true;
+        }
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        selectedChapters: validChapters,
+        selectedTopics: validTopics,
+        ...(countsChanged
+          ? { topicQuestionCounts: newTopicQuestionCounts }
+          : {}),
+      }));
+    }
+  }, [formData.selectedSubjects, availableChapters, availableTopics]);
 
   const validateStep = (stepIndex) => {
-    const step = steps[stepIndex]
-    try {
-      step.schema.parse(formData)
-      setErrors((prev) => ({ ...prev, [`step_${stepIndex}`]: {} }))
-      return true
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const stepErrors = {}
-        error.errors.forEach((err) => {
-          stepErrors[err.path[0]] = err.message
-        })
-        setErrors((prev) => ({ ...prev, [`step_${stepIndex}`]: stepErrors }))
-      }
-      return false
+    const errors = {};
+
+    switch (stepIndex) {
+      case 0:
+        if (!formData.examTitle?.trim())
+          errors.examTitle = "Exam title is required";
+        if (!formData.examCategory)
+          errors.examCategory = "Exam category is required";
+        if (!formData.examDate) errors.examDate = "Exam date is required";
+        if (!formData.examType) errors.examType = "Exam type is required";
+        if (!formData.examMode) errors.examMode = "Exam mode is required";
+        if (!formData.instructions?.trim())
+          errors.instructions = "Instructions are required";
+        if (formData.duration < 30)
+          errors.duration = "Duration must be at least 30 minutes";
+        break;
+
+      case 1:
+        if ((formData.selectedGroups || []).length === 0) {
+          errors.selectedGroups = "At least one group must be selected";
+        }
+        break;
+
+      case 2:
+        if ((formData.selectedSubjects || []).length === 0) {
+          errors.selectedSubjects = "At least one subject must be selected";
+        }
+
+        const hasQuestionsSelected = Object.values(
+          formData.topicQuestionCounts || {}
+        ).some((counts) => {
+          if (counts && typeof counts === "object") {
+            return (
+              (counts.mcq || 0) +
+                (counts.assertionReason || 0) +
+                (counts.numerical || 0) >
+              0
+            );
+          }
+          return false;
+        });
+
+        if (!hasQuestionsSelected) {
+          errors.selectedTopics =
+            "Please select at least one topic and specify question count";
+        }
+        break;
+
+      case 3:
+        if (formData.totalQuestions < 1)
+          errors.totalQuestions = "Must have at least one question";
+        if (formData.totalMarks < 1)
+          errors.totalMarks = "Must have at least one mark";
+        break;
+
+      case 4:
+        if (!formData.confirmed)
+          errors.confirmed = "Please confirm to create the exam";
+        break;
     }
-  }
+
+    setErrors((prev) => ({ ...prev, [`step_${stepIndex}`]: errors }));
+    return Object.keys(errors).length === 0;
+  };
 
   const validateField = (field, value) => {
-    // Find which step this field belongs to
-    let stepIndex = -1
-    for (let i = 0; i < steps.length; i++) {
-      if (steps[i].schema.shape[field]) {
-        stepIndex = i
-        break
-      }
-    }
-
-    if (stepIndex !== -1) {
-      try {
-        const fieldSchema = steps[stepIndex].schema.shape[field]
-        if (fieldSchema) {
-          fieldSchema.parse(value)
-          setErrors((prev) => ({
-            ...prev,
-            [`step_${stepIndex}`]: {
-              ...(prev[`step_${stepIndex}`] || {}),
-              [field]: undefined,
-            },
-          }))
-        }
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          setErrors((prev) => ({
-            ...prev,
-            [`step_${stepIndex}`]: {
-              ...(prev[`step_${stepIndex}`] || {}),
-              [field]: error.errors[0].message,
-            },
-          }))
-        }
-      }
-    }
-  }
+    // Simple field validation - you can enhance this as needed
+    setErrors((prev) => ({
+      ...prev,
+      [`step_${currentStep}`]: {
+        ...(prev[`step_${currentStep}`] || {}),
+        [field]: undefined,
+      },
+    }));
+  };
 
   const handleInputChange = (field, value) => {
-    console.log("[v0] Input changed:", field, value)
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    validateField(field, value)
-  }
+    console.log(value)
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    validateField(field, value);
+  };
 
   const handleStepClick = (stepIndex) => {
-    setCurrentStep(stepIndex)
-  }
+    if (
+      stepIndex <= currentStep ||
+      (stepIndex === currentStep + 1 && validateStep(currentStep))
+    ) {
+      setCurrentStep(stepIndex);
+    }
+  };
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
       if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1)
+        setCurrentStep(currentStep + 1);
       }
     }
-  }
+  };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
+
+  const transformToFinalStructure = (formData) => {
+    const result = [];
+
+    Object.entries(formData.topicQuestionCounts || {}).forEach(
+      ([topicId, questionCounts]) => {
+        // Skip if no questions selected for this topic
+        const totalQuestions =
+          (questionCounts?.mcq || 0) +
+          (questionCounts?.assertionReason || 0) +
+          (questionCounts?.numerical || 0);
+        if (totalQuestions === 0) return;
+
+        // Find topic, chapter, and subject information
+        let topicData = null;
+        let chapterData = null;
+        let subjectData = null;
+
+        // Find the topic in availableTopics
+        for (const [chapterId, topics] of Object.entries(availableTopics)) {
+          const foundTopic = topics.find((topic) => topic.value === topicId);
+          if (foundTopic) {
+            topicData = foundTopic;
+
+            // Find the chapter
+            for (const [subjectId, chapters] of Object.entries(
+              availableChapters
+            )) {
+              const foundChapter = chapters.find(
+                (chapter) => chapter.value === chapterId
+              );
+              if (foundChapter) {
+                chapterData = foundChapter;
+
+                // Find the subject
+                subjectData = availableSubjects.find(
+                  (subject) => subject.value === subjectId
+                );
+                break;
+              }
+            }
+            break;
+          }
+        }
+
+        // Add to result array
+        result.push({
+          topic: topicData?.label || "Unknown Topic",
+          subject: subjectData?.label || "Unknown Subject",
+          chapter: chapterData?.label || "Unknown Chapter",
+          questions_counts: {
+            mcq: questionCounts?.mcq || 0,
+            assertionReason: questionCounts?.assertionReason || 0,
+            numerical: questionCounts?.numerical || 0,
+            total: totalQuestions,
+          },
+        });
+      }
+    );
+
+    return result;
+  };
 
   const handleSubmit = () => {
     try {
-      const validatedData = completeFormSchema.parse(formData)
-      console.log("Exam created with validated data:", validatedData)
-      onClose()
+      const validatedData = completeFormSchema.parse(formData);
+      console.log(
+        "Exam created with validated data:",
+        transformToFinalStructure(formData)
+      );
+      console.log("Exam created with validated data:", validatedData);
+      handleClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const allErrors = {}
-        error.errors.forEach((err) => {
-          const stepIndex = steps.findIndex((step) => step.schema.shape[err.path[0]])
+        const allErrors = {};
+        error.issues.forEach((err) => {
+          const stepIndex = steps.findIndex((step) => {
+            return Object.keys(step.schema.shape).includes(err.path[0]);
+          });
           if (stepIndex !== -1) {
             if (!allErrors[`step_${stepIndex}`]) {
-              allErrors[`step_${stepIndex}`] = {}
+              allErrors[`step_${stepIndex}`] = {};
             }
-            allErrors[`step_${stepIndex}`][err.path[0]] = err.message
+            const path = err.path.join(".");
+            allErrors[`step_${stepIndex}`][path] = err.message;
           }
-        })
-        setErrors(allErrors)
+        });
+        setErrors(allErrors);
       }
     }
-  }
+  };
 
   const handleSaveDraft = () => {
-    console.log("Exam saved as draft:", formData)
-    // Implement draft saving logic
-  }
+    console.log("Exam saved as draft:", formData);
+  };
+
+  const handleClose = () => {
+    setFormData(initialFormData);
+    setCurrentStep(0);
+    setErrors({});
+    setTabValue("");
+    onClose();
+  };
 
   const getCurrentStepErrors = () => {
-    return errors[`step_${currentStep}`] || {}
-  }
+    return errors[`step_${currentStep}`] || {};
+  };
+
+  const renderSubjectConfiguration = (subjectId) => {
+    console.log(subjectId, "<--");
+    const subject = availableSubjects.find((s) => s.value === subjectId);
+    const subjectChapters = availableChapters[subjectId] || [];
+    console.log({ subjectChapters });
+    return (
+      <Box>
+        <Text size="lg" fw={500} mb="md">
+          {subject?.label}
+        </Text>
+
+        <Accordion multiple variant="contained">
+          {subjectChapters.map((chapter) => {
+            const chapterTopics = availableTopics[chapter.value] || [];
+            const selectedTopicsForChapter = (
+              formData.selectedTopics || []
+            ).filter((topicId) =>
+              chapterTopics.some((topic) => topic.value === topicId)
+            );
+            console.log({
+              chapterTopics,
+              selectedTopicsForChapter,
+              availableTopics,
+            });
+            return (
+              <Accordion.Item key={chapter.value} value={chapter.value}>
+                <Accordion.Control>
+                  <Group justify="space-between" pr="md">
+                    <Text fw={500}>{chapter.label}</Text>
+                    <Badge variant="light" size="sm">
+                      {selectedTopicsForChapter.length} topics selected
+                    </Badge>
+                  </Group>
+                </Accordion.Control>
+                <Accordion.Panel>
+                  <Stack gap="md">
+                    <Text size="sm" fw={500} mb="xs">
+                      Select Topics:
+                    </Text>
+
+                    {chapterTopics.map((topic) => {
+                      const isSelected = (
+                        formData.selectedTopics || []
+                      ).includes(topic.value);
+                      const questionCounts = formData.topicQuestionCounts?.[
+                        topic.value
+                      ] || { mcq: 0, assertionReason: 0, numerical: 0 };
+                      const totalAvailable = topic.totalQuestions || {
+                        mcq: 30,
+                        assertionReason: 15,
+                        numerical: 5,
+                      };
+
+                      console.log(topic);
+
+                      return (
+                        <Box
+                          key={`topic-${topic.value}`}
+                          p="sm"
+                          style={{
+                            border: "1px solid #e9ecef",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <Group justify="space-between" align="flex-start">
+                            <Box style={{ flex: 1 }}>
+                              <Checkbox
+                                label={topic.label}
+                                checked={isSelected}
+                                onChange={(event) => {
+                                  const newSelectedTopics = event.currentTarget
+                                    .checked
+                                    ? [
+                                        ...(formData.selectedTopics || []),
+                                        topic.value,
+                                      ]
+                                    : (formData.selectedTopics || []).filter(
+                                        (id) => id !== topic.value
+                                      );
+
+                                  const newCounts = {
+                                    ...formData.topicQuestionCounts,
+                                  };
+                                  if (!event.currentTarget.checked) {
+                                    delete newCounts[topic.value];
+                                  }
+
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    selectedTopics: newSelectedTopics,
+                                    topicQuestionCounts: newCounts,
+                                  }));
+                                }}
+                              />
+                              <Text size="xs" c="dimmed" mt={4}>
+                                Available: MCQ: {totalAvailable.mcq}, A&R:{" "}
+                                {totalAvailable.assertionReason}, Numerical:{" "}
+                                {totalAvailable.numerical}
+                              </Text>
+                            </Box>
+
+                            {isSelected && (
+                              <Box style={{ minWidth: "300px" }}>
+                                <Text size="sm" fw={500} mb="xs">
+                                  Question Types:
+                                </Text>
+                                <Grid>
+                                  <Grid.Col span={4}>
+                                    <NumberInput
+                                      label="MCQ"
+                                      placeholder="0"
+                                      value={questionCounts.mcq || 0}
+                                      onChange={(value) => {
+                                        const newCounts = {
+                                          ...formData.topicQuestionCounts,
+                                          [topic.value]: {
+                                            ...(formData.topicQuestionCounts[
+                                              topic.value
+                                            ] || {}),
+                                            mcq: Math.min(
+                                              value || 0,
+                                              totalAvailable.mcq
+                                            ),
+                                          },
+                                        };
+                                        handleInputChange(
+                                          "topicQuestionCounts",
+                                          newCounts
+                                        );
+                                      }}
+                                      min={0}
+                                      max={totalAvailable.mcq}
+                                      size="sm"
+                                    />
+                                  </Grid.Col>
+                                  <Grid.Col span={4}>
+                                    <NumberInput
+                                      label="A&R"
+                                      placeholder="0"
+                                      value={
+                                        questionCounts.assertionReason || 0
+                                      }
+                                      onChange={(value) => {
+                                        const newCounts = {
+                                          ...formData.topicQuestionCounts,
+                                          [topic.value]: {
+                                            ...(formData.topicQuestionCounts[
+                                              topic.value
+                                            ] || {}),
+                                            assertionReason: Math.min(
+                                              value || 0,
+                                              totalAvailable.assertionReason
+                                            ),
+                                          },
+                                        };
+                                        handleInputChange(
+                                          "topicQuestionCounts",
+                                          newCounts
+                                        );
+                                      }}
+                                      min={0}
+                                      max={totalAvailable.assertionReason}
+                                      size="sm"
+                                    />
+                                  </Grid.Col>
+                                  <Grid.Col span={4}>
+                                    <NumberInput
+                                      label="Numerical"
+                                      placeholder="0"
+                                      value={questionCounts.numerical || 0}
+                                      onChange={(value) => {
+                                        const newCounts = {
+                                          ...formData.topicQuestionCounts,
+                                          [topic.value]: {
+                                            ...(formData.topicQuestionCounts[
+                                              topic.value
+                                            ] || {}),
+                                            numerical: Math.min(
+                                              value || 0,
+                                              totalAvailable.numerical
+                                            ),
+                                          },
+                                        };
+                                        handleInputChange(
+                                          "topicQuestionCounts",
+                                          newCounts
+                                        );
+                                      }}
+                                      min={0}
+                                      max={totalAvailable.numerical}
+                                      size="sm"
+                                    />
+                                  </Grid.Col>
+                                </Grid>
+
+                                <Text size="xs" c="blue" mt="xs" ta="center">
+                                  Total:{" "}
+                                  {(questionCounts.mcq || 0) +
+                                    (questionCounts.assertionReason || 0) +
+                                    (questionCounts.numerical || 0)}{" "}
+                                  questions
+                                </Text>
+                              </Box>
+                            )}
+                          </Group>
+                        </Box>
+                      );
+                    })}
+                  </Stack>
+                </Accordion.Panel>
+              </Accordion.Item>
+            );
+          })}
+        </Accordion>
+      </Box>
+    );
+  };
 
   const renderStepContent = () => {
-    const stepErrors = getCurrentStepErrors()
+    const stepErrors = getCurrentStepErrors();
 
     switch (currentStep) {
       case 0:
         return (
-          <Stack gap="md">
-            <Text size="xl" fw={600} mb="md">
-              Exam Metadata
-            </Text>
-            <TextInput
-              label="Exam Title"
-              placeholder="Enter exam title"
-              value={formData.examTitle}
-              onChange={(e) => handleInputChange("examTitle", e.target.value)}
-              error={stepErrors.examTitle}
-              required
-            />
-            <Textarea
-              label="Subtitle / Description"
-              placeholder="Brief description of the exam"
-              value={formData.subtitle}
-              onChange={(e) => handleInputChange("subtitle", e.target.value)}
-              error={stepErrors.subtitle}
-              minRows={2}
-            />
-            
-            {/* Fixed: Simple textarea for instructions instead of rich text editor */}
-            <Textarea
-              label="Instructions"
-              placeholder="Enter exam instructions here..."
-              value={formData.instructions}
-              onChange={(e) => handleInputChange("instructions", e.target.value)}
-              error={stepErrors.instructions}
-              minRows={6}
-              required
-            />
-
-            <Group grow>
-              <TextInput
-                label="Exam Date"
-                placeholder="Select exam date"
-                type="date"
-                value={formData.examDate}
-                onChange={(e) => handleInputChange("examDate", e.target.value)}
-                error={stepErrors.examDate}
-                required
-              />
-              <NumberInput
-                label="Duration (minutes)"
-                placeholder="60"
-                value={formData.duration}
-                onChange={(value) => handleInputChange("duration", value || 60)}
-                error={stepErrors.duration}
-                min={1}
-                required
-              />
-            </Group>
-            <Group grow>
-              <Select
-                label="Exam Type"
-                placeholder="Select exam type"
-                value={formData.examType}
-                onChange={(value) => {
-                  console.log("[v0] Exam type selected:", value)
-                  handleInputChange("examType", value)
-                }}
-                error={stepErrors.examType}
-                data={examTypeData}
-                required
-                withAsterisk
-              />
-              <Select
-                label="Exam Mode"
-                placeholder="Select exam mode"
-                value={formData.examMode}
-                onChange={(value) => {
-                  console.log("[v0] Exam mode selected:", value)
-                  handleInputChange("examMode", value)
-                }}
-                error={stepErrors.examMode}
-                data={examModeData}
-                searchable
-                clearable
-                required
-                withAsterisk
-              />
-            </Group>
-            <Select
-              label="Exam Category"
-              placeholder="Select exam category"
-              value={formData.examCategory}
-              onChange={(value) => {
-                console.log("[v0] Exam category selected:", value)
-                handleInputChange("examCategory", value)
-              }}
-              error={stepErrors.examCategory}
-              data={examCategoryData}
-              searchable
-              clearable
-              required
-              withAsterisk
-            />
-          </Stack>
-        )
+          <Step0
+            formData={formData}
+            handleInputChange={handleInputChange}
+            stepErrors={stepErrors}
+          />
+        );
 
       case 1:
         return (
-          <Stack gap="md">
-            <Text size="xl" fw={600} mb="md">
-              Participants
-            </Text>
-            <MultiSelect
-              label="Choose Groups / Batches / Users"
-              placeholder="Select participants for the exam"
-              value={formData.selectedGroups}
-              onChange={(value) => handleInputChange("selectedGroups", value)}
-              error={stepErrors.selectedGroups}
-              data={availableGroups}
-              searchable
-              required
-            />
-            {formData.selectedGroups.length > 0 && (
-              <Card withBorder p="md">
-                <Text size="sm" fw={500} mb="xs">
-                  Selected Groups ({formData.selectedGroups.length})
-                </Text>
-                <Group gap="xs">
-                  {formData.selectedGroups.map((groupId) => {
-                    const group = availableGroups.find((g) => g.value === groupId)
-                    return (
-                      <Badge key={groupId} variant="light">
-                        {group?.label}
-                      </Badge>
-                    )
-                  })}
-                </Group>
-              </Card>
-            )}
-          </Stack>
-        )
+          <Step1
+            formData={formData}
+            handleInputChange={handleInputChange}
+            stepErrors={stepErrors}
+            availableGroups={availableGroups}
+          />
+        );
 
       case 2:
         return (
@@ -471,244 +709,143 @@ const ExamCreationForm = ({ opened, onClose }) => {
               label="Select Subjects"
               placeholder="Choose subjects for the exam"
               value={formData.selectedSubjects}
-              onChange={(value) => handleInputChange("selectedSubjects", value)}
+              onChange={(value) => {
+                if (formData.examType === "Single Subject") {
+                  handleInputChange("selectedSubjects", value.slice(-1));
+                } else {
+                  handleInputChange("selectedSubjects", value);
+                }
+              }}
               error={stepErrors.selectedSubjects}
               data={availableSubjects}
               required
             />
 
             {formData.selectedSubjects.length > 0 && (
-              <Stack gap="md">
-                {formData.selectedSubjects.map((subjectId) => {
-                  const subject = availableSubjects.find((s) => s.value === subjectId)
-                  const chapters = availableChapters[subjectId] || []
-
-                  return (
-                    <Card key={subjectId} withBorder p="md">
-                      <Text fw={500} mb="md">
-                        {subject?.label}
-                      </Text>
-
-                      <Stack gap="sm">
-                        <Text size="sm" fw={500}>
-                          Chapters:
-                        </Text>
-                        <Checkbox.Group
-                          value={formData.selectedChapters}
-                          onChange={(value) => handleInputChange("selectedChapters", value)}
-                        >
-                          <Stack gap="xs">
-                            {chapters.map((chapter) => (
-                              <Checkbox key={chapter.value} value={chapter.value} label={chapter.label} />
-                            ))}
-                          </Stack>
-                        </Checkbox.Group>
-
-                        {formData.selectedChapters.some((chapterId) => chapters.find((c) => c.value === chapterId)) && (
-                          <Box mt="md">
-                            <Text size="sm" fw={500} mb="sm">
-                              Question Distribution:
-                            </Text>
-                            <Group grow>
-                              <NumberInput
-                                label="MCQs"
-                                placeholder="0"
-                                value={formData.questionCounts[subjectId]?.mcqs || 0}
-                                onChange={(value) => {
-                                  const newCounts = {
-                                    ...formData.questionCounts,
-                                    [subjectId]: {
-                                      ...formData.questionCounts[subjectId],
-                                      mcqs: value || 0,
-                                    },
-                                  }
-                                  handleInputChange("questionCounts", newCounts)
-                                }}
-                                min={0}
-                              />
-                              <NumberInput
-                                label="Assertion & Reason"
-                                placeholder="0"
-                                value={formData.questionCounts[subjectId]?.assertionReason || 0}
-                                onChange={(value) => {
-                                  const newCounts = {
-                                    ...formData.questionCounts,
-                                    [subjectId]: {
-                                      ...formData.questionCounts[subjectId],
-                                      assertionReason: value || 0,
-                                    },
-                                  }
-                                  handleInputChange("questionCounts", newCounts)
-                                }}
-                                min={0}
-                              />
-                              <NumberInput
-                                label="Numerical"
-                                placeholder="0"
-                                value={formData.questionCounts[subjectId]?.numerical || 0}
-                                onChange={(value) => {
-                                  const newCounts = {
-                                    ...formData.questionCounts,
-                                    [subjectId]: {
-                                      ...formData.questionCounts[subjectId],
-                                      numerical: value || 0,
-                                    },
-                                  }
-                                  handleInputChange("questionCounts", newCounts)
-                                }}
-                                min={0}
-                              />
-                            </Group>
-                          </Box>
-                        )}
-                      </Stack>
-                    </Card>
-                  )
-                })}
-              </Stack>
-            )}
-          </Stack>
-        )
-
-      case 3:
-        return (
-          <Stack gap="md">
-            <Text size="xl" fw={600} mb="md">
-              Marks & Grading
-            </Text>
-
-            <Card withBorder p="md">
-              <Stack gap="md">
-                <Group justify="space-between">
-                  <Text fw={500}>Total Questions:</Text>
-                  <Badge size="lg" variant="filled" color="blue">
-                    {formData.totalQuestions}
-                  </Badge>
-                </Group>
-
-                <Group justify="space-between">
-                  <Text fw={500}>Total Marks:</Text>
-                  <Badge size="lg" variant="filled" color="green">
-                    {formData.totalMarks}
-                  </Badge>
-                </Group>
-
-                <Divider />
-
-                <Box>
-                  <Text size="sm" fw={500} mb="xs">
-                    Marking Scheme:
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    {formData.examCategory === "JEE" && "JEE: +4 for correct, -1 for incorrect"}
-                    {formData.examCategory === "NEET" && "NEET: +4 for correct, -1 for incorrect"}
-                    {formData.examCategory === "Custom" && "Custom: +1 for correct, 0 for incorrect"}
-                    {!formData.examCategory && "Please select exam category to see marking scheme"}
-                  </Text>
-                </Box>
-
-                {Object.keys(formData.questionCounts).length > 0 && (
-                  <Box>
-                    <Text size="sm" fw={500} mb="xs">
-                      Question Breakdown:
+              <Box
+                p="md"
+                style={{
+                  backgroundColor: "rgba(255, 193, 7, 0.1)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(255, 193, 7, 0.3)",
+                }}
+              >
+                <Text size="md" fw={500} c="orange" mb="sm">
+                  Exam Overview
+                </Text>
+                <Grid>
+                  <Grid.Col span={2}>
+                    <Text size="sm" fw={500}>
+                      Total MCQ:{" "}
+                      {Object.values(formData.topicQuestionCounts || {}).reduce(
+                        (sum, counts) => sum + (counts?.mcq || 0),
+                        0
+                      )}
                     </Text>
-                    <Stack gap="xs">
-                      {Object.entries(formData.questionCounts).map(([subjectId, counts]) => {
-                        const subject = availableSubjects.find((s) => s.value === subjectId)
-                        const total = (counts.mcqs || 0) + (counts.assertionReason || 0) + (counts.numerical || 0)
-                        return (
-                          <Group key={subjectId} justify="space-between">
-                            <Text size="sm">{subject?.label}:</Text>
-                            <Text size="sm" c="dimmed">
-                              {counts.mcqs || 0} MCQs, {counts.assertionReason || 0} A&R, {counts.numerical || 0}{" "}
-                              Numerical ({total} total)
-                            </Text>
-                          </Group>
-                        )
-                      })}
-                    </Stack>
+                  </Grid.Col>
+                  <Grid.Col span={3}>
+                    <Text size="sm" fw={500}>
+                      Total A&R:{" "}
+                      {Object.values(formData.topicQuestionCounts || {}).reduce(
+                        (sum, counts) => sum + (counts?.assertionReason || 0),
+                        0
+                      )}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={2}>
+                    <Text size="sm" fw={500}>
+                      Total Numerical:{" "}
+                      {Object.values(formData.topicQuestionCounts || {}).reduce(
+                        (sum, counts) => sum + (counts?.numerical || 0),
+                        0
+                      )}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={2}>
+                    <Text size="sm" fw={600}>
+                      Grand Total: {formData.totalQuestions}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={3}>
+                    <Text size="sm" fw={600}>
+                      Total Marks: {formData.totalMarks}
+                    </Text>
+                  </Grid.Col>
+                </Grid>
+              </Box>
+            )}
+
+            {formData.selectedSubjects.length > 0 && (
+              <Box mt="md">
+                <Title order={4} mb="md">
+                  Configure Questions by Subject
+                </Title>
+
+                {formData.selectedSubjects.length === 1 ? (
+                  <Box>
+                    {renderSubjectConfiguration(formData.selectedSubjects[0])}
                   </Box>
+                ) : (
+                  <Tabs
+                    variant="outline"
+                    value={tabValue}
+                    onChange={(value) => setTabValue(value)}
+                  >
+                    <Tabs.List>
+                      {formData.selectedSubjects.map((subjectId) => {
+                        const subject = availableSubjects.find(
+                          (s) => s.value === subjectId
+                        );
+                        return (
+                          <Tabs.Tab key={subjectId} value={subjectId}>
+                            {subject?.label}
+                          </Tabs.Tab>
+                        );
+                      })}
+                    </Tabs.List>
+
+                    {formData.selectedSubjects.map((subjectId) => (
+                      <Tabs.Panel key={subjectId} value={subjectId} pt="md">
+                        {console.log(subjectId)}
+                        {renderSubjectConfiguration(subjectId)}
+                      </Tabs.Panel>
+                    ))}
+                  </Tabs>
                 )}
-              </Stack>
-            </Card>
-          </Stack>
-        )
+              </Box>
+            )}
 
-      case 4:
-        return (
-          <Stack gap="md">
-            <Text size="xl" fw={600} mb="md">
-              Finalize Exam
-            </Text>
-
-            <Card withBorder p="md">
-              <Stack gap="md">
-                <Text fw={500}>Exam Summary:</Text>
-                <Group justify="space-between">
-                  <Text size="sm">Title:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.examTitle || "Not set"}
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Date:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.examDate || "Not set"}
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Duration:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.duration} minutes
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Type:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.examType || "Not set"}
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Participants:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.selectedGroups.length} groups
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Total Questions:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.totalQuestions}
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text size="sm">Total Marks:</Text>
-                  <Text size="sm" fw={500}>
-                    {formData.totalMarks}
-                  </Text>
-                </Group>
-              </Stack>
-            </Card>
-
-            <Checkbox
-              label="I confirm that all the exam details are correct and I want to create this exam"
-              checked={formData.confirmed}
-              onChange={(e) => handleInputChange("confirmed", e.currentTarget.checked)}
-              error={stepErrors.confirmed}
-              required
-            />
-
-            {stepErrors.confirmed && (
-              <Alert icon={<IconAlertCircle size="1rem" />} color="red" variant="light">
-                {stepErrors.confirmed}
+            {stepErrors.selectedTopics && (
+              <Alert color="red" icon={<IconAlertCircle size={16} />}>
+                {stepErrors.selectedTopics}
               </Alert>
             )}
           </Stack>
-        )
+        );
+
+      case 3:
+        return (
+          <Step3
+            formData={formData}
+            availableTopics={availableTopics}
+            availableChapters={availableChapters}
+            availableSubjects={availableSubjects}
+          />
+        );
+
+      case 4:
+        return (
+          <Step4
+            formData={formData}
+            stepErrors={stepErrors}
+            handleInputChange={handleInputChange}
+          />
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const steps = [
     {
@@ -717,7 +854,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
       subtitle: "Basic exam details",
       icon: IconFileText,
       schema: examMetadataSchema,
-      completed: false,
     },
     {
       id: 1,
@@ -725,7 +861,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
       subtitle: "Select groups",
       icon: IconUsers,
       schema: participantsSchema,
-      completed: false,
     },
     {
       id: 2,
@@ -733,7 +868,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
       subtitle: "Configure questions",
       icon: IconQuestionMark,
       schema: questionsSetupSchema,
-      completed: false,
     },
     {
       id: 3,
@@ -741,7 +875,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
       subtitle: "Review totals",
       icon: IconCalculator,
       schema: marksGradingSchema,
-      completed: false,
     },
     {
       id: 4,
@@ -749,9 +882,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
       subtitle: "Create exam",
       icon: IconSend,
       schema: finalizeSchema,
-      completed: false,
     },
-  ]
+  ];
 
   const getStepItemStyles = (isActive, isCompleted, hasErrors) => ({
     padding: "12px",
@@ -759,24 +891,29 @@ const ExamCreationForm = ({ opened, onClose }) => {
     cursor: "pointer",
     transition: "all 0.2s ease",
     border: "1px solid transparent",
-    backgroundColor: isActive ? "rgba(34, 139, 230, 0.15)" : hasErrors ? "rgba(255, 0, 0, 0.1)" : "transparent",
+    backgroundColor: isActive
+      ? "rgba(34, 139, 230, 0.15)"
+      : hasErrors
+      ? "rgba(255, 0, 0, 0.1)"
+      : "transparent",
     borderColor: isActive ? "rgba(34, 139, 230, 0.3)" : "transparent",
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
-    },
-  })
+  });
 
   const getStepIconStyles = (isActive, isCompleted) => ({
     width: "32px",
     height: "32px",
     borderRadius: "50%",
-    backgroundColor: isCompleted ? "#51cf66" : isActive ? "#228be6" : "rgba(255, 255, 255, 0.1)",
+    backgroundColor: isCompleted
+      ? "#51cf66"
+      : isActive
+      ? "#228be6"
+      : "rgba(255, 255, 255, 0.1)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
     transition: "all 0.2s ease",
-  })
+  });
 
   const sidebarContent = (
     <Stack gap="sm">
@@ -784,18 +921,23 @@ const ExamCreationForm = ({ opened, onClose }) => {
         <Text size="sm" c="dimmed" mb="xs">
           Step {currentStep + 1} of {steps.length}
         </Text>
-        <Progress value={((currentStep + 1) / steps.length) * 100} size="sm" color="blue" />
+        <Progress
+          value={((currentStep + 1) / steps.length) * 100}
+          size="sm"
+          color="blue"
+        />
       </Box>
 
       {steps.map((step, index) => {
-        const Icon = step.icon
-        const isActive = index === currentStep
-        const isCompleted = index < currentStep && !errors[`step_${index}`]
-        const hasErrors = errors[`step_${index}`] && Object.keys(errors[`step_${index}`]).length > 0
+        const Icon = step.icon;
+        const isActive = index === currentStep;
+        const stepErrors = errors[`step_${index}`] || {};
+        const hasErrors = Object.keys(stepErrors).length > 0;
+        const isCompleted = index < currentStep && !hasErrors;
 
         return (
           <Box
-            key={step.id}
+            key={`step-${step.id}`}
             style={getStepItemStyles(isActive, isCompleted, hasErrors)}
             onClick={() => handleStepClick(index)}
           >
@@ -823,24 +965,40 @@ const ExamCreationForm = ({ opened, onClose }) => {
               )}
             </Group>
           </Box>
-        )
+        );
       })}
     </Stack>
-  )
+  );
 
   return (
     <ModalFrame
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       title="Create Exam"
       subtitle="Set up your exam configuration"
       sidebarContent={sidebarContent}
     >
-      <Box style={{ minHeight: "400px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        {renderStepContent()}
+      <Box
+        style={{
+          minHeight: "400px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        {isLoading ? "loading" : renderStepContent()}
 
-        <Group justify="space-between" mt="xl" pt="md" style={{ borderTop: "1px solid #e9ecef" }}>
-          <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0}>
+        <Group
+          justify="space-between"
+          mt="xl"
+          pt="md"
+          style={{ borderTop: "1px solid #e9ecef" }}
+        >
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 0}
+          >
             Previous
           </Button>
 
@@ -861,7 +1019,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
         </Group>
       </Box>
     </ModalFrame>
-  )
-}
+  );
+};
 
-export default ExamCreationForm
+export default ExamCreationForm;

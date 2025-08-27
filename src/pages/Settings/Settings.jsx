@@ -1,9 +1,12 @@
 import React from 'react'
 import "./settings.scss"
+import AdvancedEditor from '../../components/Generics/RichTextEditor'
 
 const Settings = () => {
   return (
-    <div>Settings</div>
+    <div style={{width: "800px"}}>
+      <AdvancedEditor />
+    </div>
   )
 }
 
