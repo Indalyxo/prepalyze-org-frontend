@@ -9,10 +9,7 @@ const Settings = () => {
         <Title order={2} className="settings-title">
           Organization Settings
         </Title>
-
         <form className="settings-form">
-         
-
           {/* Detention Max Tabs */}
           <NumberInput
             label="Max Tabs"
@@ -38,7 +35,6 @@ const Settings = () => {
           <Button type="submit" size="lg" className="settings-button">
             Save Settings
           </Button>
-
         </form>
       </Paper>
     </div>

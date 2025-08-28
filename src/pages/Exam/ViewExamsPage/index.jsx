@@ -68,7 +68,7 @@ const mockExams = [
   },
   {
     id: 4,
-    title: "English Exam 1",
+    title: "Physics Exam 1",
     subject: "Physics",
     status: "upcoming",
     duration: "2 hours 15 minutes",
@@ -244,7 +244,12 @@ export default function ViewExamsPage() {
             <Card key={exam.id} className={`${styles.examCard}`} radius="md">
               <div
                 className={styles.cardHeader}
-                style={{ backgroundColor: SubjectColors[exam.subject] }}
+                style={{
+                  backgroundImage: `url(/images/${exam.subject.toLowerCase()}.webp)`,
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: exam.subject === "Physics" ? "40% 40%" : "40% 10%",
+                }}
               >
                 <div className={styles.iconContainer}>
                   {getIcons(exam.subject, styles)}
