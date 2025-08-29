@@ -48,6 +48,7 @@ import Step4 from "./Steps/Step4";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
+import dayjs from "dayjs";
 
 const initialFormData = {
   // Exam Metadata
@@ -322,7 +323,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
   };
 
   const handleInputChange = (field, value) => {
-    console.log(value)
+    console.log(value);
     setFormData((prev) => ({ ...prev, [field]: value }));
     validateField(field, value);
   };
@@ -412,13 +413,51 @@ const ExamCreationForm = ({ opened, onClose }) => {
     return result;
   };
 
-  const handleSubmit = () => {
+  function processExamData(input) {
+    // Convert examDate + duration → start and end timing
+    const start = dayjs(input.examDate);
+    const end = start.add(input.duration, "minute");
+
+    return {
+      examTitle: input.examTitle,
+      subtitle: input.subtitle,
+      instructions: input.instructions,
+      examType: input.examType,
+      examMode: input.examMode,
+      examCategory: input.examCategory,
+      duration: input.duration,
+      groups: input.selectedGroups || [],
+      subjects: input.selectedSubjects || [],
+      chapters: input.selectedChapters || [],
+      topics: input.selectedTopics || [],
+      topicQuestionCounts: input.topicQuestionCounts || {},
+      totalQuestions: input.totalQuestions,
+      totalMarks: input.totalMarks,
+      confirmed: input.confirmed || false,
+
+      timing: {
+        start: start.toISOString(), // string instead of Date
+        end: end.toISOString(),
+      },
+    };
+  }
+
+  const handleSubmit = async () => {
     try {
       const validatedData = completeFormSchema.parse(formData);
       console.log(
         "Exam created with validated data:",
         transformToFinalStructure(formData)
       );
+      console.log(
+        "Exam created with validated data:",
+        processExamData(formData)
+      );
+
+      const res = await apiClient.post("/api/exam/", {
+        ...processExamData(formData),
+        questionData: transformToFinalStructure(formData) || [],
+      });
       console.log("Exam created with validated data:", validatedData);
       handleClose();
     } catch (error) {
