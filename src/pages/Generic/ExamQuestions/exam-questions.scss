@@ -1,0 +1,200 @@
+// Simplified but attractive styling for exam questions
+.qv-root {
+  min-height: 100vh;
+  padding: 1.5rem;
+  background: #fafafa;
+}
+
+.qv-header {
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.25rem;
+  }
+  
+  .qv-subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+}
+
+.qv-tabs {
+  margin-top: 1rem;
+  
+  .mantine-Tabs-list {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fafafa;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .mantine-Tabs-tab {
+    font-weight: 500;
+    border-radius: 8px;
+    
+    &[data-active="true"] {
+      background: #3b82f6;
+      color: white;
+    }
+  }
+}
+
+.qv-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.qv-question-meta {
+  margin-bottom: 1rem;
+  
+  .qv-qnumber {
+    background: #f3f4f6;
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+  }
+}
+
+.qv-question-title {
+  font-weight: 400;
+  color: #1f2937;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.qv-options {
+  margin: 1rem 0;
+  
+  .qv-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    
+    &:hover {
+      background: #f9fafb;
+      border-color: #e5e7eb;
+    }
+    
+    &--correct {
+      background: #f0fdf4;
+      border-color: #22c55e;
+      border-left: 4px solid #22c55e;
+      
+      &:hover {
+        background: #ecfdf5;
+      }
+    }
+  }
+  
+  .qv-option-label {
+    min-width: 1.5rem;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .qv-option-content {
+    flex: 1;
+    color: #374151;
+    line-height: 1.4;
+  }
+  
+  .qv-option-badge {
+    margin-left: auto;
+    font-size: 0.8rem;
+  }
+}
+
+.qv-answer {
+  background: #f0fdf4;
+  border: 1px solid #22c55e;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  
+  .mantine-Alert-title {
+    color: #166534;
+    font-weight: 600;
+  }
+  
+  .qv-answer-content {
+    color: #166534;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+}
+
+// LaTeX and image styling
+.qv-latex {
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.9em;
+  
+  &--block {
+    display: block;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+.qv-image {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0.25rem;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+// Loading and error states
+.mantine-Loader-root {
+  color: #3b82f6;
+}
+
+.mantine-Alert-root {
+  border-radius: 8px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .qv-root {
+    padding: 1rem;
+  }
+  
+  .qv-card {
+    padding: 1rem;
+  }
+  
+  .qv-question-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

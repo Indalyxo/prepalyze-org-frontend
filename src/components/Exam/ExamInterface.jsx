@@ -42,13 +42,13 @@ const QuestionNavigation = ({
   </Card>
 );
 
-const ExamInterface = ({ examData, questions }) => {
+const ExamInterface = ({ examData }) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [markedForReview, setMarkedForReview] = useState(new Set());
   const [visitedQuestions, setVisitedQuestions] = useState(new Set());
-  const [timeLeft, setTimeLeft] = useState(examData.timer);
+  const [timeLeft, setTimeLeft] = useState(examData?.timer || 3600);
   const [showInstructions, setShowInstructions] = useState(false);
   const [instructionTimer, setInstructionTimer] = useState(null);
   const [instructionModalOpened, setInstructionModalOpened] = useState(false);

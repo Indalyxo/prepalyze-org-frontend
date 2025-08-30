@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   Card,
   Group,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -25,6 +26,9 @@ import { useNavigate } from "react-router-dom";
 import { getIcons } from "../../../utils/get-ui";
 import { SubjectColors } from "../../../constants";
 import ExamCreationForm from "../../../components/Exam/ExamCreationForm/ExamCreationForm";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import apiClient from "../../../utils/api";
 
 const mockExams = [
   {
@@ -131,8 +135,42 @@ export default function ViewExamsPage() {
 
   const navigate = useNavigate();
 
+  const fetchExams = async (page) => {
+    try {
+      const response = await apiClient.get("/api/exam", {
+        params: { page, itemsPerPage },
+      });
+
+      console.log(response);
+      return response.data.data;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch exams. Please try again.");
+      throw error;
+    }
+  };
+
+  const {
+    data: exams,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["GET_EXAMS"],
+    queryFn: fetchExams,
+  });
+
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(mockExams.length / itemsPerPage);
+  const totalPages = Math.ceil(exams?.length ?? 0 / itemsPerPage);
+
+  if (isLoading)
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
 
   return (
     <div className={styles.availableExams}>
@@ -240,29 +278,30 @@ export default function ViewExamsPage() {
           spacing="lg"
           className={styles.examGrid}
         >
-          {mockExams.map((exam) => (
+          {exams.map((exam) => (
             <Card key={exam.id} className={`${styles.examCard}`} radius="md">
               <div
                 className={styles.cardHeader}
                 style={{
-                  backgroundImage: `url(/images/${exam.subject.toLowerCase()}.webp)`,
+                  backgroundImage: `url(/images/${exam.subjects[0].toLowerCase()}.webp)`,
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
-                  backgroundPosition: exam.subject === "Physics" ? "40% 40%" : "40% 10%",
+                  backgroundPosition:
+                    exam.subjects[0] === "Physics" ? "40% 40%" : "40% 10%",
                 }}
               >
                 <div className={styles.iconContainer}>
-                  {getIcons(exam.subject, styles)}
+                  {getIcons(exam.subjects[0], styles)}
                 </div>
               </div>
               <div className={styles.cardBody}>
                 <div className={styles.cardContent}>
                   <Title order={4} className={styles.examTitle} mb="xs">
-                    {exam.title}
+                    {exam.examTitle}
                   </Title>
 
                   <Text size="sm" className={styles.examDuration} mb="xs">
-                    Exam Duration about: {exam.duration}
+                    Exam Duration about: {exam?.duration || "N/A"}
                   </Text>
 
                   <Group gap="md" mb="sm">
@@ -270,14 +309,14 @@ export default function ViewExamsPage() {
                       System Admin
                     </Text>
                     <Text size="sm" className={styles.examInfo}>
-                      Total {exam.chapters} Chapters
+                      Total {exam.chapters.length} Chapters
                     </Text>
                   </Group>
 
                   <Group gap="xs" align="center" mb="md">
                     <IconCalendar size={14} />
                     <Text size="sm" className={styles.createdDate}>
-                      Created on {exam.createdDate}
+                      Created on {exam?.createdAt || "N/A"}
                     </Text>
                   </Group>
                 </div>
@@ -288,7 +327,7 @@ export default function ViewExamsPage() {
                     fullWidth
                     className={styles.viewMoreButton}
                     onClick={() =>
-                      navigate(`/organization/exams/details/${exam.id}`)
+                      navigate(`/organization/exams/details/${exam.examId}`)
                     }
                   >
                     View More

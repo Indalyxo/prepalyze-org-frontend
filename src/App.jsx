@@ -16,8 +16,9 @@ import NotFoundPage from "./pages/Generic/NotFoundPage";
 import LoadingPage from "./components/Loading/LoadingPage";
 import ViewExamsPage from "./pages/Exam/ViewExamsPage";
 import Notification from "./pages/Notification/Notification";
-import Settings from "./pages/Settings/settings";
-
+import SettingsPage from "./pages/Settings/Settings";
+import ExamQuestionsPage from "./pages/Generic/ExamQuestions/ExamQuestions";
+import ViewStudentsExamsPage from "./pages/Students/ExamPage/StudentExamPage";
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
     useAuthStore();
@@ -68,7 +69,16 @@ const App = () => {
           {isAuthenticated && user?.role === "student" && (
             <Route path="/student" element={<StudentLayout />}>
               <Route path="intellihub" element={<p>Intellihub</p>} />
-              <Route path="tests" element={<p>Tests</p>} />
+              <Route path="exams" element={<ViewStudentsExamsPage />} />
+
+              <Route
+                path="exams/details/:examId"
+                element={<ExamDetailsPage />}
+              />
+              <Route
+                path="exams/details/:examId/questions"
+                element={<ExamQuestionsPage />}
+              />
             </Route>
           )}
 
@@ -81,11 +91,15 @@ const App = () => {
               <Route path="student/:id" element={<StudentDetails />} />
               <Route path="exams" element={<ViewExamsPage />} />
               <Route path="notification" element={<Notification />} />
-              <Route path="settings" element={<Settings />} />
+              <Route path="settings" element={<SettingsPage />} />
 
               <Route
                 path="exams/details/:examId"
                 element={<ExamDetailsPage />}
+              />
+              <Route
+                path="exams/details/:examId/questions"
+                element={<ExamQuestionsPage />}
               />
               <Route
                 path="exams/results/:userId"

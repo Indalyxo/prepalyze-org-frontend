@@ -26,8 +26,8 @@ const ExamHeader = ({ examData, currentSection, timeLeft, onSectionChange, onSho
               <IconBook size={24} />
             </div>
             <div className="exam-details">
-              <Text className="exam-title">{examData.title}</Text>
-              <Text className="exam-subtitle">{examData.subtitle}</Text>
+              <Text className="exam-title">{examData.examTitle}</Text>
+              <Text className="exam-subtitle">{examData.subTitle}</Text>
             </div>
           </div>
 

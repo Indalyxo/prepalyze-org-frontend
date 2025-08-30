@@ -22,8 +22,8 @@ const Step0 = ({ formData, handleInputChange, stepErrors }) => {
   ];
 
   const examCategoryData = [
-    { value: "NEET", label: "NEET" },
-    { value: "JEE", label: "JEE" },
+    { value: "NEET-UG", label: "NEET-UG" },
+    { value: "JEE-MAINS", label: "JEE-MAINS" },
     { value: "Custom", label: "Custom" },
   ];
   return (
