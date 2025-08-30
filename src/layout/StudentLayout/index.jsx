@@ -24,10 +24,10 @@ const StudentLayout = () => {
       description: "Your Performance Zone",
     },
     {
-      name: "Tests",
+      name: "Exams",
       icon: <IconContract />,
-      redirectTo: "/student/tests",
-      description: "Your Assessment Zone",
+      redirectTo: "/student/exams",
+      description: "Your Exam Zone",
     },
   ];
 

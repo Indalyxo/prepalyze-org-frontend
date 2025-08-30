@@ -1,15 +1,23 @@
 import { Modal, Text, Stack, List, Group } from "@mantine/core"
-import { IconInfoCircle } from "@tabler/icons-react"
-import "./instruction-modal.scss"
+import { IconInfoCircle, IconCircleCheck } from "@tabler/icons-react"
+import { useEffect } from "react"
+import styles from "./instruction-modal.module.scss"
 
-const InstructionModal = ({ opened, onClose, section }) => {
+
+const InstructionModal = ({ opened, onClose, section, autocloseDelay = 0 }) => {
+  useEffect(() => {
+    if (!opened || !autocloseDelay) return
+    const id = setTimeout(() => onClose(), autocloseDelay)
+    return () => clearTimeout(id)
+  }, [opened, autocloseDelay, onClose])
+
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       title={
-        <Group>
-          <IconInfoCircle size={24} />
+        <Group className={styles.titleGroup}>
+          <IconInfoCircle size={22} />
           <Text fw={600} size="lg">
             Instructions for {section.name}
           </Text>
@@ -17,20 +25,35 @@ const InstructionModal = ({ opened, onClose, section }) => {
       }
       size="lg"
       centered
+      radius="md"
+      overlayProps={{ backgroundOpacity: 0.35, blur: 2 }}
+      transitionProps={{ transition: "pop", duration: 150 }}
+      padding="lg"
+      classNames={{
+        header: styles.header,
+        title: styles.title,
+        content: styles.content,
+        body: styles.body,
+      }}
     >
       <Stack gap="md">
-        <Text size="md" c="dimmed">
+        <Text size="sm" c="dimmed">
           Please read the following instructions carefully before proceeding:
         </Text>
 
-        <List spacing="sm" size="sm">
+        <List
+          spacing="sm"
+          size="sm"
+          className={styles.instructionList}
+          icon={<IconCircleCheck size={16} className={styles.icon} />}
+        >
           {section.instructions?.map((instruction, index) => (
             <List.Item key={index}>{instruction}</List.Item>
           ))}
         </List>
 
-        <Text size="sm" c="dimmed" fs="italic">
-          These instructions will also auto-hide after 5 seconds when you start answering questions.
+        <Text size="xs" c="dimmed" fs="italic">
+          These instructions can also auto-hide after a delay when you start answering questions.
         </Text>
       </Stack>
     </Modal>

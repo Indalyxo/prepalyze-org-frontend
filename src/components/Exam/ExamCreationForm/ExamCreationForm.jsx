@@ -100,12 +100,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
     queryFn: fetchExamData,
   });
 
-  const [availableGroups, setAvailableGroups] = useState([
-    { value: "batch-1", label: "Batch 1 - Morning" },
-    { value: "batch-2", label: "Batch 2 - Evening" },
-    { value: "group-a", label: "Group A - Advanced" },
-    { value: "group-b", label: "Group B - Intermediate" },
-  ]);
+  const [availableGroups, setAvailableGroups] = useState([]);
 
   const [availableSubjects, setAvailableSubjects] = useState([]);
 
@@ -459,6 +454,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
         questionData: transformToFinalStructure(formData) || [],
       });
       console.log("Exam created with validated data:", validatedData);
+      toast.success("Exam created successfully!");
       handleClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -475,6 +471,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
             allErrors[`step_${stepIndex}`][path] = err.message;
           }
         });
+        toast.error("Validation failed. Please check the form.");
         setErrors(allErrors);
       }
     }

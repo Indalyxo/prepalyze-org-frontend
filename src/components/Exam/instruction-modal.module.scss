@@ -1,0 +1,43 @@
+$title-color: var(--mantine-color-text);
+$dimmed: var(--mantine-color-dimmed);
+$border: var(--mantine-color-gray-3);
+
+.titleGroup {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header {
+  border-bottom: 1px solid $border;
+}
+
+.title {
+  color: $title-color;
+}
+
+.body {
+  padding-top: 0.75rem;
+}
+
+.content {
+  // Allow a comfortable reading width
+  :global(.mantine-Modal-body) {
+    max-width: 56ch;
+  }
+}
+
+.instructionList {
+  margin-top: 0.25rem;
+
+  .icon {
+    color: var(--mantine-color-teal-6);
+  }
+
+  li {
+    line-height: 1.55;
+    color: $title-color;
+    & + li {
+      margin-top: 0.25rem;
+    }
+  }
+}

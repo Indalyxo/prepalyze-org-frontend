@@ -18,7 +18,7 @@ const examMetadataSchema = z.object({
   examMode: z.enum(["Online", "Offline"], {
     errorMap: () => ({ message: "Please select exam mode" }),
   }),
-  examCategory: z.enum(["NEET", "JEE", "Custom"], {
+  examCategory: z.enum(["NEET-UG", "JEE-MAINS", "Custom"], {
     errorMap: () => ({ message: "Please select exam category" }),
   }),
 });

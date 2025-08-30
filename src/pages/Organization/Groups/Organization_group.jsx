@@ -225,7 +225,12 @@ export default function OrganizationGroup() {
   if (!organizationId && !error) {
     return (
       <Container size="xl" py="xl">
-        <LoadingOverlay visible />
+        <LoadingOverlay
+          visible
+          zIndex={1000}
+          loaderProps={{ color: "blue", type: "dots" }}
+          overlayProps={{ radius: "sm", blur: 2 }}
+        />
       </Container>
     );
   }
@@ -233,7 +238,12 @@ export default function OrganizationGroup() {
   return (
     <div className={classes.container}>
       <Container size="xl" py="xl">
-        <LoadingOverlay visible={loading} />
+        <LoadingOverlay
+          visible={loading}
+          zIndex={1000}
+          loaderProps={{ color: "blue", type: "dots" }}
+          overlayProps={{ radius: "sm", blur: 2 }}
+        />
 
         {/* Header */}
         <Group justify="space-between" mb="xl" className={classes.header}>
