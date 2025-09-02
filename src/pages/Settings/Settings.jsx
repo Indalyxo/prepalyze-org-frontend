@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
-import { Container,TextInput , Title, Text, Divider, Card, Grid, NumberInput, Button, Group, Stack, Loader, Notification } from "@mantine/core"
+import { Container, TextInput, Title, Text, Divider, Card, Grid, NumberInput, Button, Group, Stack, Loader } from "@mantine/core"
 import { Dropzone } from "@mantine/dropzone";
 import AdvancedEditor from "../../components/Generics/RichTextEditor"
 import styles from "./settings.module.scss"
 import apiClient from "../../utils/api"
 import useAuthStore from "../../context/auth-store"
 import { IconPhoto } from "@tabler/icons-react";
+
+// ✅ Sonner
+import { Toaster, toast } from "sonner";
 
 export function SettingsPage() {
   const { user } = useAuthStore();
@@ -17,8 +20,6 @@ export function SettingsPage() {
   const [watermark, setWatermark] = useState("")
   const [backgroundImage, setBackgroundImage] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
   useEffect(() => {
     if (!orgId) return;
@@ -31,15 +32,15 @@ export function SettingsPage() {
         setExamInstructions(data.exam?.instructions ?? "");
         setWatermark(data.exam?.watermark ?? "");
         setBackgroundImage(data.exam?.backgroundImage ?? "");
-        setError("");
       })
       .catch(err => {
-        setError(err.response?.data?.message || "Failed to fetch settings");
+        toast.dismiss();
+        toast.error(err.response?.data?.message || "Failed to fetch settings", { duration: 3000 });
       })
       .finally(() => setLoading(false));
   }, [orgId]);
 
-  // Handle image upload and convert to base64
+  // Handle image upload
   const handleImageDrop = async (files) => {
     if (!files || files.length === 0) return;
     const file = files[0];
@@ -52,9 +53,15 @@ export function SettingsPage() {
 
   const handleSave = async () => {
     if (!orgId) return;
+
+    // ✅ Required field validation
+    if (!watermark.trim()) {
+      toast.dismiss();
+      toast.error("Watermark is required!", { duration: 3000 });
+      return;
+    }
+
     setLoading(true);
-    setError("");
-    setSuccess("");
     try {
       const payload = {
         detention: {
@@ -67,10 +74,12 @@ export function SettingsPage() {
           backgroundImage
         }
       };
-      const res = await apiClient.put(`/settings/${orgId}`, payload);
-      setSuccess("Settings saved successfully.");
+      await apiClient.put(`/settings/${orgId}`, payload);
+      toast.dismiss();
+      toast.success("Settings saved successfully.", { duration: 3000 });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save settings");
+      toast.dismiss();
+      toast.error(err.response?.data?.message || "Failed to save settings", { duration: 3000 });
     }
     setLoading(false);
   }
@@ -81,12 +90,15 @@ export function SettingsPage() {
     setExamInstructions("")
     setWatermark("")
     setBackgroundImage("")
-    setError("");
-    setSuccess("");
+    toast.dismiss();
+    toast.info("Settings have been reset.", { duration: 3000 });
   }
 
   return (
     <Container size="lg" className={styles.page}>
+      {/* ✅ Sonner Toaster */}
+      <Toaster position="top-center" richColors duration={3000} />
+
       <div className={styles.header}>
         <Title order={1} className="text-balance">
           Settings
@@ -97,8 +109,6 @@ export function SettingsPage() {
       <Divider my="md" />
 
       {loading && <Loader my="md" />}
-      {error && <Notification color="red" title="Error" my="md">{error}</Notification>}
-      {success && <Notification color="green" title="Success" my="md">{success}</Notification>}
 
       {/* Detention Section */}
       <Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
@@ -113,11 +123,11 @@ export function SettingsPage() {
           <Grid.Col span={{ base: 12, md: 6 }}>
             <NumberInput
               label="Number of Tabs"
-              min={1}
+              min={1} // ✅ minimum 1
               max={20}
               clampBehavior="strict"
               value={detentionTabs}
-              onChange={(val) => setDetentionTabs(Number(val ?? 0))}
+              onChange={(val) => setDetentionTabs(Math.max(1, Number(val ?? 1)))}
               placeholder="Enter number of tabs"
               disabled={loading}
             />
@@ -129,11 +139,11 @@ export function SettingsPage() {
           <Grid.Col span={{ base: 12, md: 6 }}>
             <NumberInput
               label="Duration (minutes)"
-              min={1}
+              min={5} // ✅ minimum 5
               max={180}
               clampBehavior="strict"
               value={detentionDuration}
-              onChange={(val) => setDetentionDuration(Number(val ?? 0))}
+              onChange={(val) => setDetentionDuration(Math.max(5, Number(val ?? 5)))}
               placeholder="Enter duration in minutes"
               disabled={loading}
             />
@@ -144,80 +154,85 @@ export function SettingsPage() {
         </Grid>
       </Card>
 
-     {/* Exam Section */}
-{/* Exam Section */}
-<Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
-  <Stack gap="xs">
-    <Title order={3}>Exam Settings</Title>
+      {/* Exam Section */}
+      <Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
+        <Stack gap="xs">
+          <Title order={3}>Exam Settings</Title>
 
-    <TextInput
-      label="Water Mark"
-      placeholder="Water Mark For your Exams..."
-      mt="md"
-      value={watermark}
-      onChange={e => setWatermark(e.currentTarget.value)}
-      disabled={loading}
-    />
-
-    {/* Upload Section with Border */}
-    <div style={{ marginTop: 16 }}>
-      <Title order={5} mb={4}>Upload Exam Background Images</Title>
-      <Card withBorder padding="md" radius="md" mt="sm">
-        <Dropzone
-          onDrop={handleImageDrop}
-          onReject={() => {}}
-          maxSize={5 * 1024 ** 2}
-          accept={{ "image/*": [] }}
-          disabled={loading}
-        >
-          <Group justify="center" gap="md" mih={180} style={{ pointerEvents: "none" }}>
-            <IconPhoto size={40} stroke={1.5} />
-            <div>
-              <Text size="md" fw={500}>
-                Drag images here or click to select files
-              </Text>
-              <Text size="xs" c="dimmed">
-                Attach as many files as you like, each file should not exceed 5mb
-              </Text>
-            </div>
-          </Group>
-        </Dropzone>
-
-        {backgroundImage && (
-          <img
-            src={backgroundImage}
-            alt="Exam Background"
-            style={{
-              marginTop: 12,
-              maxWidth: "100%",
-              borderRadius: 8,
-              border: "1px solid #e0e0e0"
-            }}
+          <TextInput
+            label="Watermark" // ✅ Removed *
+            placeholder="Watermark for your Exams..."
+            mt="md"
+            value={watermark}
+            onChange={e => setWatermark(e.currentTarget.value)}
+            disabled={loading}
+            required
           />
-        )}
+             <Text size="xs" c="dimmed" mt={6}>
+            The watermark will appear on all exam pages to prevent copying or misuse.
+          </Text>
+
+          {/* Upload Section */}
+          <div style={{ marginTop: 16 }}>
+            
+           <Title order={5} fw={600} mb={4}>Background Images</Title>
+
+            <Card withBorder padding="md" radius="md" mt="sm">
+
+              <Dropzone
+              
+                onDrop={handleImageDrop}
+                maxSize={5 * 1024 ** 2}
+                accept={{ "image/*": [] }}
+                disabled={loading}
+              >
+                <Group justify="center" gap="md" mih={180} style={{ pointerEvents: "none" }}>
+                  <IconPhoto size={40} stroke={1.5} />
+                  <div>
+                    <Text size="md" fw={500}>
+                      Drag images here or click to select files
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Attach as many files as you like, each file should not exceed 5mb
+                    </Text>
+                  </div>
+                </Group>
+              </Dropzone>
+
+              {backgroundImage && (
+                <img
+                  src={backgroundImage}
+                  alt="Exam Background"
+                  style={{
+                    marginTop: 12,
+                    maxWidth: "100%",
+                    borderRadius: 8,
+                    border: "1px solid #e0e0e0"
+                  }}
+                />
+              )}
+            </Card>
+          </div>
+
+          <Text size="xs" c="dimmed" mt={6}>
+           Upload or manage background images that will be shown on exam pages.  
+          </Text>
+        </Stack>
+
+        <div style={{ marginTop: 16 }}>
+          <Title order={5} fw={600} mb={4}> Intructions for Exams</Title>
+
+          <AdvancedEditor
+            value={examInstructions}
+            onChange={setExamInstructions}
+            placeholder="Enter default exam instructions..."
+            disabled={loading}
+          />
+          <Text size="xs" c="dimmed" mt={6}>
+            These instructions will be displayed to students at the beginning of each exam
+          </Text>
+        </div>
       </Card>
-    </div>
-
-    <Text size="sm" c="dimmed">
-      Configure default exam instructions and settings.
-    </Text>
-  </Stack>
-
-  <div style={{ marginTop: 12 }}>
-    <AdvancedEditor
-      value={examInstructions}
-      onChange={setExamInstructions}
-      placeholder="Enter default exam instructions..."
-      disabled={loading}
-    />
-    <Text size="xs" c="dimmed" mt={6}>
-      These instructions will be displayed to students at the beginning of each exam
-    </Text>
-  </div>
-</Card>
-
-
-
 
       {/* Actions */}
       <div className={styles.actions}>
