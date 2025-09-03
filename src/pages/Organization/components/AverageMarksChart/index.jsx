@@ -1,7 +1,9 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Paper, Title, Text } from '@mantine/core';
+import { Paper, Title, Text, Center, Loader } from '@mantine/core';
 import './average-marks-chart.scss';
+import apiClient from '../../../../utils/api';
+import { useQuery } from '@tanstack/react-query';
 
 const marksData = [
   { test: "Math Test 1", average: 78 },
@@ -13,6 +15,37 @@ const marksData = [
 ];
 
 const AverageMarksChart = () => {
+    const fetchExamMarks = async () => {
+    try {
+      const response = await apiClient.get("/api/intellihub/averages");
+      // console.log(response.data.data);
+      return response.data.data;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch leaderboard. Please try again.");
+      throw error; // Re-throw to let React Query handle the error
+    }
+  };
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["GET_AVERAGE_EXAM_SCORE"],
+    queryFn: fetchExamMarks,
+  });
+  if (isLoading) {
+    return (
+      <Center h={250}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <Center h={250}>
+        <Text c="dimmed">No progress data available yet 📊</Text>
+      </Center>
+    );
+  }
   return (
     <Paper className="chart-container" shadow="sm" p="md">
       <div className="chart-header">
@@ -21,10 +54,10 @@ const AverageMarksChart = () => {
       </div>
       <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={marksData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
-              dataKey="test" 
+              dataKey="examName" 
               angle={-45} 
               textAnchor="end" 
               height={80}
@@ -32,7 +65,7 @@ const AverageMarksChart = () => {
             />
             <YAxis domain={[0, 100]} />
             <Tooltip />
-            <Bar dataKey="average" fill="#339af0" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="averagePercentage" fill="#339af0" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

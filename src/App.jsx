@@ -19,6 +19,12 @@ import Notification from "./pages/Notification/Notification";
 import SettingsPage from "./pages/Settings/Settings";
 import ExamQuestionsPage from "./pages/Generic/ExamQuestions/ExamQuestions";
 import ViewStudentsExamsPage from "./pages/Students/ExamPage/StudentExamPage";
+import ExamResult from "./components/Exam/Helpers/ExamResult/ExamResult";
+import StudentsViewDetailsPage from "./pages/Students/ViewDetailsPage/StudentsViewDetailsPage";
+import StudentIntellihub from "./pages/Students/Intellihub";
+import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
+import PrintQuestions from "./pages/Generic/PrintQuestions/PrintQuestions";
+
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
     useAuthStore();
@@ -32,7 +38,7 @@ const App = () => {
   return (
     <main style={{ backgroundColor: "#f7f9fc" }}>
       <Toaster position="top-center" richColors />
-
+      <OfflineAlert />
       <Suspense fallback={<LoadingPage />}>
         <Routes>
           {/* Login Route */}
@@ -68,16 +74,20 @@ const App = () => {
           {/* Student Routes */}
           {isAuthenticated && user?.role === "student" && (
             <Route path="/student" element={<StudentLayout />}>
-              <Route path="intellihub" element={<p>Intellihub</p>} />
+              <Route path="" element={<StudentIntellihub />} />
               <Route path="exams" element={<ViewStudentsExamsPage />} />
 
               <Route
                 path="exams/details/:examId"
-                element={<ExamDetailsPage />}
+                element={<StudentsViewDetailsPage />}
               />
               <Route
                 path="exams/details/:examId/questions"
                 element={<ExamQuestionsPage />}
+              />
+              <Route
+                path="exams/details/:examId/result/:resultId"
+                element={<ExamResult />}
               />
             </Route>
           )}
@@ -111,6 +121,7 @@ const App = () => {
           {isAuthenticated && (
             <>
               <Route path="/exam/:examId" element={<ExamPage />} />
+              <Route path="/print/:examId" element={<PrintQuestions />} />
             </>
           )}
 

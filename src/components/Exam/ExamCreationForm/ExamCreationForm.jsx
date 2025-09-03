@@ -135,8 +135,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
     );
 
     const markingScheme = {
-      JEE: { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
-      NEET: { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
+      "JEE-MAINS": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
+      "NEET-UG": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
       Custom: { mcq: 1, assertionReason: 1, numerical: 1, negative: 0 },
     };
 

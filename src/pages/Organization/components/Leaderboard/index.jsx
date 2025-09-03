@@ -1,47 +1,10 @@
-import { Card, Text, Group, Badge, Stack, Box, Flex, Button } from "@mantine/core";
+import { Card, Text, Group, Badge, Stack, Flex, Button } from "@mantine/core";
 import { IconStar } from "@tabler/icons-react";
 import useAuthStore from "../../../../context/auth-store.js";
 import { useNavigate } from "react-router-dom";
-
+import { useQuery } from "@tanstack/react-query";
+import apiClient from "../../../../utils/api.jsx";
 import "./leaderboard.scss";
-
-const leaderboardData = [
-  {
-    rank: 2,
-    name: "Emma Johnson",
-    title: "Grade 12",
-    time: "09:55min",
-    score: 300,
-  },
-  {
-    rank: 3,
-    name: "Alex Chen",
-    title: "Grade 11",
-    time: "08:55min",
-    score: 280,
-  },
-  {
-    rank: 4,
-    name: "Sarah Williams",
-    title: "Grade 12",
-    time: "10:15min",
-    score: 275,
-  },
-  {
-    rank: 5,
-    name: "Michael Brown",
-    title: "Grade 10",
-    time: "10:40min",
-    score: 260,
-  },
-  {
-    rank: 6,
-    name: "Jessica Davis",
-    title: "Grade 11",
-    time: "10:45min",
-    score: 250,
-  },
-];
 
 const getScoreBadgeColor = (rank) => {
   switch (rank) {
@@ -73,13 +36,25 @@ const getRankSuffix = (rank) => {
   }
 };
 
-
 export default function Leaderboard() {
-  const topPerformer = leaderboardData[0];
   const { user } = useAuthStore();
-  console.log(user);
   const navigate = useNavigate();
 
+  const fetchLeaderboard = async () => {
+    const response = await apiClient.get("/api/intellihub/leaderboard");
+    return response.data;
+  };
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["GET_LEADERBOARD"],
+    queryFn: fetchLeaderboard,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !data?.success) return <div>Failed to load leaderboard</div>;
+
+  const leaderboardData = data.data || [];
+  const topPerformer = leaderboardData[0];
 
   return (
     <div className="leaderboard-container">
@@ -93,57 +68,64 @@ export default function Leaderboard() {
 
       <div className="leaderboard-content">
         {/* Left Panel - Top Performer */}
-        <Card className="featured-card" radius="xl" shadow="lg">
-          <Stack align="center" gap="md">
-            {/* Rank Badge */}
-            <Badge
-              className="rank-badge"
-              style={{ backgroundColor: "#4A90E2" }}
-              size="lg"
-              radius="xl"
-            >
-              1<sup>st</sup> Rank
-            </Badge>
+        {topPerformer && (
+          <Card className="featured-card" radius="xl" shadow="lg">
+            <Stack align="center" gap="md">
+              {/* Rank Badge */}
+              <Badge
+                className="rank-badge"
+                style={{ backgroundColor: "#4A90E2" }}
+                size="lg"
+                radius="xl"
+              >
+                1<sup>st</sup> Rank
+              </Badge>
 
-            {/* Profile Circle Placeholder */}
-            <img
-              src={user?.organization?.logoUrl || user?.organization?.logo}
-              alt={`${user?.name}'s profile`}
-              className="profile-circle"
-            />
+              {/* Profile Circle Placeholder */}
+              <img
+                src={user?.organization?.logoUrl || user?.organization?.logo}
+                alt={`${topPerformer.name}'s profile`}
+                className="profile-circle"
+              />
 
-            {/* Stars */}
-            <Group className="stars" gap="xs">
-              {[1, 2, 3].map((star) => (
-                <IconStar key={star} size={24} fill="#FFD700" color="#FFD700" />
-              ))}
-            </Group>
+              {/* Stars */}
+              <Group className="stars" gap="xs">
+                {[1, 2, 3].map((star) => (
+                  <IconStar
+                    key={star}
+                    size={24}
+                    fill="#FFD700"
+                    color="#FFD700"
+                  />
+                ))}
+              </Group>
 
-            {/* Name and Title */}
-            <Stack align="center" gap="xs">
-              <Text className="featured-name" fw={700}>
-                {topPerformer.name}
-              </Text>
-              <Text className="featured-title" size="sm">
-                {topPerformer.title}
-              </Text>
+              {/* Name and Title */}
+              <Stack align="center" gap="xs">
+                <Text className="featured-name" fw={700}>
+                  {topPerformer.name}
+                </Text>
+                {/* <Text className="featured-title" size="sm">
+                  {topPerformer.title}
+                </Text> */}
+              </Stack>
+
+              {/* Score */}
+              <div className="featured-score">
+                <Text className="score-number" size="4rem" fw={700}>
+                  {topPerformer.score}
+                </Text>
+                <Text c="dimmed" size="sm">
+                  Points
+                </Text>
+              </div>
             </Stack>
-
-            {/* Score */}
-            <div className="featured-score">
-              <Text className="score-number" size="4rem" fw={700}>
-                {topPerformer.score}
-              </Text>
-              <Text c="dimmed" size="sm">
-                Points
-              </Text>
-            </div>
-          </Stack>
-        </Card>
+          </Card>
+        )}
 
         {/* Right Panel - Rankings List */}
         <Stack className="leaderboard-list" gap="sm">
-          {leaderboardData.map((student) => (
+          {leaderboardData.slice(1).map((student) => (
             <Card
               key={student.rank}
               className="leaderboard-item"
@@ -177,9 +159,6 @@ export default function Leaderboard() {
                       {student.name}
                     </Text>
                     <Group gap="md">
-                      <Text className="entry-title" size="sm">
-                        {student.title}
-                      </Text>
                       <Text className="duration" size="sm">
                         {student.time}
                       </Text>
@@ -204,17 +183,15 @@ export default function Leaderboard() {
                     </Stack>
                   </Badge>
                 </Stack>
-
               </Group>
-
             </Card>
-
           ))}
 
           <Flex justify="center" mt="md" w="100%">
-            <Button className="view-button"
-             onClick={() => navigate("/organization/leaderboard")}
-           >
+            <Button
+              className="view-button"
+              onClick={() => navigate("/organization/leaderboard")}
+            >
               View All
             </Button>
           </Flex>

@@ -324,14 +324,15 @@ const renderWithLatexAndImages = (text) => {
         );
       } else if (part.type === "image") {
         return (
-          <div key={i} style={{ margin: "10px 0", textAlign: "center" }}>
+          <div key={i} style={{ margin: "10px 0"}}>
             <img
               src={part.value}
               alt="Question content"
               style={{
+                maxHeight: "300px",
                 maxWidth: "100%",
-                maxHeight: "400px",
                 borderRadius: "4px",
+                objectFit:  "contain",
                 border: "1px solid #ddd",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}

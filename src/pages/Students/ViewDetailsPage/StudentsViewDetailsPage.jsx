@@ -6,8 +6,6 @@ import {
   Stack,
   Button,
   Group,
-  Modal,
-  ScrollArea,
   Card,
   Avatar,
   Progress,
@@ -30,14 +28,14 @@ import {
   IconBook2,
   IconTags,
   IconListNumbers,
+  IconTrophyFilled,
 } from "@tabler/icons-react";
-import "./generic.scss";
-import apiClient from "../../utils/api";
+import "./student-view-details.scss";
+import apiClient from "../../../utils/api";
 import { useNavigate, useParams } from "react-router-dom";
-import NoData from "../../components/Generics/NoData";
-import useAuthStore from "../../context/auth-store";
+import NoData from "../../../components/Generics/NoData";
+import useAuthStore from "../../../context/auth-store";
 import dayjs from "dayjs";
-import { useQuery } from "@tanstack/react-query";
 
 function formatDateTime(iso) {
   if (!iso) return "-";
@@ -55,54 +53,37 @@ function formatDateTime(iso) {
   }
 }
 
-// Map scores to Mantine colors (kept minimal to match 5-color theme usage)
 function getScoreColor(score = 0) {
   if (score >= 90) return "accent";
   if (score >= 75) return "brand";
-  return "gray";
+  return "blue";
 }
 
-function getRankIcon(rank) {
-  switch (rank) {
-    case 1:
-      return <IconTrophy size={24} className="rank-icon gold" />;
-    case 2:
-      return <IconMedal size={24} className="rank-icon silver" />;
-    case 3:
-      return <IconAward size={24} className="rank-icon bronze" />;
-    default:
-      return <span className="rank-number">#{rank}</span>;
-  }
+
+function flattenQuestionsFromSections(sections = []) {
+  const flat = [];
+  sections.forEach((sec) => {
+    (sec?.questions || []).forEach((q) => {
+      flat.push({
+        section: sec.name,
+        number: flat.length + 1,
+        id: q.id || flat.length + 1,
+        type: q.type || "MCQ",
+        question: q.text || "",
+      });
+    });
+  });
+  return flat;
 }
 
-export default function ExamDetails() {
+export default function StudentsViewDetailsPage() {
   const [examData, setExamData] = useState(null);
+  const [userScoreData, setUserScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { examId: routeExamId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        setLoading(true);
-        const res = await apiClient.get(`/api/exam/${routeExamId}`, {
-          cache: "no-store",
-        });
-        if (mounted) setExamData(res?.data?.examData || null);
-      } catch (err) {
-        console.error("[v0] exam fetch error:", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, [routeExamId]);
 
   const examEnd = dayjs(examData?.timing?.end);
   const [hasTimeEnded, setHasTimeEnded] = useState(false);
@@ -120,22 +101,42 @@ export default function ExamDetails() {
     return () => clearInterval(interval);
   }, [examEnd]); // Re-run effect if endTime changes
 
-  const fetchMetrics = async () => {
-    try {
-      const response = await apiClient.get(`/api/exam/${routeExamId}/metrics`);
-      return response.data.metrics;
-    } catch (error) {
-      console.error(error);
-      throw error;
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        // Fetch exam details
+        const examRes = await apiClient.get(`/api/exam/${routeExamId}`, {
+          cache: "no-store",
+        });
+        if (mounted) setExamData(examRes?.data?.examData || null);
+
+        // Fetch individual user's score if authenticated
+        if (user?.id) {
+          const scoreRes = await apiClient.get(
+            `/api/exam/${routeExamId}/attendance`
+          );
+          if (mounted) setUserScoreData(scoreRes?.data?.result || null);
+        }
+      } catch (err) {
+        console.error("[v0] exam fetch error:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
-  };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [routeExamId, user?.id]);
 
-  const { data: metrics, isLoading: isMeticsLoading } = useQuery({
-    queryKey: ["exam-metrics", routeExamId],
-    queryFn: fetchMetrics,
-  });
+  const flattenedQuestions = useMemo(
+    () => flattenQuestionsFromSections(examData?.sections || []),
+    [examData]
+  );
 
-  if (loading || isMeticsLoading)
+  if (loading)
     return (
       <LoadingOverlay
         visible
@@ -164,6 +165,11 @@ export default function ExamDetails() {
     topics = [],
     chapters = [],
   } = examData;
+
+  console.log(userScoreData, timing, user, "userScoreData");
+  const userHasScore = hasTimeEnded;
+  const yourScorePercentage = userHasScore ? userScoreData.percentage : 0;
+  const yourScoreColor = getScoreColor(yourScorePercentage);
 
   return (
     <div className="exam-details-container exam-page">
@@ -202,6 +208,89 @@ export default function ExamDetails() {
         </div>
       </Card>
 
+      {userHasScore ? (
+        <Card
+          className="section-card user-score-section"
+          shadow="sm"
+          padding="lg"
+          radius="md"
+          mt="md"
+        >
+          <Group
+            className="card-header"
+            justify="space-between"
+            align="flex-start"
+            mb="sm"
+          >
+            <div>
+              <Title order={3} className="title info-title">
+                Your Score
+              </Title>
+              <Text size="sm" c="dimmed">
+                Your personal performance on this exam.
+              </Text>
+            </div>
+            <Badge
+              color={status === "present" ? "green" : "red"}
+              size="lg"
+              variant="light"
+            >
+              {userScoreData.status}
+            </Badge>
+          </Group>
+          <Divider my="md" />
+          <Stack gap="md">
+            <Group justify="space-between" align="center" wrap="wrap">
+              <Group gap="xs">
+                <IconTrophyFilled color="yellow" size={24} />
+                <Text size="xl" fw={700}>
+                  {userScoreData.totalScore}
+                  <Text span size="sm" c="dimmed" ml={4}>
+                    / {examData.totalMarks}
+                  </Text>
+                </Text>
+              </Group>
+              <Badge color={yourScoreColor} size="lg" variant="light">
+                {yourScorePercentage.toFixed(0)}%
+              </Badge>
+            </Group>
+            <Progress
+              value={yourScorePercentage}
+              color={yourScoreColor}
+              size="xl"
+              radius="sm"
+              style={{ flexGrow: 1 }}
+            />
+            <Group grow mt="xs">
+              <Stack gap={4}>
+                <Text size="sm" c="dimmed">
+                  Correct
+                </Text>
+                <Badge color="green" size="lg" variant="light">
+                  {userScoreData.metaCounts.totalCorrect}
+                </Badge>
+              </Stack>
+              <Stack gap={4}>
+                <Text size="sm" c="dimmed">
+                  Incorrect
+                </Text>
+                <Badge color="red" size="lg" variant="light">
+                  {userScoreData.metaCounts.totalWrong}
+                </Badge>
+              </Stack>
+              <Stack gap={4}>
+                <Text size="sm" c="dimmed">
+                  Unattempted
+                </Text>
+                <Badge color="gray" size="lg" variant="light">
+                  {userScoreData.metaCounts.totalUnattempted}
+                </Badge>
+              </Stack>
+            </Group>
+          </Stack>
+        </Card>
+      ) : null}
+
       <Card
         className="section-card exam-info-card"
         shadow="sm"
@@ -218,7 +307,6 @@ export default function ExamDetails() {
               Quick overview and content tags
             </Text>
           </div>
-
           <Group gap="xs" wrap="wrap" className="info-pills">
             {status ? (
               <div
@@ -231,7 +319,6 @@ export default function ExamDetails() {
                 <strong>{status}</strong>
               </div>
             ) : null}
-
             {examMode ? (
               <div className="badge neutral" aria-label={`Mode ${examMode}`}>
                 <IconEye size={14} />
@@ -239,7 +326,6 @@ export default function ExamDetails() {
                 <strong>{examMode}</strong>
               </div>
             ) : null}
-
             {examType ? (
               <div className="badge neutral" aria-label={`Type ${examType}`}>
                 <IconMedal size={14} />
@@ -247,7 +333,6 @@ export default function ExamDetails() {
                 <strong>{examType}</strong>
               </div>
             ) : null}
-
             {examCategory ? (
               <div
                 className="badge neutral"
@@ -258,7 +343,6 @@ export default function ExamDetails() {
                 <strong>{examCategory}</strong>
               </div>
             ) : null}
-
             {typeof duration === "number" ? (
               <div
                 className="badge neutral"
@@ -269,7 +353,6 @@ export default function ExamDetails() {
                 <strong>{duration} min</strong>
               </div>
             ) : null}
-
             {typeof totalMarks === "number" ? (
               <div
                 className="badge neutral"
@@ -280,7 +363,6 @@ export default function ExamDetails() {
                 <strong>{totalMarks}</strong>
               </div>
             ) : null}
-
             {typeof totalQuestions === "number" ? (
               <div
                 className="badge neutral"
@@ -291,21 +373,17 @@ export default function ExamDetails() {
                 <strong>{totalQuestions}</strong>
               </div>
             ) : null}
-
             <div
               className="badge neutral"
-              aria-label={`Attendees ${examData?.participants?.length || 0}`}
+              aria-label={`Attendees ${participants.length}`}
             >
               <IconUsers size={14} />
               <span>Attendees</span>
-              <strong>{examData?.participants?.length || 0}</strong>
+              <strong>{participants.length}</strong>
             </div>
           </Group>
-
           <Divider my="xs" />
-
           <div className="tags-section">
-            {/* Subjects */}
             <div className="tags-row">
               <div className="tags-row-head">
                 <IconBook2 size={18} className="tags-icon" />
@@ -328,8 +406,6 @@ export default function ExamDetails() {
                 )}
               </Group>
             </div>
-
-            {/* Chapters */}
             <div className="tags-row">
               <div className="tags-row-head">
                 <IconListNumbers size={18} className="tags-icon" />
@@ -352,8 +428,6 @@ export default function ExamDetails() {
                 )}
               </Group>
             </div>
-
-            {/* Topics */}
             <div className="tags-row">
               <div className="tags-row-head">
                 <IconTags size={18} className="tags-icon" />
@@ -379,7 +453,6 @@ export default function ExamDetails() {
           </div>
         </Stack>
       </Card>
-
       <Card
         className="section-card options-section"
         shadow="sm"
@@ -397,21 +470,21 @@ export default function ExamDetails() {
             variant="filled"
             color="brand"
             onClick={() =>
-              navigate(
-                `/organization/exams/details/${examData.examId}/questions`
-              )
+              navigate(`/student/exams/details/${examData.examId}/questions`)
             }
+            disabled={!hasTimeEnded}
             size="md"
           >
-            View Questions ({examData.totalQuestions})
+            View Questions ({flattenedQuestions.length})
           </Button>
           <Button
             leftSection={<IconFileTypePdf size={18} />}
             className="ghost"
             variant="outline"
             color="brand"
-            onClick={() => navigate(`/print/${examData.examId}`)}
+            onClick={() => console.log("Download PDF...")}
             size="md"
+            disabled={!hasTimeEnded}
           >
             Download PDF
           </Button>
@@ -422,209 +495,12 @@ export default function ExamDetails() {
             color="accent"
             onClick={() => console.log("Download Word...")}
             size="md"
+            disabled={!hasTimeEnded}
           >
             Download Word
           </Button>
         </div>
-
-        <Group mt="lg" gap="lg" wrap="wrap">
-          <Card
-            shadow="xs"
-            radius="md"
-            padding="md"
-            withBorder
-            className="section-card kpi-card"
-          >
-            <Text fw={700} size="xl" className="kpi-value">
-              {examData?.participants?.length || 0}
-            </Text>
-            <Text size="sm" c="dimmed" className="kpi-label">
-              Registered Attendees
-            </Text>
-          </Card>
-          <Card
-            shadow="xs"
-            radius="md"
-            padding="md"
-            withBorder
-            className="section-card kpi-card"
-          >
-            <Text fw={700} size="xl" className="kpi-value">
-              {metrics?.averageScore}%
-            </Text>
-            <Text size="sm" c="dimmed" className="kpi-label">
-              Avg. Score
-            </Text>
-          </Card>
-          {/* <Card
-            shadow="xs"
-            radius="md"
-            padding="md"
-            withBorder
-            className="section-card kpi-card"
-          >
-            <Text fw={700} size="xl" className="kpi-value">
-              {metrics.completionRate}%
-            </Text>
-            <Text size="sm" c="dimmed" className="kpi-label">
-              Completion Rate
-            </Text>
-          </Card> */}
-          {organization?.logoUrl ? (
-            <Tooltip label={organization?.name || "Organization"} withArrow>
-              <Avatar src={organization.logoUrl} radius="xl" size="lg" />
-            </Tooltip>
-          ) : null}
-        </Group>
       </Card>
-
-      {hasTimeEnded && (
-        <>
-          <Card
-            className="section-card leaderboard-section"
-            shadow="sm"
-            padding="lg"
-            radius="md"
-            mt="md"
-          >
-            <Title order={2} className="title section-title">
-              <IconTrophy size={24} className="title-icon" />
-              Top Performers
-            </Title>
-            <Text size="sm" c="dimmed" mb="lg">
-              Celebrating the highest achievers in this exam
-            </Text>
-
-            <div className="leaderboard-list">
-              {metrics.top.map((performer, index) => (
-                <div
-                  key={performer.id}
-                  className={`leaderboard-item ${index < 3 ? "podium" : ""}`}
-                  onClick={() => console.log("Open result for", performer.id)}
-                >
-                  <div className="rank-section">{getRankIcon(index + 1)}</div>
-
-                  <Avatar
-                    size="lg"
-                    radius="xl"
-                    src={user.organization.logoUrl}
-                    alt={performer.name}
-                    className="performer-avatar"
-                    color={getScoreColor(performer.score)}
-                  />
-
-                  <div className="performer-info">
-                    <Text fw={600} size="lg" className="performer-name">
-                      {performer.name}
-                    </Text>
-                    {/* <Text size="sm" c="dimmed">
-                  {performer.email}
-                </Text>
-                <Text size="xs" c="dimmed" mt={4}>
-                  Completed in {performer.timeSpent}
-                </Text> */}
-                  </div>
-
-                  <div className="performance-metrics">
-                    <div className="score-display">
-                      <Text
-                        size="xl"
-                        fw={700}
-                        c={getScoreColor(performer.score)}
-                      >
-                        {performer.score}%
-                      </Text>
-                      <Progress
-                        value={performer.score}
-                        color={getScoreColor(performer.score)}
-                        size="sm"
-                        radius="xl"
-                        mt={4}
-                      />
-                    </div>
-                    <Text
-                      size="xs"
-                      c="dimmed"
-                      style={{ textAlign: "center" }}
-                      mt={4}
-                    >
-                      {performer.correctAnswers}/{totalQuestions} correct
-                    </Text>
-                  </div>
-
-                  <IconChevronRight size={20} className="chevron-icon" />
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Divider my="xl" />
-
-          <Card
-            className="section-card attendance-section"
-            shadow="sm"
-            padding="lg"
-            radius="md"
-            mt="md"
-          >
-            <Title order={2} className="title section-title">
-              <IconUsers size={20} className="title-icon" />
-              All Attendees ({participants.length})
-            </Title>
-
-            <div className="attendees-grid">
-              {metrics.withMetrics.map((attendee) => (
-                <div
-                  key={attendee.id}
-                  className="attendee-card-new"
-                  onClick={() => console.log("Open result for", attendee.id)}
-                >
-                  <Avatar
-                    size="lg"
-                    radius="xl"
-                    src={user.organization.logoUrl}
-                    alt={attendee.name}
-                    className="performer-avatar"
-                    color={getScoreColor(attendee.score)}
-                  />
-
-                  <div className="attendee-details">
-                    <div className="attendee-name">{attendee.name}</div>
-                    {/* <div className="attendee-email">{attendee.email}</div> */}
-                    <div className="attendee-metrics">
-                      <div className="metric">
-                        <span className="metric-value">{attendee.score}%</span>
-                        <span className="metric-label">Score</span>
-                      </div>
-                      <div className="metric">
-                        <span className="metric-value">
-                          {attendee.attended || 0}/{totalQuestions || 1}
-                        </span>
-                        <span className="metric-label">Completed</span>
-                      </div>
-                      <div className="metric">
-                        <span className="metric-value">
-                          {attendee.timeSpent}
-                        </span>
-                        <span className="metric-label">Time Spent</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Badge
-                    color={getScoreColor(attendee.score)}
-                    variant="filled"
-                    size="lg"
-                    className="attendee-score-badge"
-                  >
-                    {attendee.score}%
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </>
-      )}
     </div>
   );
 }

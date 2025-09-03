@@ -17,6 +17,7 @@ import { getIcons } from "../../../utils/get-ui";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
+import ExamCard from "../../../components/Generics/ExamCard/ExamCard";
 
 export default function ViewStudentsExamsPage() {
   const navigate = useNavigate();
@@ -75,62 +76,7 @@ export default function ViewStudentsExamsPage() {
           className={styles.examGrid}
         >
           {exams.map((exam) => (
-            <Card key={exam.id} className={`${styles.examCard}`} radius="md">
-              <div
-                className={styles.cardHeader}
-                style={{
-                  backgroundImage: `url(/images/${exam.subjects[0].toLowerCase()}.webp)`,
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition:
-                    exam.subjects[0] === "Physics" ? "40% 40%" : "40% 10%",
-                }}
-              >
-                <div className={styles.iconContainer}>
-                  {getIcons(exam.subjects[0], styles)}
-                </div>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.cardContent}>
-                  <Title order={4} className={styles.examTitle} mb="xs">
-                    {exam.examTitle}
-                  </Title>
-
-                  <Text size="sm" className={styles.examDuration} mb="xs">
-                    Exam Duration about: {exam?.duration || "N/A"}
-                  </Text>
-
-                  <Group gap="md" mb="sm">
-                    <Text size="sm" className={styles.examInfo}>
-                      System Admin
-                    </Text>
-                    <Text size="sm" className={styles.examInfo}>
-                      Total {exam.chapters.length} Chapters
-                    </Text>
-                  </Group>
-
-                  <Group gap="xs" align="center" mb="md">
-                    <IconCalendar size={14} />
-                    <Text size="sm" className={styles.createdDate}>
-                      Created on {exam?.createdAt || "N/A"}
-                    </Text>
-                  </Group>
-                </div>
-
-                <div className={styles.cardFooter}>
-                  <Button
-                    variant="subtle"
-                    fullWidth
-                    className={styles.viewMoreButton}
-                    onClick={() =>
-                      navigate(`/organization/exams/details/${exam.examId}`)
-                    }
-                  >
-                    View More
-                  </Button>
-                </div>
-              </div>
-            </Card>
+            <ExamCard exam={exam} route="student" key={exam.examId} />
           ))}
         </SimpleGrid>
 
