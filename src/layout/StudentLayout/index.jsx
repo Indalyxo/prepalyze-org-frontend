@@ -20,7 +20,7 @@ const StudentLayout = () => {
     {
       name: "Intellihub",
       icon: <IconDashboard />,
-      redirectTo: "/student/intellihub",
+      redirectTo: "/student",
       description: "Your Performance Zone",
     },
     {

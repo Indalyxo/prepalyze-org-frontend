@@ -1,0 +1,24 @@
+.dashboard {
+  max-height: 100vh;
+  
+  .dashboard-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      color: #212529;
+      font-weight: 700;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    .dashboard-header {
+      margin-bottom: 1.5rem;
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}

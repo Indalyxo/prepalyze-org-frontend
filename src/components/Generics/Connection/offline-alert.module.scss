@@ -1,0 +1,48 @@
+.container {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 640px;
+  padding: 0 12px;
+}
+
+.top {
+  top: 16px;
+}
+
+.bottom {
+  bottom: 16px;
+}
+
+.alert {
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.textWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.muted {
+  opacity: 0.9;
+}
+
+.slideIn {
+  animation: slideIn 220ms ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

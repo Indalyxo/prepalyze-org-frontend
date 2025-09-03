@@ -9,7 +9,10 @@ import { useClipboardBlocker } from "../../utils/AntiCheat/ClipboardBlocker";
 import TabSwitchTracker from "../../utils/AntiCheat/TabSwitchTracker";
 import DetentionModal from "./ViolationModal/ViolationModal";
 import "./exam-interface.scss";
-import { renderWithLatexAndImages } from "../../utils/render/render";
+import apiClient from "../../utils/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const QuestionNavigation = ({
   sectionData,
@@ -42,7 +45,12 @@ const QuestionNavigation = ({
   </Card>
 );
 
-const ExamInterface = ({ examData }) => {
+const markAttendance = async (examId) => {
+  const res = await apiClient.post(`/api/exam/${examId}/attendance`);
+  return res.data.success;
+};
+
+const ExamInterface = ({ examData, attendance }) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -54,8 +62,28 @@ const ExamInterface = ({ examData }) => {
   const [instructionModalOpened, setInstructionModalOpened] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [reset, setReset] = useState(false);
+  const { examId } = useParams();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useClipboardBlocker();
+  const attendanceMutation = useMutation({
+    mutationFn: () => markAttendance(examId),
+    onSuccess: () => {
+      toast.success("Attendance marked successfully ✅");
+      queryClient.invalidateQueries(["attendance", examId]); // refresh attendance
+    },
+    onError: () => {
+      toast.error("Failed to mark attendance ❌");
+    },
+    retry: 0, // disable retries
+  });
+
+  useEffect(() => {
+    if (examData && attendance.status === "absent") {
+      attendanceMutation.mutate();
+    }
+  }, [examData, attendance?.status]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -221,63 +249,34 @@ const ExamInterface = ({ examData }) => {
     setInstructionModalOpened(true);
   };
 
-  const handleSubmit = () => {
-    let correctCount = 0;
-    let wrongCount = 0;
-    const review = [];
+  const handleSubmit = async () => {
+    try {
+      const { gradeSchema } = examData;
+      console.log(examData)
 
-    examData.sections.forEach((section, sIndex) => {
-      section.questions.forEach((question, qIndex) => {
-        const key = `${sIndex}-${qIndex}`;
-        const userAnswerId = answers[key];
-
-        if (userAnswerId) {
-          // Find the correct option object
-          const correctOptionObj = question.options.find(
-            (opt) => opt.text === question.correctOption
-          );
-
-          // Find the option user selected
-          const userAnswerObj = question.options.find(
-            (opt) => opt._id === userAnswerId
-          );
-
-          const isCorrect =
-            correctOptionObj &&
-            userAnswerObj &&
-            userAnswerObj._id === correctOptionObj._id;
-
-          if (isCorrect) {
-            correctCount++;
-          } else {
-            wrongCount++;
-          }
-
-          review.push({
-            question: question.text,
-            correctAnswer: correctOptionObj?.text || "N/A",
-            yourAnswer: userAnswerObj?.text || "Not answered",
-            isCorrect,
-          });
-        }
+      const { data } = await apiClient.post(`/api/exam/${examId}/result`, {
+        answers,
+        gradeSchema,
+        submittedAt: new Date(),
       });
-    });
 
-    console.log("Exam Results:", {
-      correctCount,
-      wrongCount,
-      review,
-    });
+      const resultId = data?.result?._id;
+      if (!resultId) {
+        throw new Error("Invalid response: missing result ID");
+      }
 
-    // Example: simple result display
-    let resultMessage = `✅ Correct: ${correctCount}\n❌ Wrong: ${wrongCount}\n\n`;
-    review.forEach((r, idx) => {
-      resultMessage += `Q${idx + 1}: ${r.question}\nYour Answer: ${
-        r.yourAnswer
-      }\nCorrect Answer: ${r.correctAnswer}\n\n`;
-    });
+      toast.success("✅ Result submitted successfully!");
+      navigate(`/student/exams/details/${examId}/result/${resultId}`);
+    } catch (error) {
+      console.error("Result submission failed:", error);
 
-    alert(resultMessage);
+      const message =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong while submitting your result.";
+
+      toast.error(message);
+    }
   };
 
   const currentSectionData = examData.sections[currentSection];
@@ -343,7 +342,6 @@ const ExamInterface = ({ examData }) => {
           </Grid.Col>
         </Grid>
       </Container>
-
 
       <ExamFooter
         answers={answers}

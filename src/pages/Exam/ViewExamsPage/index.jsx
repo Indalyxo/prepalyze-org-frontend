@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Container,
   Title,
-  Text,
   Button,
   Stack,
   Select,
@@ -10,7 +9,6 @@ import {
   TextInput,
   Drawer,
   SimpleGrid,
-  Card,
   Group,
   LoadingOverlay,
 } from "@mantine/core";
@@ -18,109 +16,25 @@ import { useMediaQuery } from "@mantine/hooks";
 import {
   IconSearch,
   IconPlus,
-  IconCalendar,
   IconFilter,
 } from "@tabler/icons-react";
 import styles from "./ViewExamsPage.module.scss";
 import { useNavigate } from "react-router-dom";
-import { getIcons } from "../../../utils/get-ui";
-import { SubjectColors } from "../../../constants";
 import ExamCreationForm from "../../../components/Exam/ExamCreationForm/ExamCreationForm";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
-
-const mockExams = [
-  {
-    id: 1,
-    title: "Math Exam 1",
-    subject: "Mathematics",
-    status: "finished",
-    duration: "2 hours 30 minutes",
-    questions: 45,
-    chapters: 5,
-    createdDate: "Jan 22, 2025",
-    color: "purple",
-    startTime: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() - 4 * 60 * 60 * 1000),
-  },
-  {
-    id: 2,
-    title: "Science Exam 1",
-    subject: "Botany",
-    status: "running",
-    duration: "3 hours",
-    questions: 60,
-    chapters: 7,
-    createdDate: "Jan 22, 2025",
-    color: "yellow",
-    startTime: new Date(Date.now()),
-    endTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
-  },
-  {
-    id: 3,
-    title: "History Exam 1",
-    subject: "Chemistry",
-    status: "upcoming",
-    duration: "2 hours",
-    questions: 40,
-    chapters: 4,
-    createdDate: "Jan 22, 2025",
-    color: "blue",
-    startTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 5 * 60 * 60 * 1000),
-  },
-  {
-    id: 4,
-    title: "Physics Exam 1",
-    subject: "Physics",
-    status: "upcoming",
-    duration: "2 hours 15 minutes",
-    questions: 35,
-    chapters: 6,
-    createdDate: "Jan 22, 2025",
-    color: "pink",
-    startTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 5 * 60 * 60 * 1000),
-  },
-  {
-    id: 5,
-    title: "Zoology Exam 1",
-    subject: "Zoology",
-    status: "finished",
-    duration: "3 hours 30 minutes",
-    questions: 55,
-    chapters: 8,
-    createdDate: "Jan 22, 2025",
-    color: "orange",
-    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  },
-  {
-    id: 6,
-    title: "Chemistry Exam 1",
-    subject: "Chemistry",
-    status: "running",
-    duration: "2 hours 45 minutes",
-    questions: 50,
-    chapters: 6,
-    createdDate: "Jan 22, 2025",
-    color: "teal",
-    startTime: new Date(Date.now()),
-    endTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
-  },
-];
+import ExamCard from "../../../components/Generics/ExamCard/ExamCard";
 
 const subjects = [
-  "All Subjects",
+  "All",
   "Mathematics",
-  "Science",
-  "History",
-  "English",
   "Physics",
   "Chemistry",
+  "Botany",
+  "Zoology",
 ];
-const examTypes = ["All Types", "Quiz", "Midterm", "Final"];
+const examTypes = ["NEET-UG", "JEE-MAINS"];
 const difficulties = ["All Levels", "Easy", "Medium", "Hard"];
 
 export default function ViewExamsPage() {
@@ -279,62 +193,7 @@ export default function ViewExamsPage() {
           className={styles.examGrid}
         >
           {exams.map((exam) => (
-            <Card key={exam.id} className={`${styles.examCard}`} radius="md">
-              <div
-                className={styles.cardHeader}
-                style={{
-                  backgroundImage: `url(/images/${exam.subjects[0].toLowerCase()}.webp)`,
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition:
-                    exam.subjects[0] === "Physics" ? "40% 40%" : "40% 10%",
-                }}
-              >
-                <div className={styles.iconContainer}>
-                  {getIcons(exam.subjects[0], styles)}
-                </div>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.cardContent}>
-                  <Title order={4} className={styles.examTitle} mb="xs">
-                    {exam.examTitle}
-                  </Title>
-
-                  <Text size="sm" className={styles.examDuration} mb="xs">
-                    Exam Duration about: {exam?.duration || "N/A"}
-                  </Text>
-
-                  <Group gap="md" mb="sm">
-                    <Text size="sm" className={styles.examInfo}>
-                      System Admin
-                    </Text>
-                    <Text size="sm" className={styles.examInfo}>
-                      Total {exam.chapters.length} Chapters
-                    </Text>
-                  </Group>
-
-                  <Group gap="xs" align="center" mb="md">
-                    <IconCalendar size={14} />
-                    <Text size="sm" className={styles.createdDate}>
-                      Created on {exam?.createdAt || "N/A"}
-                    </Text>
-                  </Group>
-                </div>
-
-                <div className={styles.cardFooter}>
-                  <Button
-                    variant="subtle"
-                    fullWidth
-                    className={styles.viewMoreButton}
-                    onClick={() =>
-                      navigate(`/organization/exams/details/${exam.examId}`)
-                    }
-                  >
-                    View More
-                  </Button>
-                </div>
-              </div>
-            </Card>
+            <ExamCard exam={exam} key={exam.examId} />
           ))}
         </SimpleGrid>
 

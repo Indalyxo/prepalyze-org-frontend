@@ -23,9 +23,9 @@ const OrganizationIntellihub = () => {
           </Grid.Col>
 
           {/* Second row: Average Time Chart in a new full-width block */}
-          <Grid.Col span={12}>
+          {/* <Grid.Col span={12}>
             <AverageTimeChart />
-          </Grid.Col>
+          </Grid.Col> */}
         </Grid>
       </Container>
     </div>

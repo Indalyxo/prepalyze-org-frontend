@@ -1,0 +1,64 @@
+.examCard {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.examCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.cardHeader {
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.examTypeBadge {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.cardBody {
+  padding: 14px;
+  flex: 1;
+}
+
+.examTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.subTitle {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.metaInfo {
+  margin-top: 0.5rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.secondaryText {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding: 0.75rem 1rem 1rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
