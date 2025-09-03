@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Container, Button, Text, Stack, Grid, Card } from "@mantine/core";
 import InstructionModal from "./InstructionModal";
 import QuestionContent from "./Helpers/QuestionContent";
@@ -98,7 +98,7 @@ const ExamInterface = ({ examData, attendance }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [handleSubmit]);
 
   useEffect(() => {
     if (showInstructions && currentQuestion === 0) {
@@ -249,10 +249,10 @@ const ExamInterface = ({ examData, attendance }) => {
     setInstructionModalOpened(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       const { gradeSchema } = examData;
-      console.log(examData)
+      console.log(examData);
 
       const { data } = await apiClient.post(`/api/exam/${examId}/result`, {
         answers,
@@ -277,7 +277,7 @@ const ExamInterface = ({ examData, attendance }) => {
 
       toast.error(message);
     }
-  };
+  }, [examData, answers, examId, navigate]);
 
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];

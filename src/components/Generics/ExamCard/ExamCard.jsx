@@ -6,12 +6,16 @@ import {
   Group,
   Button,
   Stack,
-  Grid,
+  Menu,
+  ActionIcon,
 } from "@mantine/core";
 import {
   IconClock,
   IconCalendar,
   IconUsers,
+  IconDots,
+  IconEdit,
+  IconTrash,
   IconCircleCheck,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +45,35 @@ export default function ExamCard({ exam, route = "organization" }) {
         >
           {exam.examType}
         </Badge>
+
+        {/* Three dot menu */}
+        <Menu shadow="md" width={180} position="bottom-end">
+          <Menu.Target>
+            <ActionIcon
+              variant="subtle"
+              radius="xl"
+              size="lg"
+              className={styles.actionMenu}
+            >
+              <IconDots size={20} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<IconEdit size={16} />}
+              onClick={() => navigate(`/exam/${exam.examId}/edit`)}
+            >
+              Postponed Exam  
+            </Menu.Item>
+            <Menu.Item
+              color="red"
+              leftSection={<IconTrash size={16} />}
+              onClick={() => console.log("Delete exam", exam.examId)}
+            >
+              Cancel Exam
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
 
       {/* Content */}
@@ -76,18 +109,8 @@ export default function ExamCard({ exam, route = "organization" }) {
         <Text size="sm" className={styles.secondaryText}>
           📘 {exam.chapters.length} Chapters · {exam.topics.length} Topics
         </Text>
-
-        {/* Status */}
-        {/* <Badge
-          size="sm"
-          color={exam.status === "Scheduled" ? "yellow" : "green"}
-          leftSection={<IconCircleCheck size={14} />}
-        >
-          {exam.status}
-        </Badge> */}
       </Stack>
 
-      {/* Footer */}
       {/* Footer */}
       <Group grow className={styles.cardFooter}>
         <Button
@@ -105,10 +128,8 @@ export default function ExamCard({ exam, route = "organization" }) {
             const start = dayjs(exam.timing.start);
             const end = dayjs(exam.timing.end);
 
-            // exam ended → no button
             if (now.isAfter(end)) return null;
 
-            // exam not started yet → disabled button
             return (
               <Button
                 variant="gradient"

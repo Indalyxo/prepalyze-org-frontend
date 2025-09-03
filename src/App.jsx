@@ -24,6 +24,7 @@ import StudentsViewDetailsPage from "./pages/Students/ViewDetailsPage/StudentsVi
 import StudentIntellihub from "./pages/Students/Intellihub";
 import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
 import PrintQuestions from "./pages/Generic/PrintQuestions/PrintQuestions";
+import CheckingPage from "./pages/Generic/CheckingPage";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -122,6 +123,7 @@ const App = () => {
             <>
               <Route path="/exam/:examId" element={<ExamPage />} />
               <Route path="/print/:examId" element={<PrintQuestions />} />
+              <Route path="/check" element={<CheckingPage />} />
             </>
           )}
 

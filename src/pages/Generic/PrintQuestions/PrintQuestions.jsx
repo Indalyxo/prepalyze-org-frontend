@@ -3,10 +3,14 @@ import apiClient from "../../../utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, LoadingOverlay } from "@mantine/core";
 import { Button, Divider, Title, Text, Group, Stack } from "@mantine/core";
-import { Drawer, Radio } from "@mantine/core";
+import { Drawer, Radio, Checkbox, ScrollArea, Accordion } from "@mantine/core";
 import { Table, ActionIcon } from "@mantine/core";
-import { IconLayoutSidebarLeftExpand } from "@tabler/icons-react";
-import { useState } from "react";
+import {
+  IconLayoutSidebarLeftExpand,
+  IconEye,
+  IconEyeOff,
+} from "@tabler/icons-react";
+import { useState, useMemo } from "react";
 import styles from "./print-questions.module.scss";
 import { renderWithLatexAndImages } from "../../../utils/render/render";
 import useAuthStore from "../../../context/auth-store";
@@ -35,7 +39,9 @@ const PrintQuestions = () => {
   const { examId } = useParams();
   const [template, setTemplate] = useState("worksheet");
   const [sidebarOpened, setSidebarOpened] = useState(false);
+  const [selectedQuestions, setSelectedQuestions] = useState(new Set());
   const { user } = useAuthStore();
+  const [allowStudentInformation, setAllowStudentInformation] = useState(false);
 
   const fetchExamsQuestions = async (page) => {
     try {
@@ -59,6 +65,38 @@ const PrintQuestions = () => {
     queryFn: fetchExamsQuestions,
   });
 
+  // Initialize selected questions when data loads
+  const allQuestionIds = useMemo(() => {
+    if (!data?.sections) return [];
+    return data.sections.flatMap((section) =>
+      section.questions.map((q) => q.id)
+    );
+  }, [data]);
+
+  // Initialize all questions as selected when data first loads
+  useState(() => {
+    if (allQuestionIds.length > 0 && selectedQuestions.size === 0) {
+      setSelectedQuestions(new Set(allQuestionIds));
+    }
+  }, [allQuestionIds]);
+
+  // Filter data based on selected questions
+  const filteredData = useMemo(() => {
+    if (!data || selectedQuestions.size === 0) return data;
+
+    return {
+      ...data,
+      sections: data.sections
+        .map((section) => ({
+          ...section,
+          questions: section.questions.filter((q) =>
+            selectedQuestions.has(q.id)
+          ),
+        }))
+        .filter((section) => section.questions.length > 0),
+    };
+  }, [data, selectedQuestions]);
+
   const getGlobalQuestionNumber = (dataRef, sIdx, qIdx) => {
     if (!dataRef?.sections) return qIdx + 1;
     const prior = dataRef.sections
@@ -70,6 +108,39 @@ const PrintQuestions = () => {
   const getMarks = (q) => {
     // Try common fields; fallback to "-"
     return q?.marks ?? q?.points ?? q?.score ?? "-";
+  };
+
+  const toggleQuestion = (questionId) => {
+    const newSelected = new Set(selectedQuestions);
+    if (newSelected.has(questionId)) {
+      newSelected.delete(questionId);
+    } else {
+      newSelected.add(questionId);
+    }
+    setSelectedQuestions(newSelected);
+  };
+
+  const toggleSection = (sectionQuestions) => {
+    const sectionIds = sectionQuestions.map((q) => q.id);
+    const allSelected = sectionIds.every((id) => selectedQuestions.has(id));
+    const newSelected = new Set(selectedQuestions);
+
+    if (allSelected) {
+      // Deselect all in section
+      sectionIds.forEach((id) => newSelected.delete(id));
+    } else {
+      // Select all in section
+      sectionIds.forEach((id) => newSelected.add(id));
+    }
+    setSelectedQuestions(newSelected);
+  };
+
+  const selectAllQuestions = () => {
+    setSelectedQuestions(new Set(allQuestionIds));
+  };
+
+  const deselectAllQuestions = () => {
+    setSelectedQuestions(new Set());
   };
 
   if (error) {
@@ -108,6 +179,10 @@ const PrintQuestions = () => {
               <IconLayoutSidebarLeftExpand size={18} />
             </ActionIcon>
             <Title order={2}>Exam Question Paper</Title>
+            <Text size="sm" c="dimmed">
+              ({selectedQuestions.size}/{allQuestionIds.length} questions
+              selected)
+            </Text>
           </Group>
           <Button variant="filled" color="blue" onClick={() => window.print()}>
             🖨️ Print Worksheet
@@ -115,27 +190,159 @@ const PrintQuestions = () => {
         </Group>
       </div>
 
-      {/* Sidebar with only template selection */}
+      {/* Enhanced Sidebar with template selection and question selection */}
       <Drawer
         opened={sidebarOpened}
         onClose={() => setSidebarOpened(false)}
         position="left"
-        size={280}
+        size={400}
         withOverlay
         className="no-print"
-        title="Template"
+        title="Print Configuration"
       >
-        <Radio.Group
-          value={template}
-          onChange={setTemplate}
-          className={styles.sidebarRadioGroup}
-        >
-          <Stack gap="xs">
-            <Radio value="worksheet" label="Worksheet Template" />
-            <Radio value="questions" label="Questions Template" />
-            <Radio value="answer-key" label="Answer Key Template" />
+        <ScrollArea style={{ height: "calc(100vh - 80px)" }}>
+          <Stack gap="lg">
+            {/* Template Selection */}
+            <div>
+              <Title order={4} mb="sm">
+                Template
+              </Title>
+              <Radio.Group
+                value={template}
+                onChange={setTemplate}
+                className={styles.sidebarRadioGroup}
+              >
+                <Stack gap="xs">
+                  <Radio value="worksheet" label="Worksheet Template" />
+                  <Radio value="questions" label="Questions Template" />
+                  <Radio value="answer-key" label="Answer Key Template" />
+                </Stack>
+              </Radio.Group>
+            </div>
+
+            <Divider />
+
+            <div>
+              <Title order={4} mb="sm">
+                Student Information
+              </Title>
+              <Checkbox
+                label="Allow Student Information"
+                checked={allowStudentInformation}
+                onChange={(e) =>
+                  setAllowStudentInformation(e.currentTarget.checked)
+                }
+              />
+            </div>
+
+            <Divider />
+            {/* Question Selection */}
+            <div>
+              <Group justify="space-between" align="center" mb="sm">
+                <Title order={4}>Question Selection</Title>
+                <Group gap="xs">
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    leftSection={<IconEye size={14} />}
+                    onClick={selectAllQuestions}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    leftSection={<IconEyeOff size={14} />}
+                    onClick={deselectAllQuestions}
+                  >
+                    None
+                  </Button>
+                </Group>
+              </Group>
+
+              {data?.sections?.map((section, sIdx) => {
+                const sectionQuestions = section.questions;
+                const selectedInSection = sectionQuestions.filter((q) =>
+                  selectedQuestions.has(q.id)
+                ).length;
+                const allSelected =
+                  selectedInSection === sectionQuestions.length;
+                const partialSelected =
+                  selectedInSection > 0 &&
+                  selectedInSection < sectionQuestions.length;
+
+                return (
+                  <Accordion key={section.name} variant="contained" mb="sm">
+                    <Accordion.Item value={section.name}>
+                      <Accordion.Control>
+                        <Group
+                          justify="space-between"
+                          style={{ width: "100%", marginRight: 20 }}
+                        >
+                          <Group gap="sm">
+                            <Checkbox
+                              checked={allSelected}
+                              indeterminate={partialSelected}
+                              onChange={() => toggleSection(sectionQuestions)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div>
+                              <Text fw={500}>
+                                {hasMultiple
+                                  ? `Section ${String.fromCharCode(
+                                      65 + sIdx
+                                    )}: `
+                                  : ""}
+                                {/* {section.name} */}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {selectedInSection}/{sectionQuestions.length}{" "}
+                                selected
+                              </Text>
+                            </div>
+                          </Group>
+                        </Group>
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="xs">
+                          {sectionQuestions.map((q, qIdx) => {
+                            const globalNumber = getGlobalQuestionNumber(
+                              data,
+                              sIdx,
+                              qIdx
+                            );
+                            const isSelected = selectedQuestions.has(q.id);
+
+                            return (
+                              <Group key={q.id} gap="sm" align="flex-start">
+                                <Checkbox
+                                  checked={isSelected}
+                                  onChange={() => toggleQuestion(q.id)}
+                                  style={{ marginTop: 4 }}
+                                />
+                                <div style={{ flex: 1 }}>
+                                  <Text size="sm" fw={500}>
+                                    Q{globalNumber}
+                                  </Text>
+                                  <Text size="xs" lineClamp={2} c="dimmed">
+                                    {q.text
+                                      .replace(/<[^>]*>/g, "")
+                                      .substring(0, 80)}
+                                    ...
+                                  </Text>
+                                </div>
+                              </Group>
+                            );
+                          })}
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
+                );
+              })}
+            </div>
           </Stack>
-        </Radio.Group>
+        </ScrollArea>
       </Drawer>
 
       {/* Worksheet Header */}
@@ -190,7 +397,7 @@ const PrintQuestions = () => {
           </div>
         </div>
 
-        {false && (
+        {allowStudentInformation && (
           <div className={styles.examDetails}>
             <div className={styles.detailsGrid}>
               <div className={styles.detailItem}>
@@ -206,15 +413,7 @@ const PrintQuestions = () => {
                 <div className={styles.fillLine}></div>
               </div>
               <div className={styles.detailItem}>
-                <Text className={styles.detailLabel}>Time:</Text>
-                <div className={styles.fillLine}></div>
-              </div>
-              <div className={styles.detailItem}>
-                <Text className={styles.detailLabel}>Subject:</Text>
-                <div className={styles.fillLine}></div>
-              </div>
-              <div className={styles.detailItem}>
-                <Text className={styles.detailLabel}>Max. Marks:</Text>
+                <Text className={styles.detailLabel}>Overall Score:</Text>
                 <div className={styles.fillLine}></div>
               </div>
             </div>
@@ -235,11 +434,11 @@ const PrintQuestions = () => {
         </div> */}
       </div>
 
-      {/* Questions Content */}
+      {/* Questions Content - Now uses filteredData */}
       <div className={styles.questionsContent}>
         {template === "worksheet" && (
           <div className={styles.worksheetTemplate}>
-            {data?.sections?.map((section, sIdx) => (
+            {filteredData?.sections?.map((section, sIdx) => (
               <div key={section.name} className={styles.section}>
                 {hasMultiple && (
                   <>
@@ -247,7 +446,7 @@ const PrintQuestions = () => {
                       {"Section "}
                       {String.fromCharCode(65 + sIdx)}
                       {": "}
-                      {section.name}
+                      {/* {section.name} */}
                     </Title>
                     <Divider className={styles.sectionDivider} />
                   </>
@@ -269,7 +468,11 @@ const PrintQuestions = () => {
                   </Table.Thead>
                   <Table.Tbody>
                     {section.questions.map((q, qIdx) => {
-                      const number = getGlobalQuestionNumber(data, sIdx, qIdx);
+                      const number = getGlobalQuestionNumber(
+                        filteredData,
+                        sIdx,
+                        qIdx
+                      );
                       return (
                         <Table.Tr key={q.id}>
                           <Table.Td>{number}</Table.Td>
@@ -307,7 +510,7 @@ const PrintQuestions = () => {
                   </Table.Tbody>
                 </Table>
 
-                {hasMultiple && sIdx < data.sections.length - 1 && (
+                {hasMultiple && sIdx < filteredData.sections.length - 1 && (
                   <div className={styles.pageBreak} />
                 )}
               </div>
@@ -316,15 +519,15 @@ const PrintQuestions = () => {
         )}
         {template === "questions" && (
           <div className={styles.questionsTemplate}>
-            {data?.sections?.map((section, sIdx) => (
+            {filteredData?.sections?.map((section, sIdx) => (
               <div key={section.name} className={styles.section}>
                 {hasMultiple && (
                   <>
                     <Title order={3} className={styles.sectionTitle}>
                       {"Section "}
                       {String.fromCharCode(65 + sIdx)}
-                      {": "}
-                      {section.name}
+                      {/* {": "}
+                      {section.name} */}
                     </Title>
                     <Divider className={styles.sectionDivider} />
                   </>
@@ -338,7 +541,7 @@ const PrintQuestions = () => {
                       .filter((_, index) => index % 2 === 0) // Take 1st, 3rd, 5th... questions
                       .map(({ question: q, originalIdx }) => {
                         const number = getGlobalQuestionNumber(
-                          data,
+                          filteredData,
                           sIdx,
                           originalIdx
                         );
@@ -380,7 +583,7 @@ const PrintQuestions = () => {
                       .filter((_, index) => index % 2 === 1) // Take 2nd, 4th, 6th... questions
                       .map(({ question: q, originalIdx }) => {
                         const number = getGlobalQuestionNumber(
-                          data,
+                          filteredData,
                           sIdx,
                           originalIdx
                         );
@@ -415,7 +618,7 @@ const PrintQuestions = () => {
                   </div>
                 </div>
 
-                {hasMultiple && sIdx < data.sections.length - 1 && (
+                {hasMultiple && sIdx < filteredData.sections.length - 1 && (
                   <div className={styles.pageBreak} />
                 )}
               </div>
@@ -427,19 +630,23 @@ const PrintQuestions = () => {
             <Title order={3} className={styles.answerKeyTitle}>
               Answer Key
             </Title>
-            {data?.sections?.map((section, sIdx) => (
+            {filteredData?.sections?.map((section, sIdx) => (
               <div key={section.name} className={styles.answerKeySection}>
                 {hasMultiple && (
                   <Title order={4} className={styles.answerKeySectionTitle}>
                     {"Section "}
                     {String.fromCharCode(65 + sIdx)}
-                    {": "}
-                    {section.name}
+                    {/* {": "}
+                    {section.name} */}
                   </Title>
                 )}
                 <div className={styles.answerKeyList}>
                   {section.questions.map((q, qIdx) => {
-                    const number = getGlobalQuestionNumber(data, sIdx, qIdx);
+                    const number = getGlobalQuestionNumber(
+                      filteredData,
+                      sIdx,
+                      qIdx
+                    );
                     const letter = findCorrectLetter(q);
                     const explanation =
                       q?.explanation ?? q?.solution ?? q?.reason ?? null;
@@ -460,7 +667,7 @@ const PrintQuestions = () => {
                     );
                   })}
                 </div>
-                {/* {hasMultiple && sIdx < data.sections.length - 1 && (
+                {/* {hasMultiple && sIdx < filteredData.sections.length - 1 && (
                   <div className={styles.pageBreak} />
                 )} */}
               </div>
