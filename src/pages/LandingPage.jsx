@@ -1,6 +1,4 @@
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Container,
   Title,
@@ -15,6 +13,10 @@ import {
   Anchor,
   Divider,
   Image,
+  Box,
+  Burger,
+  Drawer,
+  ScrollArea,
 } from "@mantine/core";
 import {
   IconFileText,
@@ -26,217 +28,461 @@ import {
   IconShield,
   IconRocket,
   IconSparkles,
-  IconBellZ,
+  IconBellRinging,
   IconTarget,
+  IconMenu2,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Register GSAP plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 export default function PrepalyzeLanding() {
-  const heroRef = useRef(null);
-  const featuresRef = useRef(null);
-  const statsRef = useRef(null);
-  const ctaRef = useRef(null);
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
+    useDisclosure(false);
   const navigate = useNavigate();
+  // Simple fade-in animation hook
+  const useFadeIn = () => {
+    const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    const tl = gsap.timeline();
+    useEffect(() => {
+      const timer = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timer);
+    }, []);
 
-    tl.fromTo(
-      ".hero-title",
-      { opacity: 0, y: 80, scale: 0.8 },
-      { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power4.out" }
-    )
-      .fromTo(
-        ".hero-subtitle",
-        { opacity: 0, y: 50, x: -30 },
-        { opacity: 1, y: 0, x: 0, duration: 1, ease: "power3.out" },
-        "-=0.8"
-      )
-      .fromTo(
-        ".hero-buttons",
-        { opacity: 0, y: 30, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.7)" },
-        "-=0.6"
-      )
-      .fromTo(
-        ".hero-badges",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" },
-        "-=0.4"
-      )
-      .fromTo(
-        ".hero-demo",
-        { opacity: 0, scale: 0.8, rotateY: 15 },
-        { opacity: 1, scale: 1, rotateY: 0, duration: 1, ease: "power3.out" },
-        "-=0.8"
-      );
+    return isVisible;
+  };
 
-    gsap.fromTo(
-      ".feature-card",
-      {
-        opacity: 0,
-        y: 80,
-        scale: 0.8,
-        rotateX: 15,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        rotateX: 0,
-        duration: 1,
-        stagger: 0.15,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".features-section",
-          start: "top 75%",
-          end: "bottom 25%",
-          toggleActions: "play none none reverse",
-        },
-      }
-    );
+  const isVisible = useFadeIn();
 
-    gsap.fromTo(
-      ".stat-item",
-      {
-        opacity: 0,
-        scale: 0.5,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "elastic.out(1, 0.5)",
-        scrollTrigger: {
-          trigger: ".stats-section",
-          start: "top 80%",
-          onEnter: () => {
-            gsap.fromTo(
-              ".stat-number",
-              { textContent: 0 },
-              {
-                textContent: (i, el) => el.getAttribute("data-value"),
-                duration: 2,
-                ease: "power2.out",
-                snap: { textContent: 1 },
-                stagger: 0.2,
-              }
-            );
-          },
-        },
-      }
-    );
-
-    gsap.to(".hero-demo", {
-      y: -10,
-      duration: 2,
-      ease: "power2.inOut",
-      yoyo: true,
-      repeat: -1,
-    });
-
-    gsap.utils.toArray(".parallax-bg").forEach((element) => {
-      gsap.fromTo(
-        element,
-        { y: -50 },
-        {
-          y: 50,
-          ease: "none",
-          scrollTrigger: {
-            trigger: element,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        }
-      );
-    });
-
-    gsap.fromTo(
-      ".cta-content",
-      { opacity: 0, y: 50, scale: 0.95 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".cta-section",
-          start: "top 80%",
-        },
-      }
-    );
-
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, []);
+  const handleNavigation = (path) => {
+    navigate(path);
+    closeDrawer();
+  };
 
   return (
-    <div>
+    <Box>
+      <style jsx>{`
+        :root {
+          --color-primary: #3b82f6;
+          --color-accent: #10b981;
+          --color-card: #ffffff;
+          --color-border: #e5e7eb;
+          --color-foreground: #1f2937;
+          --color-muted-foreground: #6b7280;
+          --color-muted: #f9fafb;
+          --color-primary-foreground: #ffffff;
+          --radius-lg: 12px;
+          --radius-md: 8px;
+        }
+
+        .prepalyze-header {
+          background: linear-gradient(
+            135deg,
+            #cdebe1ff 0%,
+            var(--color-primary) 100%
+          );
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          backdrop-filter: blur(10px);
+        }
+
+        .nav-link {
+          position: relative;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          color: black;
+          font-weight: 500;
+          padding: 8px 16px;
+          border-radius: 6px;
+        }
+
+        .nav-link:hover {
+          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+        }
+
+        .login-btn {
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .login-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .prepalyze-hero {
+          background: linear-gradient(
+            135deg,
+            #fff 0%,
+            #f4f1f1 50%,
+            #6dd4f9 100%
+          );
+          min-height: 90vh;
+          display: flex;
+          align-items: center;
+          position: relative;
+          overflow: hidden;
+          padding: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+          .prepalyze-hero {
+            min-height: auto;
+            padding: 3rem 0;
+          }
+        }
+
+        .prepalyze-hero::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: radial-gradient(
+              circle at 30% 20%,
+              rgba(59, 130, 246, 0.1) 0%,
+              transparent 50%
+            ),
+            radial-gradient(
+              circle at 70% 80%,
+              rgba(16, 185, 129, 0.1) 0%,
+              transparent 50%
+            );
+          pointer-events: none;
+        }
+
+        .gradient-text {
+          background: linear-gradient(
+            135deg,
+            var(--color-primary) 0%,
+            var(--color-accent) 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .pulse-btn {
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+          }
+        }
+
+        .feature-card-enhanced {
+          background: var(--color-card);
+          border: 1px solid var(--color-border);
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          position: relative;
+          overflow: hidden;
+          height: 100%;
+        }
+
+        .feature-card-enhanced:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          border-color: var(--color-primary);
+        }
+
+        @media (max-width: 768px) {
+          .feature-card-enhanced:hover {
+            transform: translateY(-4px);
+          }
+        }
+
+        .feature-icon {
+          transition: all 0.3s ease;
+        }
+
+        .feature-card-enhanced:hover .feature-icon {
+          transform: scale(1.1);
+        }
+
+        .hero-video {
+          width: 100%;
+          max-width: 700px;
+          height: auto;
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+          .hero-video {
+            max-width: 100%;
+            margin-top: 2rem;
+          }
+        }
+
+        .hero-title {
+          font-size: clamp(2rem, 5vw, 4rem);
+          line-height: 1.1;
+          margin-bottom: 1rem;
+          opacity: ${isVisible ? 1 : 0};
+          transform: translateY(${isVisible ? 0 : 30}px);
+          transition: all 0.8s ease;
+        }
+
+        .hero-subtitle {
+          font-size: clamp(1rem, 2.5vw, 1.25rem);
+          line-height: 1.6;
+          margin-bottom: 2rem;
+          opacity: ${isVisible ? 1 : 0};
+          transform: translateY(${isVisible ? 0 : 20}px);
+          transition: all 0.8s ease 0.2s;
+        }
+
+        .hero-buttons {
+          opacity: ${isVisible ? 1 : 0};
+          transform: translateY(${isVisible ? 0 : 20}px);
+          transition: all 0.8s ease 0.4s;
+        }
+
+        .responsive-button {
+          width: 100%;
+        }
+
+        @media (min-width: 768px) {
+          .responsive-button {
+            width: auto;
+          }
+        }
+
+        .mobile-stack {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+          .mobile-stack {
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+          }
+        }
+
+        .stats-grid {
+          text-align: center;
+        }
+
+        .stat-number {
+          font-size: clamp(2.5rem, 6vw, 4rem);
+          font-weight: 800;
+          color: var(--color-primary);
+        }
+
+        .section-title {
+          font-size: clamp(2rem, 4vw, 3rem);
+          text-align: center;
+          margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+          font-size: clamp(1rem, 2vw, 1.25rem);
+          text-align: center;
+          max-width: 700px;
+          margin: 0 auto 3rem auto;
+          line-height: 1.6;
+        }
+
+        .footer-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+          .footer-grid {
+            grid-template-columns: 1fr 2fr;
+          }
+        }
+
+        .footer-links {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        @media (min-width: 480px) {
+          .footer-links {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        .mobile-menu-item {
+          padding: 1rem;
+          border-bottom: 1px solid #e5e7eb;
+          color: var(--color-foreground);
+          text-decoration: none;
+          color: #374151;
+          display: block;
+          font-weight: 500;
+        }
+
+        .mobile-menu-item:hover {
+          background: #f9fafb;
+          color: var(--color-primary);
+        }
+
+        .badge-responsive {
+          font-size: 0.875rem;
+          padding: 0.5rem 1rem;
+        }
+
+        @media (max-width: 480px) {
+          .badge-responsive {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+          }
+        }
+      `}</style>
+
       {/* Header */}
       <header className="prepalyze-header">
         <Container size="xl" py="md">
           <Group justify="space-between" align="center">
-            <Group>
-              <ThemeIcon size="lg" color="white" variant="transparent">
-                <Image src={"/logo.svg"} alt="prepalyze-logo" height={40} />
+            <Group align="center" gap="xs">
+              <ThemeIcon size="lg" color="blue  " variant="transparent">
+                <Image
+                  src="/logo.svg"
+                  alt="Prepalyze Logo"
+                  width={40}
+                  height={40}
+                />
               </ThemeIcon>
-              <Title order={2} c="white" fw={700}>
+              <Title order={2} c="#3885ef" fw={700} hiddenFrom="xs">
+                Prepalyze
+              </Title>
+              <Title order={2} c="#3885ef" fw={700} visibleFrom="xs">
                 Prepalyze
               </Title>
             </Group>
 
-            <Group gap="xl" visibleFrom="sm">
-              <Anchor href="#home" c="white" fw={500} className="nav-link">
+            {/* Desktop Navigation */}
+            <Group gap="xl" visibleFrom="md">
+              <a href="#home" className="nav-link">
                 Home
-              </Anchor>
-              <Anchor href="#features" c="white" fw={500} className="nav-link">
+              </a>
+              <a href="#features" className="nav-link">
                 Features
-              </Anchor>
-              <Anchor href="#pricing" c="white" fw={500} className="nav-link">
+              </a>
+              <a href="#pricing" className="nav-link">
                 Pricing
-              </Anchor>
-              <Anchor href="#contact" c="white" fw={500} className="nav-link">
+              </a>
+              <a href="#contact" className="nav-link">
                 Contact
-              </Anchor>
+              </a>
             </Group>
 
-            <Button
-              onClick={() => navigate("/login")}
-              variant="white"
-              color="blue"
-              size="sm"
-              className="login-btn"
-            >
-              Login
-            </Button>
+            <Group>
+              <Button
+                onClick={() => handleNavigation("/login")}
+                variant="white"
+                color="blue"
+                size="sm"
+                className="login-btn"
+                visibleFrom="sm"
+              >
+                Login
+              </Button>
+
+              {/* Mobile Menu Button */}
+              <Burger
+                opened={drawerOpened}
+                onClick={toggleDrawer}
+                color="white"
+                hiddenFrom="md"
+              />
+            </Group>
           </Group>
         </Container>
+
+        {/* Mobile Drawer */}
+        <Drawer
+          opened={drawerOpened}
+          onClose={closeDrawer}
+          size="300px"
+          position="right"
+          title={
+            <Group>
+              <Image src="/logo.svg" alt="Prepalyze Logo" width={30} />
+              <Text fw={700}>Prepalyze</Text>
+            </Group>
+          }
+          hiddenFrom="md"
+        >
+          <ScrollArea style={{ color: "black" }}>
+            <Stack gap={0}>
+              <a
+                href="#home"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                Home
+              </a>
+              <a
+                href="#features"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                Features
+              </a>
+              <a
+                href="#pricing"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                Pricing
+              </a>
+              <a
+                href="#contact"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                Contact
+              </a>
+              <Box p="md">
+                <Button
+                  onClick={() => handleNavigation("/login")}
+                  variant="filled"
+                  color="blue"
+                  fullWidth
+                  size="md"
+                >
+                  Login
+                </Button>
+              </Box>
+            </Stack>
+          </ScrollArea>
+        </Drawer>
       </header>
 
       {/* Hero Section */}
-      <section className="prepalyze-hero parallax-bg" ref={heroRef}>
+      <section className="prepalyze-hero">
         <Container size="xl">
           <Grid>
-            <Grid.Col span={{ base: 12, md: 5 }}>
+            <Grid.Col span={{ base: 12, md: 6 }}>
               <Stack gap="xl">
                 <div>
                   <Title
                     className="hero-title"
-                    order={1}
-                    size="4rem"
                     fw={800}
-                    lh={1.1}
                     c="var(--color-foreground)"
                   >
                     Revolutionize Your{" "}
@@ -252,11 +498,7 @@ export default function PrepalyzeLanding() {
 
                   <Text
                     className="hero-subtitle"
-                    size="xl"
                     c="var(--color-muted-foreground)"
-                    mt="md"
-                    maw={600}
-                    lh={1.6}
                   >
                     Seamless question paper generation, online testing, and
                     comprehensive analytics for students and organizations.
@@ -265,55 +507,45 @@ export default function PrepalyzeLanding() {
                   </Text>
                 </div>
 
-                <Group className="hero-buttons" gap="md">
+                <Group className="hero-buttons mobile-stack">
                   <Button
-                    size="xl"
-                    onClick={() => navigate("/login")}
-                    className="prepalyze-btn-primary pulse-btn"
+                    size="lg"
+                    onClick={() => handleNavigation("/login")}
+                    className="pulse-btn responsive-button"
                     leftSection={<IconRocket size={20} />}
+                    style={{ background: "var(--color-primary)" }}
                   >
                     Get Started Free
                   </Button>
-                  <Button
-                    size="xl"
+                  {/* <Button
+                    size="lg"
                     variant="outline"
-                    className="prepalyze-btn-secondary bg-transparent"
-                    leftSection={<IconBellZ size={20} />}
-                    disabled={true}
+                    className="responsive-button"
+                    leftSection={<IconBellRinging size={20} />}
+                    style={{
+                      borderColor: "var(--color-primary)",
+                      color: "var(--color-primary)",
+                    }}
                   >
                     Watch Demo
-                  </Button>
+                  </Button> */}
                 </Group>
 
-                <Group gap="xl" mt="xl" className="hero-badges">
-                  <Group gap="xs" className="badge-item">
-                    <ThemeIcon
-                      size="sm"
-                      color="green"
-                      variant="light"
-                      className="icon-glow"
-                    >
+                <Group
+                  gap="xl"
+                  mt="xl"
+                  justify={{ base: "center", md: "flex-start" }}
+                >
+                  <Group gap="xs">
+                    <ThemeIcon size="sm" color="green" variant="light">
                       <IconShield size={16} />
                     </ThemeIcon>
                     <Text size="sm" c="var(--color-muted-foreground)" fw={500}>
                       Secure & Reliable
                     </Text>
                   </Group>
-                  {/* <Group gap="xs" className="badge-item">
-                    <ThemeIcon size="sm" color="blue" variant="light" className="icon-glow">
-                      <IconUsers size={16} />
-                    </ThemeIcon>
-                    <Text size="sm" c="var(--color-muted-foreground)" fw={500}>
-                      10,000+ Users
-                    </Text>
-                  </Group> */}
-                  <Group gap="xs" className="badge-item">
-                    <ThemeIcon
-                      size="sm"
-                      color="orange"
-                      variant="light"
-                      className="icon-glow"
-                    >
+                  <Group gap="xs">
+                    <ThemeIcon size="sm" color="orange" variant="light">
                       <IconBrain size={16} />
                     </ThemeIcon>
                     <Text size="sm" c="var(--color-muted-foreground)" fw={500}>
@@ -324,40 +556,38 @@ export default function PrepalyzeLanding() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, md: 7 }} className="hero-demo">
-              <div className="hero-image">
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Box ta="center">
                 <video
-                  src="/prepowl animation.mp4"
-                  alt="Interactive Demo"
-                  width={800}
-                  height={400}
-                  className="hero-demo-image"
+                  className="hero-video"
                   loop
                   muted
                   autoPlay
-                />
-              </div>
+                  playsInline
+                  poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDgwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGOUZBRkIiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSIyMDAiIHI9IjgwIiBmaWxsPSIjM0I4MkY2IiBmaWxsLW9wYWNpdHk9IjAuMiIvPjx0ZXh0IHg9IjQwMCIgeT0iMjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNkI3MjgwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+SW50ZXJhY3RpdmUgRGVtbzwvdGV4dD48L3N2Zz4="
+                >
+                  <source src="/prepowl%20animation.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </Box>
             </Grid.Col>
           </Grid>
         </Container>
       </section>
 
       {/* Features Section */}
-      <section
-        className="features-section"
-        style={{ padding: "100px 0", background: "var(--color-muted)" }}
-      >
+      <section style={{ padding: "80px 0", background: "var(--color-muted)" }}>
         <Container size="xl">
-          <Stack gap="xl" align="center" mb="xl">
+          <Stack align="center" mb="xl">
             <Badge
-              size="xl"
+              size="lg"
               variant="light"
               color="blue"
-              className="section-badge"
+              className="badge-responsive"
             >
               Features
             </Badge>
-            <Title order={2} ta="center" size="3rem" fw={800}>
+            <Title className="section-title" fw={800}>
               Everything You Need for{" "}
               <Text
                 span
@@ -369,11 +599,8 @@ export default function PrepalyzeLanding() {
               </Text>
             </Title>
             <Text
-              size="xl"
-              ta="center"
+              className="section-subtitle"
               c="var(--color-muted-foreground)"
-              maw={700}
-              lh={1.6}
             >
               Comprehensive tools designed to streamline exam creation,
               delivery, and analysis with cutting-edge technology
@@ -382,11 +609,7 @@ export default function PrepalyzeLanding() {
 
           <Grid>
             <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card
-                className="feature-card prepalyze-card feature-card-enhanced"
-                p="xl"
-                h="100%"
-              >
+              <Card className="feature-card-enhanced" p="xl">
                 <ThemeIcon
                   size="xl"
                   color="blue"
@@ -408,11 +631,7 @@ export default function PrepalyzeLanding() {
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card
-                className="feature-card prepalyze-card feature-card-enhanced"
-                p="xl"
-                h="100%"
-              >
+              <Card className="feature-card-enhanced" p="xl">
                 <ThemeIcon
                   size="xl"
                   color="green"
@@ -433,11 +652,7 @@ export default function PrepalyzeLanding() {
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card
-                className="feature-card prepalyze-card feature-card-enhanced"
-                p="xl"
-                h="100%"
-              >
+              <Card className="feature-card-enhanced" p="xl">
                 <ThemeIcon
                   size="xl"
                   color="orange"
@@ -458,11 +673,7 @@ export default function PrepalyzeLanding() {
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card
-                className="feature-card prepalyze-card feature-card-enhanced"
-                p="xl"
-                h="100%"
-              >
+              <Card className="feature-card-enhanced" p="xl">
                 <ThemeIcon
                   size="xl"
                   color="purple"
@@ -486,65 +697,20 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Stats Section */}
-      <section className="stats-section" style={{ padding: "100px 0" }}>
+      <section style={{ padding: "80px 0" }}>
         <Container size="xl">
-          <Grid align="center" justify="center" gutter="xl">
-            {/* <Grid.Col span={{ base: 6, sm: 3 }}>
-              <Stack className="stat-item" align="center" gap="xs">
-                <Title
-                  order={1}
-                  size="4rem"
-                  c="var(--color-primary)"
-                  fw={800}
-                  className="stat-number"
-                  data-value="10000"
-                >
-                  0
-                </Title>
-                <Text c="var(--color-muted-foreground)" fw={600} size="lg">
-                  Active Users
-                </Text>
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 6, sm: 3 }}>
-              <Stack className="stat-item" align="center" gap="xs">
-                <Title
-                  order={1}
-                  size="4rem"
-                  c="var(--color-primary)"
-                  fw={800}
-                  className="stat-number"
-                  data-value="50000"
-                >
-                  0
-                </Title>
-                <Text c="var(--color-muted-foreground)" fw={600} size="lg">
-                  Exams Created
-                </Text>
-              </Stack>
-            </Grid.Col> */}
-            <Grid.Col span={{ base: 6, sm: 3 }}>
-              <Stack className="stat-item" align="center" gap="xs">
-                <Title
-                  order={1}
-                  size="4rem"
-                  c="var(--color-primary)"
-                  fw={800}
-                  className="stat-number"
-                  data-value="99"
-                >
-                  0
-                </Title>
+          <Grid justify="center" gutter="xl">
+            <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+              <Stack align="center" gap="xs" className="stats-grid">
+                <Title className="stat-number">99</Title>
                 <Text c="var(--color-muted-foreground)" fw={600} size="lg">
                   % Uptime
                 </Text>
               </Stack>
             </Grid.Col>
-            <Grid.Col span={{ base: 6, sm: 3 }}>
-              <Stack className="stat-item" align="center" gap="xs">
-                <Title order={1} size="4rem" c="var(--color-primary)" fw={800}>
-                  24/7
-                </Title>
+            <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
+              <Stack align="center" gap="xs" className="stats-grid">
+                <Title className="stat-number">24/7</Title>
                 <Text c="var(--color-muted-foreground)" fw={600} size="lg">
                   Support
                 </Text>
@@ -556,40 +722,40 @@ export default function PrepalyzeLanding() {
 
       {/* CTA Section */}
       <section
-        ref={ctaRef}
-        className="cta-section"
-        style={{ padding: "100px 0", background: "var(--color-primary)" }}
+        style={{ padding: "80px 0", background: "var(--color-primary)" }}
       >
         <Container size="xl">
-          <Stack align="center" gap="xl" className="cta-content">
-            <Title order={2} ta="center" c="white" size="3rem" fw={800}>
+          <Stack align="center" gap="xl" ta="center">
+            <Title className="section-title" c="white" fw={800}>
               Ready to Transform Your Exam Process?
             </Title>
             <Text
               size="xl"
-              ta="center"
               c="rgba(255,255,255,0.9)"
               maw={700}
               lh={1.6}
+              ta="center"
             >
               Join thousands of educators and students who trust Prepalyze for
               their exam management needs.
             </Text>
-            <Group gap="md">
-              <Button
+            <Group gap="md" className="mobile-stack">
+              {/* <Button
                 size="xl"
                 variant="white"
                 color="blue"
-                className="cta-btn-primary"
+                className="responsive-button"
+                onClick={() => handleNavigation("/signup")}
               >
                 Start Free Trial
-              </Button>
+              </Button> */}
               <Button
                 size="xl"
                 variant="outline"
                 c="white"
                 style={{ borderColor: "white" }}
-                className="cta-btn-secondary bg-transparent"
+                className="responsive-button"
+                onClick={() => handleNavigation("/contact")}
               >
                 Contact Sales
               </Button>
@@ -601,131 +767,174 @@ export default function PrepalyzeLanding() {
       {/* Footer */}
       <footer
         style={{
-          padding: "40px 0",
+          padding: "60px 0 40px 0",
           background: "var(--color-muted)",
           borderTop: "1px solid var(--color-border)",
         }}
       >
         <Container size="xl">
-          <Grid>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <Stack gap="md">
+          <div className="footer-grid">
+            <Stack gap="md">
+              <Group>
                 <Title order={3} c="var(--color-primary)">
                   Prepalyze
                 </Title>
-                <Text size="sm" c="var(--color-muted-foreground)">
-                  Revolutionizing exam management with cutting-edge technology
-                  and user-centric design.
+              </Group>
+              <Text size="sm" c="var(--color-muted-foreground)" maw={400}>
+                Revolutionizing exam management with cutting-edge technology and
+                user-centric design.
+              </Text>
+            </Stack>
+
+            <div className="footer-links">
+              <Stack gap="sm">
+                <Text fw={600} c="var(--color-foreground)">
+                  Product
                 </Text>
+                <a
+                  href="#features"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Features
+                </a>
+                <a
+                  href="#pricing"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Pricing
+                </a>
+                <a
+                  href="#security"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Security
+                </a>
               </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <Grid>
-                <Grid.Col span={4}>
-                  <Stack gap="sm">
-                    <Text fw={600} c="var(--color-foreground)">
-                      Product
-                    </Text>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Features
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Pricing
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Security
-                    </Anchor>
-                  </Stack>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Stack gap="sm">
-                    <Text fw={600} c="var(--color-foreground)">
-                      Company
-                    </Text>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      About
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Careers
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Contact
-                    </Anchor>
-                  </Stack>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Stack gap="sm">
-                    <Text fw={600} c="var(--color-foreground)">
-                      Support
-                    </Text>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Help Center
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Documentation
-                    </Anchor>
-                    <Anchor
-                      href="#"
-                      size="sm"
-                      c="var(--color-muted-foreground)"
-                    >
-                      Status
-                    </Anchor>
-                  </Stack>
-                </Grid.Col>
-              </Grid>
-            </Grid.Col>
-          </Grid>
+
+              <Stack gap="sm">
+                <Text fw={600} c="var(--color-foreground)">
+                  Company
+                </Text>
+                <a
+                  href="#about"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  About
+                </a>
+                <a
+                  href="#careers"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Careers
+                </a>
+                <a
+                  href="#contact"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Contact
+                </a>
+              </Stack>
+
+              <Stack gap="sm">
+                <Text fw={600} c="var(--color-foreground)">
+                  Support
+                </Text>
+                <a
+                  href="#help"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Help Center
+                </a>
+                <a
+                  href="#docs"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Documentation
+                </a>
+                <a
+                  href="#status"
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                  }}
+                >
+                  Status
+                </a>
+              </Stack>
+            </div>
+          </div>
 
           <Divider my="xl" />
 
-          <Group justify="space-between" align="center">
+          <Group
+            justify="space-between"
+            align="center"
+            style={{ flexDirection: "row" }}
+          >
             <Text size="sm" c="var(--color-muted-foreground)">
-              © 2025 Prepalyze. All rights reserved.
+              © 2025 Indalyxo Solutions. All rights reserved.
             </Text>
-            <Group gap="md">
-              <Anchor href="#" size="sm" c="var(--color-muted-foreground)">
+            <Group
+              gap="md"
+              style={{ flexWrap: "wrap", justifyContent: "flex-end" }}
+            >
+              <a
+                href="#privacy"
+                style={{
+                  color: "var(--color-muted-foreground)",
+                  textDecoration: "none",
+                  fontSize: "14px",
+                }}
+              >
                 Privacy Policy
-              </Anchor>
-              <Anchor href="#" size="sm" c="var(--color-muted-foreground)">
+              </a>
+              <a
+                href="#terms"
+                style={{
+                  color: "var(--color-muted-foreground)",
+                  textDecoration: "none",
+                  fontSize: "14px",
+                }}
+              >
                 Terms of Service
-              </Anchor>
+              </a>
             </Group>
           </Group>
         </Container>
       </footer>
-    </div>
+    </Box>
   );
 }
