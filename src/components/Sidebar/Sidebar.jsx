@@ -29,7 +29,7 @@ import {
   IconChevronDown,
   IconBell,
 } from "@tabler/icons-react"
-import "./Sidebar.scss"
+import "./sidebar.scss"
 
 const Sidebar = ({
   data = [],
