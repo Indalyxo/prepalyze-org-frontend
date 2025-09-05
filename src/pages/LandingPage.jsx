@@ -420,9 +420,9 @@ export default function PrepalyzeLanding() {
           size="300px"
           position="right"
           title={
-            <Group>
-              <Image src="/logo.svg" alt="Prepalyze Logo" width={30} />
-              <Text fw={700}>Prepalyze</Text>
+            <Group align="center" gap="xs">
+              <img src="/logo.svg" alt="Prepalyze Logo" width={30} height={30} />
+              <Text style={{ color: "#3885ef" }} fw={700}>Prepalyze</Text>
             </Group>
           }
           hiddenFrom="md"
