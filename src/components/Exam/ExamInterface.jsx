@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Container, Button, Text, Stack, Grid, Card } from "@mantine/core";
 import InstructionModal from "./InstructionModal";
 import QuestionContent from "./Helpers/QuestionContent";
@@ -84,21 +84,6 @@ const ExamInterface = ({ examData, attendance }) => {
       attendanceMutation.mutate();
     }
   }, [examData, attendance?.status]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     if (showInstructions && currentQuestion === 0) {
@@ -249,10 +234,12 @@ const ExamInterface = ({ examData, attendance }) => {
     setInstructionModalOpened(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       const { gradeSchema } = examData;
-      console.log(examData)
+      console.log(examData);
+      console.log(answers);
+      console.log(gradeSchema);
 
       const { data } = await apiClient.post(`/api/exam/${examId}/result`, {
         answers,
@@ -266,7 +253,7 @@ const ExamInterface = ({ examData, attendance }) => {
       }
 
       toast.success("✅ Result submitted successfully!");
-      navigate(`/student/exams/details/${examId}/result/${resultId}`);
+      // navigate(`/student/exams/details/${examId}/result/${resultId}`);
     } catch (error) {
       console.error("Result submission failed:", error);
 
@@ -277,8 +264,23 @@ const ExamInterface = ({ examData, attendance }) => {
 
       toast.error(message);
     }
-  };
+  }, [examData, answers, examId, navigate]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [handleSubmit]);
+  
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];
   const statusCounts = getStatusCounts();
@@ -297,12 +299,12 @@ const ExamInterface = ({ examData, attendance }) => {
         section={currentSectionData}
         gradeSchema={{}}
       />
-      {/* <TabSwitchTracker
+      <TabSwitchTracker
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
-      /> */}
+      />
       <DetentionModal opened={disabled} onClose={() => setDisabled(false)} />
 
       <ExamHeader

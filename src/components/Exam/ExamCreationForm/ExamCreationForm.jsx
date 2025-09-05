@@ -45,7 +45,7 @@ import Step0 from "./Steps/Step0";
 import Step1 from "./Steps/Step1";
 import Step3 from "./Steps/Step3";
 import Step4 from "./Steps/Step4";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
 import dayjs from "dayjs";
@@ -83,6 +83,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState(initialFormData);
   const [tabValue, setTabValue] = useState("");
+  const queryClient = useQueryClient();
 
   const fetchExamData = async () => {
     try {
@@ -437,32 +438,30 @@ const ExamCreationForm = ({ opened, onClose }) => {
     };
   }
 
-  const handleSubmit = async () => {
-    try {
+  const { mutate: handleSubmit, isPending } = useMutation({
+    mutationKey: ["exam-create"],
+    mutationFn: async () => {
       const validatedData = completeFormSchema.parse(formData);
-      console.log(
-        "Exam created with validated data:",
-        transformToFinalStructure(formData)
-      );
-      console.log(
-        "Exam created with validated data:",
-        processExamData(formData)
-      );
 
       const res = await apiClient.post("/api/exam/", {
         ...processExamData(formData),
         questionData: transformToFinalStructure(formData) || [],
       });
-      console.log("Exam created with validated data:", validatedData);
+
       toast.success("Exam created successfully!");
       handleClose();
-    } catch (error) {
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["GET_EXAMS"]);
+    },
+    onError: (error) => {
       if (error instanceof z.ZodError) {
         const allErrors = {};
         error.issues.forEach((err) => {
-          const stepIndex = steps.findIndex((step) => {
-            return Object.keys(step.schema.shape).includes(err.path[0]);
-          });
+          const stepIndex = steps.findIndex((step) =>
+            Object.keys(step.schema.shape).includes(err.path[0])
+          );
           if (stepIndex !== -1) {
             if (!allErrors[`step_${stepIndex}`]) {
               allErrors[`step_${stepIndex}`] = {};
@@ -474,8 +473,9 @@ const ExamCreationForm = ({ opened, onClose }) => {
         toast.error("Validation failed. Please check the form.");
         setErrors(allErrors);
       }
-    }
-  };
+    },
+
+  });
 
   const handleSaveDraft = () => {
     console.log("Exam saved as draft:", formData);
@@ -1044,7 +1044,11 @@ const ExamCreationForm = ({ opened, onClose }) => {
                 <Button variant="outline" onClick={handleSaveDraft}>
                   Save as Draft
                 </Button>
-                <Button onClick={handleSubmit} disabled={!formData.confirmed}>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!formData.confirmed || isPending}
+                  loading={isPending}
+                >
                   Create Exam
                 </Button>
               </>

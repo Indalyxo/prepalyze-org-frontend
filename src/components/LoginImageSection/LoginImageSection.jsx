@@ -12,21 +12,22 @@ const images = [
 
 const slideContent = [
   {
-    title: "Join thousands of teams",
-    subtitle: "Experience seamless collaboration and boost your productivity with our innovative platform.",
-    features: ["Real-time collaboration", "Advanced analytics", "Secure workspace"]
+    title: "Conduct Exams with Ease",
+    subtitle: "Create and manage online tests effortlessly for your students or employees.",
+    features: ["Easy exam creation", "Flexible scheduling", "Question bank support"]
   },
   {
-    title: "Boost your productivity",
-    subtitle: "Streamline your workflow with powerful tools designed for modern teams.",
-    features: ["Smart automation", "Custom workflows", "Team insights"]
+    title: "Empower Student Success",
+    subtitle: "Enable learners to take tests anytime, anywhere with a smooth experience.",
+    features: ["User-friendly interface", "Timed assessments", "Instant submission"]
   },
   {
-    title: "Scale with confidence",
-    subtitle: "Enterprise-grade security and reliability you can trust.",
-    features: ["99.9% uptime", "Enterprise security", "24/7 support"]
+    title: "Analyze Results Instantly",
+    subtitle: "Track performance and gain insights to improve learning outcomes.",
+    features: ["Detailed analytics", "Automated grading", "Performance reports"]
   }
-]
+];
+
 
 export default function LoginImageSection() {
   const [currentImage, setCurrentImage] = useState(0)

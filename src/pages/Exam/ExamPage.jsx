@@ -28,11 +28,13 @@ const ExamPage = () => {
   } = useQuery({
     queryKey: ["exam", examId],
     queryFn: () => fetchExamData(examId),
+    staleTime: 5 * 60 * 1000, // don’t refetch for 5 min
+    cacheTime: 30 * 60 * 1000, // keep in cache 30 min after unused
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     onError: () => toast.error("Failed to fetch exam data"),
-    refetchInterval: 3000,
   });
 
-  // Query for attendance
   const {
     data: attendance,
     isLoading: isAttendanceLoading,
@@ -40,6 +42,10 @@ const ExamPage = () => {
   } = useQuery({
     queryKey: ["attendance", examId],
     queryFn: () => fetchAttendance(examId),
+    staleTime: 2 * 60 * 1000, // shorter cache for attendance
+    cacheTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     onError: () => toast.error("Failed to fetch attendance"),
   });
 
@@ -59,7 +65,9 @@ const ExamPage = () => {
   }
 
   if (isExamError || isAttendanceError) {
-    return <div className="text-red-500">Failed to load exam or attendance</div>;
+    return (
+      <div className="text-red-500">Failed to load exam or attendance</div>
+    );
   }
 
   // Correctly handle navigation before rendering the ExamInterface

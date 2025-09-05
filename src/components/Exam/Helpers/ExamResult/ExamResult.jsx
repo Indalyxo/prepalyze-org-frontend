@@ -16,6 +16,7 @@ import {
   Divider,
   Paper,
   Button,
+  Loader,
 } from "@mantine/core";
 import styles from "./exam-result.module.scss";
 import { useParams } from "react-router-dom";
@@ -197,9 +198,9 @@ export default function ExamResult({ primary = "blue" }) {
   const isPassed = result?.percentage >= 50; // Assuming a passing score of 50%
 
   if (isAttendanceLoading) {
-    return <div>Loading...</div>;
+    return <Loader size={"lg"} />;
   }
-  console.log(result);
+
   return (
     <MantineProvider theme={{ primaryColor: primary }}>
       <div className={styles.examAnalytics}>

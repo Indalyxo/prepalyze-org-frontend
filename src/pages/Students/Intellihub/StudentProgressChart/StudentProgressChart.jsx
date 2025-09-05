@@ -20,38 +20,38 @@ const StudentProgressChart = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
 
-  // useEffect(() => {
+  useEffect(() => {
 
-  //   const fetchData = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       const response = await apiClient.get(`/api/intellihub/progress/${user.id}`);
-  //       setData(response.data?.data || []);
-  //     } catch (error) {
-  //       console.error(error);
-  //       toast.error("Failed to fetch progress. Please try again.");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [user.id]);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get(`/api/intellihub/progress/${user.id}`);
+        setData(response.data?.data || []);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch progress. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [user.id]);
 
-  // if (isLoading) {
-  //   return (
-  //     <Center h={250}>
-  //       <Loader size="lg" />
-  //     </Center>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <Center h={250}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
 
-  // if (data.length === 0) {
-  //   return (
-  //     <Center h={250}>
-  //       <Text c="dimmed">No progress data available yet 📊</Text>
-  //     </Center>
-  //   );
-  // }
+  if (data.length === 0) {
+    return (
+      <Center h={250}>
+        <Text c="dimmed">No progress data available yet 📊</Text>
+      </Center>
+    );
+  }
 
   return (
     <div style={{ padding: 20 }}>
@@ -60,7 +60,7 @@ const StudentProgressChart = () => {
           <Text fw={600} mb={10} size="lg">
             Your Progress Over the Previous Exams
           </Text>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <BarChart
               data={data}
               margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
