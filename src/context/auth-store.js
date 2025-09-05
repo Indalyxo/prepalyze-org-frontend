@@ -3,7 +3,8 @@ import { persist } from "zustand/middleware";
 import axios from "axios"; // Add missing import
 import apiClient from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"; // Add missing constant
+const API_BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"; // Add missing constant
 
 const useAuthStore = create(
   persist(
@@ -33,12 +34,18 @@ const useAuthStore = create(
         } catch (error) {
           console.error(error);
           set({ isLoading: false }); // Make sure to reset loading state
-          
+
           // Don't logout on network errors
-          if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
-            return { success: false, message: "Network error. Please check your connection." };
+          if (
+            error.code === "NETWORK_ERROR" ||
+            error.message === "Network Error"
+          ) {
+            return {
+              success: false,
+              message: "Network error. Please check your connection.",
+            };
           }
-          
+
           const message =
             error.response?.data?.message || "An error occurred during login.";
           return { success: false, message };
@@ -53,11 +60,15 @@ const useAuthStore = create(
           }
 
           // Use axios directly to avoid circular interceptor
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken: refreshToken,
-          }, {
-            timeout: 10000 // 10 second timeout for refresh
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/auth/refresh`,
+            {
+              refreshToken: refreshToken,
+            },
+            {
+              timeout: 10000, // 10 second timeout for refresh
+            }
+          );
 
           const { accessToken, refreshToken: newRefreshToken } =
             response.data.data;
@@ -70,14 +81,17 @@ const useAuthStore = create(
           return { success: true, accessToken };
         } catch (error) {
           // Don't return error for network issues during refresh
-          if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+          if (
+            error.code === "NETWORK_ERROR" ||
+            error.message === "Network Error"
+          ) {
             return {
               success: false,
               message: "Network error during token refresh",
-              networkError: true
+              networkError: true,
             };
           }
-          
+
           return {
             success: false,
             message: error.response?.data?.message || "Token refresh failed",
@@ -105,7 +119,12 @@ const useAuthStore = create(
           await apiClient.post("/auth/logout");
         } catch (error) {
           // Don't log error for network issues during logout
-          if (!(error.code === 'NETWORK_ERROR' || error.message === 'Network Error')) {
+          if (
+            !(
+              error.code === "NETWORK_ERROR" ||
+              error.message === "Network Error"
+            )
+          ) {
             console.error("Logout error:", error);
           }
         } finally {
@@ -128,11 +147,17 @@ const useAuthStore = create(
           localStorage.removeItem("prepalyze-accessToken");
           localStorage.removeItem("prepalyze-refreshToken");
           set({ user: null, isAuthenticated: false });
-          
-          if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
-            return { success: true, message: "Logged out locally (network error)" };
+
+          if (
+            error.code === "NETWORK_ERROR" ||
+            error.message === "Network Error"
+          ) {
+            return {
+              success: true,
+              message: "Logged out locally (network error)",
+            };
           }
-          
+
           return { success: false, message: error.response?.data?.message };
         }
       },
@@ -145,10 +170,16 @@ const useAuthStore = create(
           });
           return { success: true };
         } catch (error) {
-          if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
-            return { success: false, message: "Network error. Please check your connection." };
+          if (
+            error.code === "NETWORK_ERROR" ||
+            error.message === "Network Error"
+          ) {
+            return {
+              success: false,
+              message: "Network error. Please check your connection.",
+            };
           }
-          
+
           return {
             success: false,
             message: error.response?.data?.message || "Password change failed",
@@ -164,11 +195,14 @@ const useAuthStore = create(
           return { success: true };
         } catch (error) {
           // Don't clear tokens on network errors
-          if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+          if (
+            error.code === "NETWORK_ERROR" ||
+            error.message === "Network Error"
+          ) {
             set({ isInitializing: false });
             return { success: false, networkError: true };
           }
-          
+
           // Only clear on actual auth errors
           localStorage.removeItem("prepalyze-accessToken");
           localStorage.removeItem("prepalyze-refreshToken");
@@ -181,7 +215,7 @@ const useAuthStore = create(
       initializeAuth: async () => {
         set({ isInitializing: true });
         const token = localStorage.getItem("prepalyze-accessToken");
-        
+
         if (token) {
           if (get().checkTokenExpiry()) {
             const refreshResult = await get().refreshToken();
@@ -191,7 +225,7 @@ const useAuthStore = create(
               return;
             }
           }
-          
+
           const userResult = await get().getCurrentUser();
           if (!userResult.success && !userResult.networkError) {
             // Only clear auth on non-network user fetch failures
@@ -200,7 +234,7 @@ const useAuthStore = create(
         } else {
           set({ isAuthenticated: false, isInitializing: false });
         }
-        
+
         set({ isInitializing: false });
       },
     }),

@@ -74,7 +74,7 @@ export default function LoginForm() {
         <div className="logo-section">
           <div className="logo">
             <div className="logo-icon">✦</div>
-            <Text className="logo-text">Untitled UI</Text>
+            <Text className="logo-text">Prepalyze</Text>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Container, Button, Text, Badge, Modal } from "@mantine/core"
+import { Container, Button, Text, Badge, Modal, Image } from "@mantine/core"
 import { IconClock, IconBook, IconInfoCircle } from "@tabler/icons-react"
 import useAuthStore from "../../../context/auth-store"
 
@@ -50,7 +50,7 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
   return (
     <>
       {/* Modal for exam not started */}
-      <Modal opened={examNotStarted} onClose={() => {}} centered withCloseButton={false}>
+      <Modal opened={false} onClose={() => {}} centered withCloseButton={false}>
         <div className="p-4 text-center">
           <Text size="lg" fw={600}>⏳ Exam Not Started</Text>
           <Text mt="sm">
@@ -68,7 +68,7 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
           <div className="header-main">
             <div className="exam-branding">
               <div className="exam-icon">
-                <IconBook size={24} />
+                <Image src={user.organization.logoUrl} alt="exam icon" width={40} height={40} />
               </div>
               <div className="exam-details">
                 <Text className="exam-title">{examData.examTitle}</Text>

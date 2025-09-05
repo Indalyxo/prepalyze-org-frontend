@@ -26,6 +26,7 @@ import {
   Modal,
   TextInput,
   Stack,
+  Loader,
 } from "@mantine/core";
 import { IconPhoto } from "@tabler/icons-react";
 
@@ -177,7 +178,7 @@ const AdvancedEditor = forwardRef(
       [linkModalOpened, handleSetLink]
     );
 
-    if (!editor) return <div>Loading editor...</div>;
+    if (!editor) return <Loader size={"lg"} />;
 
     return (
       <Box>

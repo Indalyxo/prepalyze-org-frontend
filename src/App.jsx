@@ -25,6 +25,7 @@ import StudentIntellihub from "./pages/Students/Intellihub";
 import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
 import PrintQuestions from "./pages/Generic/PrintQuestions/PrintQuestions";
 import CheckingPage from "./pages/Generic/CheckingPage";
+import PrepalyzeLanding from "./pages/LandingPage";
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -60,6 +61,7 @@ const App = () => {
           {/* Redirect root to appropriate dashboard */}
           <Route
             path="/"
+            index
             element={
               isAuthenticated ? (
                 <Navigate
@@ -67,7 +69,7 @@ const App = () => {
                   replace
                 />
               ) : (
-                <Navigate to="/login" replace />
+                <PrepalyzeLanding />
               )
             }
           />

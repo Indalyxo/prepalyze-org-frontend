@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Text, Stack, Card } from "@mantine/core";
+import { Text, Stack, Card, Center, Loader } from "@mantine/core";
 import {
   BarChart,
   Bar,
@@ -10,59 +10,52 @@ import {
   Legend,
   LineChart,
   Line,
-  ResponsiveContainer
+  ResponsiveContainer,
+  LabelList,
 } from "recharts";
-import './StudentDetails.scss';
+import "./StudentDetails.scss";
+import apiClient from "../../../../utils/api";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function StudentDetails() {
   const { id } = useParams();
 
-  // Sample student data — this could come from API
-  const studentData = {
-    1: {
-      marks: [
-        { name: "Math Test 1", avg: 78 },
-        { name: "Science Quiz", avg: 85 },
-        { name: "History Exam", avg: 72 },
-        { name: "English Test", avg: 90 },
-        { name: "Physics Lab", avg: 88 },
-        { name: "Chemistry Test", avg: 76 }
-      ],
-      time: [
-        { name: "Math Test 1", time: 45 },
-        { name: "Science Quiz", time: 32 },
-        { name: "History Exam", time: 60 },
-        { name: "English Test", time: 42 },
-        { name: "Physics Lab", time: 68 },
-        { name: "Chemistry Test", time: 40 }
-      ]
-    },
-    2: {
-      marks: [
-        { name: "Math Test 1", avg: 65 },
-        { name: "Science Quiz", avg: 70 },
-        { name: "History Exam", avg: 60 },
-        { name: "English Test", avg: 85 },
-        { name: "Physics Lab", avg: 80 },
-        { name: "Chemistry Test", avg: 72 }
-      ],
-      time: [
-        { name: "Math Test 1", time: 50 },
-        { name: "Science Quiz", time: 35 },
-        { name: "History Exam", time: 55 },
-        { name: "English Test", time: 45 },
-        { name: "Physics Lab", time: 65 },
-        { name: "Chemistry Test", time: 42 }
-      ]
-    }
-  };
+  const [data, setData] = useState([]);
+  const [name, setName] = useState("")
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get(`/api/intellihub/progress/${id}`);
+        console.log(response.data?.user)
+        setData(response.data?.data || []);
+        setName(response.data?.user || "");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch progress. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
 
-  const data = studentData[id] || { marks: [], time: [] };
+  if (isLoading) {
+    return (
+      <Center h={250}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  console.log(name, "<--")
 
   return (
     <div style={{ padding: 20 }}>
       <Text size="xl" fw={700}>
-        Student ID: {id}
+        Student ID: {name}
       </Text>
       <Text c="dimmed" mb="lg">
         Performance overview
@@ -71,24 +64,38 @@ export default function StudentDetails() {
       <Stack gap="xl">
         {/* Average Marks Chart */}
         <Card withBorder radius="lg" p="md">
-          <Text fw={600} mb={5}>Average Marks in Each Test</Text>
-          <Text size="sm" c="dimmed" mb="md">Class performance overview</Text>
+          <Text fw={600} mb={5}>
+            Average Marks in Each Test
+          </Text>
+          <Text size="sm" c="dimmed" mb="md">
+            Class performance overview
+          </Text>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data.marks}>
+            <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis domain={[0, 100]} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="avg" fill="#4A90E2" />
+              <Bar dataKey="score" fill="#4A90E2">
+                <LabelList
+                  dataKey="score"
+                  position="top"
+                  formatter={(v) => `${v}%`}
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
         {/* Average Time Taken Chart */}
-        <Card withBorder radius="lg" p="md">
-          <Text fw={600} mb={5}>Average Time Taken for Each Test</Text>
-          <Text size="sm" c="dimmed" mb="md">Time in minutes</Text>
+        {/* <Card withBorder radius="lg" p="md">
+          <Text fw={600} mb={5}>
+            Average Time Taken for Each Test
+          </Text>
+          <Text size="sm" c="dimmed" mb="md">
+            Time in minutes
+          </Text>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={data.time}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -96,10 +103,15 @@ export default function StudentDetails() {
               <YAxis domain={[0, 80]} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="time" stroke="#00C49F" strokeWidth={2} />
+              <Line
+                type="monotone"
+                dataKey="time"
+                stroke="#00C49F"
+                strokeWidth={2}
+              />
             </LineChart>
           </ResponsiveContainer>
-        </Card>
+        </Card> */}
       </Stack>
     </div>
   );

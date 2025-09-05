@@ -1,0 +1,273 @@
+// Enhanced Search Bar Styles with Modern Design
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &--focused {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 8px 25px rgba(59, 130, 246, 0.15);
+    transform: translateY(-2px);
+    background: #ffffff;
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    
+    .search-bar__input {
+      cursor: not-allowed;
+    }
+  }
+
+  // Size variants with improved proportions
+  &--sm {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    
+    .search-bar__input {
+      font-size: 14px;
+      font-weight: 400;
+    }
+    
+    .search-bar__search-icon,
+    .search-bar__clear-icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &--md {
+    height: 44px;
+    padding: 0 16px;
+    
+    .search-bar__input {
+      font-size: 15px;
+      font-weight: 400;
+    }
+    
+    .search-bar__search-icon,
+    .search-bar__clear-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &--lg {
+    height: 52px;
+    padding: 0 20px;
+    border-radius: 14px;
+    
+    .search-bar__input {
+      font-size: 16px;
+      font-weight: 400;
+    }
+    
+    .search-bar__search-icon,
+    .search-bar__clear-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  // Enhanced style variants
+  &--filled {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1.5px solid transparent;
+    
+    &:hover {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-color: #3b82f6;
+    }
+    
+    &.search-bar--focused {
+      background: #ffffff;
+      border-color: #3b82f6;
+    }
+  }
+
+  &--outlined {
+    background: transparent;
+    border: 2px solid #e5e7eb;
+    backdrop-filter: blur(8px);
+    
+    &:hover {
+      border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    &.search-bar--focused {
+      border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  // Icon containers with improved spacing
+  &__icon-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  &__search-icon {
+    color: #6b7280;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &--focused &__search-icon {
+    color: #3b82f6;
+    transform: scale(1.1);
+  }
+
+  // Enhanced input field
+  &__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #1f2937;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    
+    &::placeholder {
+      color: #9ca3af;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 400;
+    }
+    
+    &:focus::placeholder {
+      color: #d1d5db;
+      opacity: 0.8;
+      transform: translateX(4px);
+    }
+  }
+
+  // Enhanced clear button
+  &__clear-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    opacity: 0.7;
+    
+    &:hover {
+      background: #f3f4f6;
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+      background: #e5e7eb;
+    }
+  }
+
+  &__clear-icon {
+    color: #6b7280;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__clear-button:hover &__clear-icon {
+    color: #374151;
+  }
+
+  // Enhanced animations
+  &--has-value &__clear-button {
+    animation: slideInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  // Pulse animation for focus
+  &--focused::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #3b82f6);
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+    z-index: -1;
+    opacity: 0.1;
+  }
+}
+
+// Enhanced keyframe animations
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateX(8px);
+  }
+  to {
+    opacity: 0.7;
+    transform: scale(1) translateX(0);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+// Improved responsive design
+@media (max-width: 768px) {
+  .search-bar {
+    max-width: 100%;
+    
+    &--lg {
+      height: 48px;
+      
+      .search-bar__input {
+        font-size: 16px; // Prevent zoom on iOS
+      }
+    }
+  }
+}
+
+// Glass morphism variant (bonus style)
+.search-bar--glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+  
+  &.search-bar--focused {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(59, 130, 246, 0.6);
+  }
+}

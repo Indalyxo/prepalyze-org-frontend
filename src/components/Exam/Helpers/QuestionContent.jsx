@@ -21,7 +21,7 @@ const QuestionContent = ({
           {renderWithLatexAndImages(questionData.text)}
         </Text>
 
-        {questionData.type === "numerical" ? (
+        {questionData.type === "Numerical type" ? (
           <div className="numerical-input-container">
             <TextInput
               size="lg"

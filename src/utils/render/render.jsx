@@ -1,10 +1,14 @@
-import { InlineMath } from "react-katex";
+import { InlineMath, BlockMath } from "react-katex"; // Added BlockMath import
+import { useState } from "react";
+import { Loader } from "@mantine/core";
 
 const isImageUrl = (text) => {
   const urlRegex =
-    /^https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|bmp|svg|webp)(\?[^\s]*)?$/i;
+    /^https?:\/\/[^\s]+(\.(jpg|jpeg|png|gif|bmp|svg|webp)(\?[^\s]*)?)?$/i;
   const cloudinaryRegex = /^https?:\/\/res\.cloudinary\.com\/[^\s]+/i;
-  return urlRegex.test(text) || cloudinaryRegex.test(text);
+  const ufsRegex = /^https?:\/\/[a-z0-9.-]+\/[^\s]+/i; // allow ufs.sh etc.
+
+  return urlRegex.test(text) || cloudinaryRegex.test(text) || ufsRegex.test(text);
 };
 
 const isLikelyLatex = (content) => {
@@ -51,19 +55,16 @@ const cleanLatexText = (text) => {
     .replace(/\\([a-zA-Z]+)\s+/g, "\\$1 ")
     .replace(/\\\$/g, "$")
     .replace(/\\\&/g, "&")
-    .replace(/\\\%/g, "%") // ✅ Convert escaped % back to normal %
+    .replace(/\\\%/g, "%")
     .replace(/(?<!\\)%/g, "\\%")
     .replace(/\s*([=<>±×÷])\s*/g, " $1 ");
 };
 
-
 const parseListEnvironment = (text) => {
-  // Ensure text is a string
   if (typeof text !== "string") {
     return null;
   }
 
-  // Check for both enumerate and itemize environments
   const enumerateRegex = /\\begin\{enumerate\}(.*?)\\end\{enumerate\}/s;
   const itemizeRegex = /\\begin\{itemize\}(.*?)\\end\{itemize\}/s;
 
@@ -75,9 +76,7 @@ const parseListEnvironment = (text) => {
     listType = "itemize";
   }
 
-  // NEW: Handle orphan \item blocks (no environment)
   if (!match && /\\item\s+/.test(text)) {
-    // Find all items
     const itemRegex = /\\item\s+(.*?)(?=(\\item|$))/gs;
     const items = [];
     let itemMatch;
@@ -86,16 +85,14 @@ const parseListEnvironment = (text) => {
       items.push(itemMatch[1].trim());
       lastIndex = itemRegex.lastIndex;
     }
-    // Text before first item
     const beforeText = text.slice(0, text.indexOf("\\item")).trim();
-    // Text after last item
     const afterText = text.slice(lastIndex).trim();
     return {
       beforeText,
       afterText,
       items,
       fullMatch: null,
-      listType: "enumerate", // Default to ordered list
+      listType: "enumerate",
     };
   }
 
@@ -105,7 +102,6 @@ const parseListEnvironment = (text) => {
   const beforeText = text.substring(0, match.index).trim();
   const afterText = text.substring(match.index + fullMatch.length).trim();
 
-  // Extract items from the list content
   const itemRegex = /\\item\s+(.*?)(?=\\item|$)/gs;
   const items = [];
   let itemMatch;
@@ -126,13 +122,94 @@ const parseListEnvironment = (text) => {
   };
 };
 
+// Component for handling image with error state
+const ImageWithError = ({ src, alt, style }) => {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleError = () => {
+    console.error("Image failed to load:", src);
+    setHasError(true);
+    setIsLoading(false);
+  };
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+  };
+
+  if (hasError) {
+    return (
+      <div
+        style={{
+          ...style,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#ffebee',
+          border: '1px dashed #f44336',
+          borderRadius: '4px',
+          padding: '20px',
+          minHeight: '60px',
+        }}
+      >
+        <span
+          style={{
+            color: '#d32f2f',
+            fontStyle: 'italic',
+            fontSize: '0.9em',
+            textAlign: 'center',
+            wordBreak: 'break-all',
+          }}
+        >
+          [Image failed to load: {src}]
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {isLoading && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '4px',
+            minHeight: '60px',
+          }}
+        >
+          <span style={{ color: '#666', fontSize: '0.9em' }}>
+            <Loader size={"sm"} /> Loading image...
+          </span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        style={{
+          ...style,
+          display: isLoading ? 'none' : 'block',
+        }}
+        onError={handleError}
+        onLoad={handleLoad}
+      />
+    </div>
+  );
+};
+
 const renderWithLatexAndImages = (text) => {
-  // Add type checking at the beginning
   if (!text || typeof text !== "string") {
     return text || null;
   }
 
-  // Check for list environments first (both enumerate and itemize)
   const listData = parseListEnvironment(text);
   if (listData) {
     return (
@@ -193,27 +270,26 @@ const renderWithLatexAndImages = (text) => {
   }
 
   // Handle LaTeX underline pattern: \_\_\_\_\_\_\_
-  // Replace sequences of 3 or more underscores with an underlined blank
   let preprocessedText = text.replace(/\\_{1,}/g, (match) => {
-    const length = match.length - 1;
     return `__`;
   });
 
-  // Normal rendering for non-assertion-reason content
   return renderContent(preprocessedText);
 
   function renderContent(content) {
-    // Add type checking for content parameter
     if (!content || typeof content !== "string") {
       return content || null;
     }
 
     let cleanedText = cleanLatexText(content);
 
+    // Updated regex patterns to better handle includegraphics with whitespace and newlines
     const patterns = [
-      /\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}/g,
-      /\$([^$]+)\$/g,
-      /\\\(([^\\]*(?:\\[^)]*)*[^\\]*)\\\)/g,
+      /\\includegraphics(?:\[[^\]]*\])?\s*\{([^}]+)\}/gs,
+      /\$\$([^$]+)\$\$/g,        // Block math with $$
+      /\\\[([^\]]+)\\\]/g,       // Block math with \[ \]
+      /\$([^$]+)\$/g,            // Inline math
+      /\\\(([^\\]*(?:\\[^)]*)*[^\\]*)\\\)/g, // Inline math with \( \)
       /\|([^|]+)\|/g,
       /\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}[^{}]*)*\})+/g,
       /[a-zA-Z]+(?:\s*\\?\s*[_^]\s*\{\s*[^}]+\s*\})+/g,
@@ -226,6 +302,8 @@ const renderWithLatexAndImages = (text) => {
 
     patterns.forEach((pattern) => {
       let match;
+      // Reset regex lastIndex to avoid issues with global patterns
+      pattern.lastIndex = 0;
       while ((match = pattern.exec(cleanedText)) !== null) {
         matches.push({
           match: match,
@@ -324,21 +402,17 @@ const renderWithLatexAndImages = (text) => {
         );
       } else if (part.type === "image") {
         return (
-          <div key={i} style={{ margin: "10px 0"}}>
-            <img
+          <div key={i} style={{ margin: "10px 0" }}>
+            <ImageWithError
               src={part.value}
               alt="Question content"
               style={{
                 maxHeight: "300px",
                 maxWidth: "100%",
                 borderRadius: "4px",
-                objectFit:  "contain",
+                objectFit: "contain",
                 border: "1px solid #ddd",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-              }}
-              onError={(e) => {
-                console.error("Image failed to load:", part.value);
-                e.target.parentElement.innerHTML = `<span style="color: red; font-style: italic;">[Image failed to load: ${part.value}]</span>`;
               }}
             />
           </div>

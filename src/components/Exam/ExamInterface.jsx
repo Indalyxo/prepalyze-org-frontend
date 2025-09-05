@@ -86,21 +86,6 @@ const ExamInterface = ({ examData, attendance }) => {
   }, [examData, attendance?.status]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [handleSubmit]);
-
-  useEffect(() => {
     if (showInstructions && currentQuestion === 0) {
       const timer = setTimeout(() => {
         setShowInstructions(false);
@@ -253,6 +238,8 @@ const ExamInterface = ({ examData, attendance }) => {
     try {
       const { gradeSchema } = examData;
       console.log(examData);
+      console.log(answers);
+      console.log(gradeSchema);
 
       const { data } = await apiClient.post(`/api/exam/${examId}/result`, {
         answers,
@@ -266,7 +253,7 @@ const ExamInterface = ({ examData, attendance }) => {
       }
 
       toast.success("✅ Result submitted successfully!");
-      navigate(`/student/exams/details/${examId}/result/${resultId}`);
+      // navigate(`/student/exams/details/${examId}/result/${resultId}`);
     } catch (error) {
       console.error("Result submission failed:", error);
 
@@ -279,6 +266,21 @@ const ExamInterface = ({ examData, attendance }) => {
     }
   }, [examData, answers, examId, navigate]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [handleSubmit]);
+  
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];
   const statusCounts = getStatusCounts();
@@ -297,12 +299,12 @@ const ExamInterface = ({ examData, attendance }) => {
         section={currentSectionData}
         gradeSchema={{}}
       />
-      {/* <TabSwitchTracker
+      <TabSwitchTracker
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
-      /> */}
+      />
       <DetentionModal opened={disabled} onClose={() => setDisabled(false)} />
 
       <ExamHeader

@@ -61,7 +61,7 @@ const PrintQuestions = () => {
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["GET_EXAMS_QUESTIONS"],
+    queryKey: ["GET_EXAMS_QUESTIONS_FOR_PRINT"],
     queryFn: fetchExamsQuestions,
   });
 

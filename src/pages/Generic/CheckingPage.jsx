@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import apiClient from "../../utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { renderWithLatexAndImages } from "../../utils/render/render";
+import { Loader } from "@mantine/core";
 
 const CheckingPage = () => {
   const [start, setStart] = useState("");
@@ -96,7 +97,7 @@ const CheckingPage = () => {
             color: "#4B5563",
           }}
         >
-          Loading...
+          <Loader size={"lg"} /> Fetching questions...
         </div>
       )}
 
@@ -120,9 +121,6 @@ const CheckingPage = () => {
                 fontWeight: 600,
                 color: "#1F2937",
                 marginBottom: "12px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
               }}
             >
               <span style={{ color: "#6366F1", fontWeight: 700 }}>
