@@ -1,3 +1,8 @@
+:root {
+  --color-primary: #3b82f6;
+
+}
+
 .availableExams {
   min-height: 100vh;
   background: var(--color-background);
@@ -19,7 +24,7 @@
 .addButton {
   background: var(--color-primary);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-weight: 600;
   color: white;
   transition: all 0.2s ease;

@@ -1,15 +1,19 @@
-import { Modal, Text, Stack, List, Group } from "@mantine/core"
-import { IconInfoCircle, IconCircleCheck } from "@tabler/icons-react"
-import { useEffect } from "react"
-import styles from "./instruction-modal.module.scss"
+import { Modal, Text, Stack, List, Group } from "@mantine/core";
+import { IconInfoCircle, IconCircleCheck } from "@tabler/icons-react";
+import { useEffect } from "react";
+import styles from "./instruction-modal.module.scss";
 
-
-const InstructionModal = ({ opened, onClose, section, autocloseDelay = 0 }) => {
+const InstructionModal = ({
+  opened,
+  onClose,
+  instruction,
+  autocloseDelay = 0,
+}) => {
   useEffect(() => {
-    if (!opened || !autocloseDelay) return
-    const id = setTimeout(() => onClose(), autocloseDelay)
-    return () => clearTimeout(id)
-  }, [opened, autocloseDelay, onClose])
+    if (!opened || !autocloseDelay) return;
+    const id = setTimeout(() => onClose(), autocloseDelay);
+    return () => clearTimeout(id);
+  }, [opened, autocloseDelay, onClose]);
 
   return (
     <Modal
@@ -41,23 +45,15 @@ const InstructionModal = ({ opened, onClose, section, autocloseDelay = 0 }) => {
           Please read the following instructions carefully before proceeding:
         </Text>
 
-        <List
-          spacing="sm"
-          size="sm"
-          className={styles.instructionList}
-          icon={<IconCircleCheck size={16} className={styles.icon} />}
-        >
-          {section.instructions?.map((instruction, index) => (
-            <List.Item key={index}>{instruction}</List.Item>
-          ))}
-        </List>
+        <div dangerouslySetInnerHTML={{ __html: instruction }} />
 
         <Text size="xs" c="dimmed" fs="italic">
-          These instructions can also auto-hide after a delay when you start answering questions.
+          These instructions can also auto-hide after a delay when you start
+          answering questions.
         </Text>
       </Stack>
     </Modal>
-  )
-}
+  );
+};
 
-export default InstructionModal
+export default InstructionModal;

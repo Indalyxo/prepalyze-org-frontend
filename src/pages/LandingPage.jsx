@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Title,
@@ -10,13 +10,13 @@ import {
   Stack,
   Badge,
   ThemeIcon,
-  Anchor,
   Divider,
-  Image,
   Box,
   Burger,
   Drawer,
   ScrollArea,
+  SimpleGrid,
+  Image,
 } from "@mantine/core";
 import {
   IconFileText,
@@ -28,366 +28,134 @@ import {
   IconShield,
   IconRocket,
   IconSparkles,
-  IconBellRinging,
-  IconTarget,
-  IconMenu2,
+  IconDeviceDesktop,
+  IconDatabase,
+  IconPalette,
+  IconLock,
+  IconCheck,
+  IconX,
+  IconMan,
+  IconUser,
+  IconBuilding,
+  IconBuildingSkyscraper,
 } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDisclosure } from "@mantine/hooks";
+import "./landing-page.scss";
+
+const appSections = [
+  {
+    title: "Organization Dashboard",
+    description:
+      "Comprehensive overview of all your exams, students, and performance metrics in one place",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255634/dasboard_cinofn.avif",
+    icon: IconDeviceDesktop,
+    features: ["Real-time analytics", "Quick actions", "Performance overview"],
+  },
+  {
+    title: "Exam Page",
+    description:
+      "Create and manage your exams with ease using our intuitive repository interface",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255637/utk3d6fa5fzj9ppobuil_q7z8cr.avif",
+    icon: IconDatabase,
+    features: ["Manage exams", "Schedule Exams", "Online/Offline modes"],
+  },
+  {
+    title: "Exam Builder",
+    description:
+      "Intuitive interface to create professional exam papers in minutes",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255606/create-option_az50j2.avif",
+    icon: IconPalette,
+    features: ["Single/Multi Subject", "Templates", "Preview mode"],
+  },
+  {
+    title: "Online Exams",
+    description:
+      "Secure online testing environment with anti-cheating measures and real-time results",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/exam-interface_x01edq.avif",
+    icon: IconLock,
+    features: ["Live testing", "Anti-Cheat", "Time management"],
+  },
+  {
+    title: "Group Students",
+    description:
+      "Easily organize students into groups for targeted exams and performance tracking",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/group-page_zqqknf.avif",
+    icon: IconUsers,
+    features: ["Create groups", "Assign exams", "Track performance"],
+  },
+  {
+    title: "Downloadable Questions Editor",
+    description:
+      "Easily create and edit downloadable question papers with worksheet support",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255635/downloa-page_tr9yhj.avif",
+    icon: IconClipboardCheck,
+    features: ["Worksheet support", "Customization", "Multiple formats"],
+  },
+  {
+    title: "Student Performance Dashboard",
+    description:
+      "Deep insights into student performance with detailed reports and recommendations",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255607/student-dashboard_raqehq.avif",
+    icon: IconChartBar,
+    features: ["Performance trends", "Comparative analysis", "Custom reports"],
+  },
+];
 
 export default function PrepalyzeLanding() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
-  // Simple fade-in animation hook
-  const useFadeIn = () => {
-    const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
-    useEffect(() => {
-      const timer = setTimeout(() => setIsVisible(true), 100);
-      return () => clearTimeout(timer);
-    }, []);
-
-    return isVisible;
-  };
-
-  const isVisible = useFadeIn();
+  // Auto-rotate slides
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % appSections.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleNavigation = (path) => {
     navigate(path);
+    console.log(`Navigate to: ${path}`);
     closeDrawer();
   };
 
   return (
-    <Box>
-      <style jsx>{`
-        :root {
-          --color-primary: #3b82f6;
-          --color-accent: #10b981;
-          --color-card: #ffffff;
-          --color-border: #e5e7eb;
-          --color-foreground: #1f2937;
-          --color-muted-foreground: #6b7280;
-          --color-muted: #f9fafb;
-          --color-primary-foreground: #ffffff;
-          --radius-lg: 12px;
-          --radius-md: 8px;
-        }
-
-        .prepalyze-header {
-          background: linear-gradient(
-            135deg,
-            #cdebe1ff 0%,
-            var(--color-primary) 100%
-          );
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          backdrop-filter: blur(10px);
-        }
-
-        .nav-link {
-          position: relative;
-          transition: all 0.3s ease;
-          text-decoration: none;
-          color: black;
-          font-weight: 500;
-          padding: 8px 16px;
-          border-radius: 6px;
-        }
-
-        .nav-link:hover {
-          transform: translateY(-2px);
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-        }
-
-        .login-btn {
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-        }
-
-        .login-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-        }
-
-        .prepalyze-hero {
-          background: linear-gradient(
-            135deg,
-            #fff 0%,
-            #f4f1f1 50%,
-            #6dd4f9 100%
-          );
-          min-height: 90vh;
-          display: flex;
-          align-items: center;
-          position: relative;
-          overflow: hidden;
-          padding: 2rem 0;
-        }
-
-        @media (max-width: 768px) {
-          .prepalyze-hero {
-            min-height: auto;
-            padding: 3rem 0;
-          }
-        }
-
-        .prepalyze-hero::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: radial-gradient(
-              circle at 30% 20%,
-              rgba(59, 130, 246, 0.1) 0%,
-              transparent 50%
-            ),
-            radial-gradient(
-              circle at 70% 80%,
-              rgba(16, 185, 129, 0.1) 0%,
-              transparent 50%
-            );
-          pointer-events: none;
-        }
-
-        .gradient-text {
-          background: linear-gradient(
-            135deg,
-            var(--color-primary) 0%,
-            var(--color-accent) 100%
-          );
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .pulse-btn {
-          animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-          }
-          70% {
-            box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-          }
-        }
-
-        .feature-card-enhanced {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
-          border-radius: 16px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          position: relative;
-          overflow: hidden;
-          height: 100%;
-        }
-
-        .feature-card-enhanced:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-          border-color: var(--color-primary);
-        }
-
-        @media (max-width: 768px) {
-          .feature-card-enhanced:hover {
-            transform: translateY(-4px);
-          }
-        }
-
-        .feature-icon {
-          transition: all 0.3s ease;
-        }
-
-        .feature-card-enhanced:hover .feature-icon {
-          transform: scale(1.1);
-        }
-
-        .hero-video {
-          width: 100%;
-          max-width: 700px;
-          height: auto;
-          border-radius: 16px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        @media (max-width: 768px) {
-          .hero-video {
-            max-width: 100%;
-            margin-top: 2rem;
-          }
-        }
-
-        .hero-title {
-          font-size: clamp(2rem, 5vw, 4rem);
-          line-height: 1.1;
-          margin-bottom: 1rem;
-          opacity: ${isVisible ? 1 : 0};
-          transform: translateY(${isVisible ? 0 : 30}px);
-          transition: all 0.8s ease;
-        }
-
-        .hero-subtitle {
-          font-size: clamp(1rem, 2.5vw, 1.25rem);
-          line-height: 1.6;
-          margin-bottom: 2rem;
-          opacity: ${isVisible ? 1 : 0};
-          transform: translateY(${isVisible ? 0 : 20}px);
-          transition: all 0.8s ease 0.2s;
-        }
-
-        .hero-buttons {
-          opacity: ${isVisible ? 1 : 0};
-          transform: translateY(${isVisible ? 0 : 20}px);
-          transition: all 0.8s ease 0.4s;
-        }
-
-        .responsive-button {
-          width: 100%;
-        }
-
-        @media (min-width: 768px) {
-          .responsive-button {
-            width: auto;
-          }
-        }
-
-        .mobile-stack {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-          .mobile-stack {
-            flex-direction: row;
-            align-items: center;
-            gap: 1rem;
-          }
-        }
-
-        .stats-grid {
-          text-align: center;
-        }
-
-        .stat-number {
-          font-size: clamp(2.5rem, 6vw, 4rem);
-          font-weight: 800;
-          color: var(--color-primary);
-        }
-
-        .section-title {
-          font-size: clamp(2rem, 4vw, 3rem);
-          text-align: center;
-          margin-bottom: 1rem;
-        }
-
-        .section-subtitle {
-          font-size: clamp(1rem, 2vw, 1.25rem);
-          text-align: center;
-          max-width: 700px;
-          margin: 0 auto 3rem auto;
-          line-height: 1.6;
-        }
-
-        .footer-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-
-        @media (min-width: 768px) {
-          .footer-grid {
-            grid-template-columns: 1fr 2fr;
-          }
-        }
-
-        .footer-links {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-
-        @media (min-width: 480px) {
-          .footer-links {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-
-        .mobile-menu-item {
-          padding: 1rem;
-          border-bottom: 1px solid #e5e7eb;
-          color: var(--color-foreground);
-          text-decoration: none;
-          color: #374151;
-          display: block;
-          font-weight: 500;
-        }
-
-        .mobile-menu-item:hover {
-          background: #f9fafb;
-          color: var(--color-primary);
-        }
-
-        .badge-responsive {
-          font-size: 0.875rem;
-          padding: 0.5rem 1rem;
-        }
-
-        @media (max-width: 480px) {
-          .badge-responsive {
-            font-size: 0.75rem;
-            padding: 0.375rem 0.75rem;
-          }
-        }
-      `}</style>
-
+    <Box className="prepalyze-landing">
       {/* Header */}
       <header className="prepalyze-header">
-        <Container size="xl" py="md">
+        <Container size="md">
           <Group justify="space-between" align="center">
             <Group align="center" gap="xs">
-              <ThemeIcon size="lg" color="blue  " variant="transparent">
-                <Image
-                  src="/logo.svg"
-                  alt="Prepalyze Logo"
-                  width={40}
-                  height={40}
-                />
-              </ThemeIcon>
-              <Title order={2} c="#3885ef" fw={700} hiddenFrom="xs">
-                Prepalyze
-              </Title>
-              <Title order={2} c="#3885ef" fw={700} visibleFrom="xs">
-                Prepalyze
-              </Title>
+              <Image
+                src="/Prepalyze-logo.svg"
+                alt="Prepalyze Logo"
+                width={100}
+                height={100}
+              />
             </Group>
 
             {/* Desktop Navigation */}
             <Group gap="xl" visibleFrom="md">
-              <a href="#home" className="nav-link">
+              <Text component="a" href="#home" className="nav-link">
                 Home
-              </a>
-              <a href="#features" className="nav-link">
+              </Text>
+              <Text component="a" href="#features" className="nav-link">
                 Features
-              </a>
-              <a href="#pricing" className="nav-link">
+              </Text>
+              <Text component="a" href="#app-showcase" className="nav-link">
+                App Showcase
+              </Text>
+              <Text component="a" href="#pricing" className="nav-link">
                 Pricing
-              </a>
-              <a href="#contact" className="nav-link">
-                Contact
-              </a>
+              </Text>
             </Group>
 
             <Group>
@@ -421,42 +189,48 @@ export default function PrepalyzeLanding() {
           position="right"
           title={
             <Group align="center" gap="xs">
-              <img src="/logo.svg" alt="Prepalyze Logo" width={30} height={30} />
-              <Text style={{ color: "#3885ef" }} fw={700}>Prepalyze</Text>
+              <IconRocket size={30} color="#3885ef" />
+              <Text style={{ color: "#3885ef" }} fw={700}>
+                Prepalyze
+              </Text>
             </Group>
           }
           hiddenFrom="md"
         >
-          <ScrollArea style={{ color: "black" }}>
+          <ScrollArea>
             <Stack gap={0}>
-              <a
+              <Text
+                component="a"
                 href="#home"
                 className="mobile-menu-item"
                 onClick={closeDrawer}
               >
                 Home
-              </a>
-              <a
+              </Text>
+              <Text
+                component="a"
                 href="#features"
                 className="mobile-menu-item"
                 onClick={closeDrawer}
               >
                 Features
-              </a>
-              <a
+              </Text>
+              <Text
+                component="a"
+                href="#app-showcase"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                App Showcase
+              </Text>
+              <Text
+                component="a"
                 href="#pricing"
                 className="mobile-menu-item"
                 onClick={closeDrawer}
               >
                 Pricing
-              </a>
-              <a
-                href="#contact"
-                className="mobile-menu-item"
-                onClick={closeDrawer}
-              >
-                Contact
-              </a>
+              </Text>
               <Box p="md">
                 <Button
                   onClick={() => handleNavigation("/login")}
@@ -474,14 +248,14 @@ export default function PrepalyzeLanding() {
       </header>
 
       {/* Hero Section */}
-      <section className="prepalyze-hero">
+      <section className="prepalyze-hero" id="home">
         <Container size="xl">
           <Grid>
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Stack gap="xl">
                 <div>
                   <Title
-                    className="hero-title"
+                    className={`hero-title ${isVisible ? "fade-in" : ""}`}
                     fw={800}
                     c="var(--color-foreground)"
                   >
@@ -497,7 +271,7 @@ export default function PrepalyzeLanding() {
                   </Title>
 
                   <Text
-                    className="hero-subtitle"
+                    className={`hero-subtitle ${isVisible ? "fade-in" : ""}`}
                     c="var(--color-muted-foreground)"
                   >
                     Seamless question paper generation, online testing, and
@@ -507,7 +281,11 @@ export default function PrepalyzeLanding() {
                   </Text>
                 </div>
 
-                <Group className="hero-buttons mobile-stack">
+                <Group
+                  className={`hero-buttons mobile-stack ${
+                    isVisible ? "fade-in" : ""
+                  }`}
+                >
                   <Button
                     size="lg"
                     onClick={() => handleNavigation("/login")}
@@ -515,20 +293,8 @@ export default function PrepalyzeLanding() {
                     leftSection={<IconRocket size={20} />}
                     style={{ background: "var(--color-primary)" }}
                   >
-                    Get Started Free
+                    Get Started
                   </Button>
-                  {/* <Button
-                    size="lg"
-                    variant="outline"
-                    className="responsive-button"
-                    leftSection={<IconBellRinging size={20} />}
-                    style={{
-                      borderColor: "var(--color-primary)",
-                      color: "var(--color-primary)",
-                    }}
-                  >
-                    Watch Demo
-                  </Button> */}
                 </Group>
 
                 <Group
@@ -558,17 +324,18 @@ export default function PrepalyzeLanding() {
 
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Box ta="center">
-                <video
-                  className="hero-video"
-                  loop
-                  muted
-                  autoPlay
-                  playsInline
-                  poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDgwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGOUZBRkIiLz48Y2lyY2xlIGN4PSI0MDAiIGN5PSIyMDAiIHI9IjgwIiBmaWxsPSIjM0I4MkY2IiBmaWxsLW9wYWNpdHk9IjAuMiIvPjx0ZXh0IHg9IjQwMCIgeT0iMjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNkI3MjgwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+SW50ZXJhY3RpdmUgRGVtbzwvdGV4dD48L3N2Zz4="
-                >
-                  <source src="/prepowl%20animation.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                <Box className="hero-video">
+                  <Stack align="center" gap="md" p="xl">
+                    <video
+                      src="/prepowl animation.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      style={{ width: "100%", borderRadius: "8px" }}
+                    />
+                  </Stack>
+                </Box>
               </Box>
             </Grid.Col>
           </Grid>
@@ -576,7 +343,7 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Features Section */}
-      <section style={{ padding: "80px 0", background: "var(--color-muted)" }}>
+      <section className="features-section" id="features">
         <Container size="xl">
           <Stack align="center" mb="xl">
             <Badge
@@ -607,123 +374,467 @@ export default function PrepalyzeLanding() {
             </Text>
           </Stack>
 
-          <Grid>
-            <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card className="feature-card-enhanced" p="xl">
-                <ThemeIcon
-                  size="xl"
-                  color="blue"
-                  variant="light"
-                  mb="md"
-                  className="feature-icon"
-                >
-                  <IconFileText size={32} />
-                </ThemeIcon>
-                <Title order={4} mb="sm" fw={700}>
-                  Question Paper Generation
-                </Title>
-                <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
-                  Create professional question papers with our AI-powered
-                  generator. Multiple formats, difficulty levels, and question
-                  types supported.
-                </Text>
-              </Card>
-            </Grid.Col>
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="xl">
+            <Card className="feature-card-enhanced" p="xl">
+              <ThemeIcon
+                size="xl"
+                color="blue"
+                variant="light"
+                mb="md"
+                className="feature-icon"
+              >
+                <IconFileText size={32} />
+              </ThemeIcon>
+              <Title order={4} mb="sm" fw={700}>
+                Question Paper Generation
+              </Title>
+              <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
+                Create professional question papers with our AI-powered
+                generator. Multiple formats, difficulty levels, and question
+                types supported.
+              </Text>
+            </Card>
 
-            <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card className="feature-card-enhanced" p="xl">
-                <ThemeIcon
-                  size="xl"
-                  color="green"
-                  variant="light"
-                  mb="md"
-                  className="feature-icon"
-                >
-                  <IconClipboardCheck size={32} />
-                </ThemeIcon>
-                <Title order={4} mb="sm" fw={700}>
-                  Online Testing
-                </Title>
-                <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
-                  Secure, proctored online exams with real-time monitoring.
-                  Anti-cheating measures and seamless user experience.
-                </Text>
-              </Card>
-            </Grid.Col>
+            <Card className="feature-card-enhanced" p="xl">
+              <ThemeIcon
+                size="xl"
+                color="green"
+                variant="light"
+                mb="md"
+                className="feature-icon"
+              >
+                <IconClipboardCheck size={32} />
+              </ThemeIcon>
+              <Title order={4} mb="sm" fw={700}>
+                Online Testing
+              </Title>
+              <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
+                Secure, proctored online exams with real-time monitoring.
+                Anti-cheating measures and seamless user experience.
+              </Text>
+            </Card>
 
-            <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card className="feature-card-enhanced" p="xl">
-                <ThemeIcon
-                  size="xl"
-                  color="orange"
-                  variant="light"
-                  mb="md"
-                  className="feature-icon"
-                >
-                  <IconChartBar size={32} />
-                </ThemeIcon>
-                <Title order={4} mb="sm" fw={700}>
-                  Advanced Analytics
-                </Title>
-                <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
-                  Comprehensive performance analytics with detailed insights.
-                  Track progress, identify weak areas, and optimize learning.
-                </Text>
-              </Card>
-            </Grid.Col>
+            <Card className="feature-card-enhanced" p="xl">
+              <ThemeIcon
+                size="xl"
+                color="orange"
+                variant="light"
+                mb="md"
+                className="feature-icon"
+              >
+                <IconChartBar size={32} />
+              </ThemeIcon>
+              <Title order={4} mb="sm" fw={700}>
+                Advanced Analytics
+              </Title>
+              <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
+                Comprehensive performance analytics with detailed insights.
+                Track progress, identify weak areas, and optimize learning.
+              </Text>
+            </Card>
 
-            <Grid.Col span={{ base: 12, sm: 6, lg: 3 }}>
-              <Card className="feature-card-enhanced" p="xl">
-                <ThemeIcon
-                  size="xl"
-                  color="purple"
-                  variant="light"
-                  mb="md"
-                  className="feature-icon"
-                >
-                  <IconTrophy size={32} />
-                </ThemeIcon>
-                <Title order={4} mb="sm" fw={700}>
-                  Results & Reports
-                </Title>
-                <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
-                  Instant results with detailed performance reports. Automated
-                  grading and customizable result formats.
+            <Card className="feature-card-enhanced" p="xl">
+              <ThemeIcon
+                size="xl"
+                color="purple"
+                variant="light"
+                mb="md"
+                className="feature-icon"
+              >
+                <IconTrophy size={32} />
+              </ThemeIcon>
+              <Title order={4} mb="sm" fw={700}>
+                Results & Reports
+              </Title>
+              <Text c="var(--color-muted-foreground)" size="sm" lh={1.6}>
+                Instant results with detailed performance reports. Automated
+                grading and customizable result formats.
+              </Text>
+            </Card>
+          </SimpleGrid>
+        </Container>
+      </section>
+
+      {/* App Showcase Section */}
+      <section className="showcase-section" id="app-showcase">
+        <Container size="xl">
+          <Stack align="center" mb="xl">
+            <Badge
+              size="lg"
+              variant="light"
+              color="blue"
+              className="badge-responsive"
+            >
+              App Showcase
+            </Badge>
+            <Title className="section-title" fw={800}>
+              Explore Every{" "}
+              <Text
+                span
+                c="var(--color-primary)"
+                inherit
+                className="gradient-text"
+              >
+                Feature
+              </Text>
+            </Title>
+            <Text
+              className="section-subtitle"
+              c="var(--color-muted-foreground)"
+            >
+              Take a tour through our comprehensive exam management platform
+            </Text>
+          </Stack>
+
+          <Box className="slider-container">
+            <Box
+              className="slider-content"
+              style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+            >
+              {appSections.map((section, index) => {
+                const IconComponent = section.icon;
+                return (
+                  <Box key={index} className="slider-slide">
+                    <Box style={{ flex: 1 }}>
+                      <Group mb="lg">
+                        <ThemeIcon size="xl" color="blue" variant="light">
+                          <IconComponent size={32} />
+                        </ThemeIcon>
+                        <Title order={2} fw={700}>
+                          {section.title}
+                        </Title>
+                      </Group>
+
+                      <Text
+                        size="lg"
+                        c="var(--color-muted-foreground)"
+                        mb="xl"
+                        lh={1.6}
+                      >
+                        {section.description}
+                      </Text>
+
+                      <Stack gap="sm">
+                        <Text fw={600} size="sm" c="var(--color-foreground)">
+                          Key Features:
+                        </Text>
+                        {section.features.map((feature, featureIndex) => (
+                          <Group key={featureIndex} gap="xs">
+                            <ThemeIcon size="sm" color="green" variant="light">
+                              <IconCheck  size={14} />
+                            </ThemeIcon>
+                            <Text size="sm" c="var(--color-muted-foreground)">
+                              {feature}
+                            </Text>
+                          </Group>
+                        ))}
+                      </Stack>
+                    </Box>
+
+                    <Box style={{ flex: 1 }} ta="center">
+                      <Box className="feature-preview">
+                        <Stack align="center" gap="md">
+                          <img src={section.image} alt={section.title} className="feature-image" />
+                          <Text c="#64748b" fw={500}>
+                            {section.title} Preview
+                          </Text>
+                        </Stack>
+                      </Box>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+
+          <Box className="slider-indicators">
+            {appSections.map((_, index) => (
+              <Box
+                key={index}
+                className={`slider-indicator ${
+                  index === activeSlide ? "active" : ""
+                }`}
+                onClick={() => setActiveSlide(index)}
+              />
+            ))}
+          </Box>
+        </Container>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="pricing-section" id="pricing">
+        <Container size="xl">
+          <Stack align="center" mb="xl">
+            <Badge
+              size="lg"
+              variant="light"
+              color="green"
+              className="badge-responsive"
+            >
+              Pricing
+            </Badge>
+            <Title className="section-title" fw={800}>
+              Choose Your{" "}
+              <Text
+                span
+                c="var(--color-primary)"
+                inherit
+                className="gradient-text"
+              >
+                Perfect Plan
+              </Text>
+            </Title>
+            <Text
+              className="section-subtitle"
+              c="var(--color-muted-foreground)"
+            >
+              Flexible pricing options designed to scale with your needs
+            </Text>
+          </Stack>
+
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="xl">
+            <Card className="pricing-card popular" p="xl" pt="3rem">
+              <ThemeIcon
+                size="xl"
+                color="orange"
+                variant="light"
+                mx="auto"
+                mb="md"
+              >
+                <IconBuildingSkyscraper size={32} />
+              </ThemeIcon>
+              <Title order={3} mb="xs" ta="center">
+                Basic Plan
+              </Title>
+              <Text
+                size="sm"
+                c="var(--color-muted-foreground)"
+                mb="md"
+                ta="center"
+              >
+                Best for schools and institutions
+              </Text>
+              <Box ta="center" mb="md" className="pricing-price">
+                ₹8000
+                <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
+                  /month
                 </Text>
-              </Card>
-            </Grid.Col>
-          </Grid>
+              </Box>
+              <Stack gap="sm" mb="xl" className="feature-list">
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Up to 50 students
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Unlimited exam & question papers
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Basic analytics
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Basic support
+                  </Text>
+                </Group>
+              </Stack>
+              <Button color="blue" fullWidth size="md">
+                Most Popular
+              </Button>
+            </Card>
+            <Card className="pricing-card" p="xl" pt="3rem">
+              <ThemeIcon
+                size="xl"
+                color="orange"
+                variant="light"
+                mx="auto"
+                mb="md"
+              >
+                <IconUser size={32} />
+              </ThemeIcon>
+              <Title order={3} mb="xs" ta="center">
+                Individual Plan
+              </Title>
+              <Text
+                size="sm"
+                c="var(--color-muted-foreground)"
+                mb="md"
+                ta="center"
+              >
+                Best for personal use
+              </Text>
+              <Box ta="center" mb="md" className="pricing-price">
+                ₹5000
+                <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
+                  /month
+                </Text>
+              </Box>
+              <Stack gap="sm" mb="xl" className="feature-list">
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Limited exam & question papers
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Basic analytics
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="var(--color-accent)" />
+                  <Text size="sm" c="var(--color-muted-foreground)">
+                    Basic AI features
+                  </Text>
+                </Group>
+              </Stack>
+              <Box
+                ta="center"
+                mb="md"
+                className="pricing-price"
+                style={{ marginTop: "auto" }}
+              >
+                Coming Soon...
+              </Box>
+            </Card>
+
+            {/* Enterprise Plan */}
+            <Card className="pricing-card enterprise" p="xl">
+              <ThemeIcon
+                size="xl"
+                variant="light"
+                mx="auto"
+                mb="md"
+                style={{ background: "rgba(255,255,255,0.2)" }}
+              >
+                <IconSparkles size={32} color="white" />
+              </ThemeIcon>
+              <Title order={3} mb="xs" c="white" ta="center">
+                AI Plan
+              </Title>
+              <Text
+                size="sm"
+                mb="md"
+                ta="center"
+                style={{ color: "rgba(255,255,255,0.8)" }}
+              >
+                Our flagship plan for advanced AI capabilities
+              </Text>
+              <Stack gap="sm" mb="xl" className="feature-list">
+                <Group gap="xs">
+                  <IconCheck size={16} color="white" />
+                  <Text size="sm" style={{ color: "rgba(255,255,255,0.9)" }}>
+                    Personalized AI assistant
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="white" />
+                  <Text size="sm" style={{ color: "rgba(255,255,255,0.9)" }}>
+                    Advanced AI based analytics & insights
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="white" />
+                  <Text size="sm" style={{ color: "rgba(255,255,255,0.9)" }}>
+                    AI Based question paper generation
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  <IconCheck size={16} color="white" />
+                  <Text size="sm" style={{ color: "rgba(255,255,255,0.9)" }}>
+                    AI based study Plan generation
+                  </Text>
+                </Group>
+              </Stack>
+              {/* <Button
+                variant="white"
+                fullWidth
+                size="md"
+                style={{ marginTop: "auto" }}
+                c="var(--color-primary)"
+              >
+                Contact Sales
+              </Button> */}
+              <Box
+                ta="center"
+                mb="md"
+                className="pricing-price"
+                style={{ color: "white", marginTop: "auto" }}
+              >
+                Coming Soon...
+              </Box>
+            </Card>
+            <Card></Card>
+          </SimpleGrid>
+
+          {/* <Stack align="center" mt="xl" pt="xl">
+            <Group gap="xl">
+              <Group gap="xs">
+                <IconShield size={20} color="var(--color-accent)" />
+                <Text size="sm" c="var(--color-muted-foreground)">
+                   
+                </Text>
+              </Group>
+              <Group gap="xs">
+                <IconX size={20} color="var(--color-accent)" />
+                <Text size="sm" c="var(--color-muted-foreground)">
+                  No credit card required
+                </Text>
+              </Group>
+              <Group gap="xs">
+                <IconUsers size={20} color="var(--color-accent)" />
+                <Text size="sm" c="var(--color-muted-foreground)">
+                  Cancel anytime
+                </Text>
+              </Group>
+            </Group>
+          </Stack> */}
         </Container>
       </section>
 
       {/* Stats Section */}
-      <section style={{ padding: "80px 0" }}>
+      <section className="stats-section" id="stats">
         <Container size="xl">
-          <Grid justify="center" gutter="xl">
-            <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
-              <Stack align="center" gap="xs" className="stats-grid">
-                <Title className="stat-number">99</Title>
-                <Text c="var(--color-muted-foreground)" fw={600} size="lg">
-                  % Uptime
-                </Text>
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 6, sm: 4, md: 3 }}>
-              <Stack align="center" gap="xs" className="stats-grid">
-                <Title className="stat-number">24/7</Title>
-                <Text c="var(--color-muted-foreground)" fw={600} size="lg">
-                  Support
-                </Text>
-              </Stack>
-            </Grid.Col>
-          </Grid>
+          <SimpleGrid cols={{ base: 3, md: 3 }} spacing="xl">
+            <Stack align="center" gap="xs" className="stats-grid">
+              <Title className="stat-number">99.9%</Title>
+              <Text c="var(--color-muted-foreground)" fw={600} size="lg">
+                Uptime
+              </Text>
+            </Stack>
+            <Stack align="center" gap="xs" className="stats-grid">
+              <Title className="stat-number">24/7</Title>
+              <Text c="var(--color-muted-foreground)" fw={600} size="lg">
+                Support
+              </Text>
+            </Stack>
+            <Stack align="center" gap="xs" className="stats-grid">
+              <Title className="stat-number">60K+</Title>
+              <Text c="var(--color-muted-foreground)" fw={600} size="lg">
+                Questions
+              </Text>
+            </Stack>
+            {/* <Stack align="center" gap="xs" className="stats-grid">
+              <Title className="stat-number">500+</Title>
+              <Text c="var(--color-muted-foreground)" fw={600} size="lg">
+                Institutions
+              </Text>
+            </Stack> */}
+          </SimpleGrid>
         </Container>
       </section>
 
       {/* CTA Section */}
-      <section
-        style={{ padding: "80px 0", background: "var(--color-primary)" }}
-      >
+      <section className="cta-section" id="contact">
         <Container size="xl">
           <Stack align="center" gap="xl" ta="center">
             <Title className="section-title" c="white" fw={800}>
@@ -740,19 +851,10 @@ export default function PrepalyzeLanding() {
               their exam management needs.
             </Text>
             <Group gap="md" className="mobile-stack">
-              {/* <Button
-                size="xl"
-                variant="white"
-                color="blue"
-                className="responsive-button"
-                onClick={() => handleNavigation("/signup")}
-              >
-                Start Free Trial
-              </Button> */}
               <Button
                 size="xl"
-                variant="outline"
-                c="white"
+                variant="white"
+                c="blue"
                 style={{ borderColor: "white" }}
                 className="responsive-button"
                 onClick={() => handleNavigation("/contact")}
@@ -765,172 +867,155 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Footer */}
-      <footer
-        style={{
-          padding: "60px 0 40px 0",
-          background: "var(--color-muted)",
-          borderTop: "1px solid var(--color-border)",
-        }}
-      >
+      <footer className="footer">
         <Container size="xl">
-          <div className="footer-grid">
-            <Stack gap="md">
-              <Group>
-                <Title order={3} c="var(--color-primary)">
-                  Prepalyze
-                </Title>
-              </Group>
-              <Text size="sm" c="var(--color-muted-foreground)" maw={400}>
-                Revolutionizing exam management with cutting-edge technology and
-                user-centric design.
-              </Text>
-            </Stack>
-
-            <div className="footer-links">
-              <Stack gap="sm">
-                <Text fw={600} c="var(--color-foreground)">
-                  Product
-                </Text>
-                <a
-                  href="#features"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Features
-                </a>
-                <a
-                  href="#pricing"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Pricing
-                </a>
-                <a
-                  href="#security"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Security
-                </a>
+          <Grid>
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Stack gap="md">
+                <Group>
+                  <img
+                    src="/Prepalyze-logo.svg"
+                    alt="Prepalyze Logo"
+                    width={200}
+                    height={100}
+                  />
+                </Group>
               </Stack>
+            </Grid.Col>
 
-              <Stack gap="sm">
-                <Text fw={600} c="var(--color-foreground)">
-                  Company
-                </Text>
-                <a
-                  href="#about"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  About
-                </a>
-                <a
-                  href="#careers"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Careers
-                </a>
-                <a
-                  href="#contact"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Contact
-                </a>
-              </Stack>
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <SimpleGrid
+                cols={{ base: 2, sm: 3 }}
+                spacing="xl"
+                className="footer-links"
+              >
+                <Stack gap="sm">
+                  <Text fw={600} c="var(--color-foreground)">
+                    Product
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#features"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Features
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#pricing"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Pricing
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#security"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Security
+                  </Text>
+                </Stack>
 
-              <Stack gap="sm">
-                <Text fw={600} c="var(--color-foreground)">
-                  Support
-                </Text>
-                <a
-                  href="#help"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Help Center
-                </a>
-                <a
-                  href="#docs"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Documentation
-                </a>
-                <a
-                  href="#status"
-                  style={{
-                    color: "var(--color-muted-foreground)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                  }}
-                >
-                  Status
-                </a>
-              </Stack>
-            </div>
-          </div>
+                <Stack gap="sm">
+                  <Text fw={600} c="var(--color-foreground)">
+                    Company
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#about"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    About
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#careers"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Careers
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#contact"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Contact
+                  </Text>
+                </Stack>
+
+                <Stack gap="sm">
+                  <Text fw={600} c="var(--color-foreground)">
+                    Support
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#help"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Help Center
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#docs"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Documentation
+                  </Text>
+                  <Text
+                    component="a"
+                    href="#status"
+                    size="sm"
+                    c="var(--color-muted-foreground)"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Status
+                  </Text>
+                </Stack>
+              </SimpleGrid>
+            </Grid.Col>
+          </Grid>
 
           <Divider my="xl" />
 
-          <Group
-            justify="space-between"
-            align="center"
-            style={{ flexDirection: "row" }}
-          >
+          <Group justify="space-between" align="center">
             <Text size="sm" c="var(--color-muted-foreground)">
               © 2025 Indalyxo Solutions. All rights reserved.
             </Text>
-            <Group
-              gap="md"
-              style={{ flexWrap: "wrap", justifyContent: "flex-end" }}
-            >
-              <a
+            <Group gap="md">
+              <Text
+                component="a"
                 href="#privacy"
-                style={{
-                  color: "var(--color-muted-foreground)",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                }}
+                size="sm"
+                c="var(--color-muted-foreground)"
+                style={{ textDecoration: "none" }}
               >
                 Privacy Policy
-              </a>
-              <a
+              </Text>
+              <Text
+                component="a"
                 href="#terms"
-                style={{
-                  color: "var(--color-muted-foreground)",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                }}
+                size="sm"
+                c="var(--color-muted-foreground)"
+                style={{ textDecoration: "none" }}
               >
                 Terms of Service
-              </a>
+              </Text>
             </Group>
           </Group>
         </Container>

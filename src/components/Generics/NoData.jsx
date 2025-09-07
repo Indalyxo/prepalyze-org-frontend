@@ -1,8 +1,9 @@
+import { Center } from "@mantine/core";
 import React from "react";
 
 const NoData = ({message}) => {
   return (
-    <div
+    <Center
       style={{
         display: "flex",
         flexDirection: "column",
@@ -10,6 +11,7 @@ const NoData = ({message}) => {
         justifyContent: "center",
         padding: "40px",
         textAlign: "center",
+        width: "100%",
       }}
     >
       <img
@@ -30,7 +32,7 @@ const NoData = ({message}) => {
       <p style={{ marginTop: "8px", color: "#6B7280", maxWidth: "400px" }}>
         {message}
       </p>
-    </div>
+    </Center>
   );
 };
 

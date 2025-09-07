@@ -231,7 +231,7 @@ export default function StudentsViewDetailsPage() {
               </Text>
             </div>
             <Badge
-              color={status === "present" ? "green" : "red"}
+              color={userScoreData.status === "present" ? "green" : "red"}
               size="lg"
               variant="light"
             >
@@ -488,7 +488,7 @@ export default function StudentsViewDetailsPage() {
           >
             Download PDF
           </Button>
-          <Button
+          {/* <Button
             leftSection={<IconFileTypeDoc size={18} />}
             className="ghost"
             variant="outline"
@@ -498,7 +498,7 @@ export default function StudentsViewDetailsPage() {
             disabled={!hasTimeEnded}
           >
             Download Word
-          </Button>
+          </Button> */}
         </div>
       </Card>
     </div>

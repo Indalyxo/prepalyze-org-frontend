@@ -13,8 +13,8 @@ const useAuthStore = create(
       isAuthenticated: false,
       isLoading: false,
       isInitializing: true,
+      settings: {},
 
-      
       login: async (email, password) => {
         set({ isLoading: true });
         try {
@@ -22,9 +22,9 @@ const useAuthStore = create(
             email,
             password,
           });
-          const { user, accessToken, refreshToken } = response.data.data;
+          const { user, accessToken, refreshToken, settings } = response.data.data;
 
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ user, isAuthenticated: true, isLoading: false, settings: settings });
           localStorage.setItem("prepalyze-accessToken", accessToken);
 
           if (refreshToken) {
@@ -131,7 +131,7 @@ const useAuthStore = create(
         } finally {
           localStorage.removeItem("prepalyze-accessToken");
           localStorage.removeItem("prepalyze-refreshToken");
-          set({ user: null, isAuthenticated: false });
+          set({ user: null, isAuthenticated: false, settings: {} });
         }
       },
 
@@ -147,7 +147,7 @@ const useAuthStore = create(
           // Still clear local storage even if API call fails
           localStorage.removeItem("prepalyze-accessToken");
           localStorage.removeItem("prepalyze-refreshToken");
-          set({ user: null, isAuthenticated: false });
+          set({ user: null, isAuthenticated: false, settings: {} });
 
           if (
             error.code === "NETWORK_ERROR" ||
@@ -192,6 +192,7 @@ const useAuthStore = create(
         try {
           const response = await apiClient.get("/auth/me");
           const { user } = response.data.data;
+          await get().loadSettings();
           set({ user, isAuthenticated: true, isInitializing: false });
           return { success: true };
         } catch (error) {
@@ -211,6 +212,11 @@ const useAuthStore = create(
           set({ user: null, isAuthenticated: false, isInitializing: false });
           return { success: false };
         }
+      },
+
+      loadSettings: async () => {
+        const settings = await apiClient.get("/settings/");
+        set({ settings: settings.data.data });
       },
 
       initializeAuth: async () => {

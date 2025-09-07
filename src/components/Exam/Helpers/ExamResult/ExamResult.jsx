@@ -321,7 +321,7 @@ export default function ExamResult({ primary = "blue" }) {
                     </Grid>
                   </Stack>
                 ) : null}
-                <Group justify="flex-end" mt="md">
+                {/* <Group justify="flex-end" mt="md">
                   <Button
                     variant="light"
                     onClick={() => {
@@ -333,7 +333,7 @@ export default function ExamResult({ primary = "blue" }) {
                   >
                     Download Summary
                   </Button>
-                </Group>
+                </Group> */}
               </Grid.Col>
             </Grid>
           </Stack>

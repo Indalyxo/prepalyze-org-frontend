@@ -49,38 +49,42 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
 import dayjs from "dayjs";
+import useAuthStore from "../../../context/auth-store";
 
-const initialFormData = {
-  // Exam Metadata
-  examTitle: "",
-  subtitle: "",
-  instructions: "",
-  examDate: null,
-  duration: 60,
-  examType: "",
-  examMode: "",
-  examCategory: "",
-
-  // Participants
-  selectedGroups: [],
-
-  // Questions Setup
-  selectedSubjects: [],
-  selectedChapters: [],
-  selectedTopics: [],
-  topicQuestionCounts: {}, // Changed structure: { topicId: { mcq: 0, assertionReason: 0, numerical: 0 } }
-  questionCounts: {},
-
-  // Marks & Grading
-  totalQuestions: 0,
-  totalMarks: 0,
-
-  // Finalize
-  confirmed: false,
-};
 const ExamCreationForm = ({ opened, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState({});
+  const { settings } = useAuthStore();
+
+  const initialFormData = {
+    // Exam Metadata
+    examTitle: "",
+    subtitle: "",
+    instructions: settings?.exam?.instructions ?? "",
+    examDate: null,
+    duration: 60,
+    examType: "",
+    examMode: "",
+    examCategory: "",
+
+    // Participants
+    selectedGroups: [],
+
+    // Questions Setup
+    selectedSubjects: [],
+    selectedChapters: [],
+    selectedTopics: [],
+    topicQuestionCounts: {}, // Changed structure: { topicId: { mcq: 0, assertionReason: 0, numerical: 0 } }
+    questionCounts: {},
+
+    // Marks & Grading
+    totalQuestions: 0,
+    totalMarks: 0,
+
+    // Finalize
+    confirmed: false,
+  };
+
   const [formData, setFormData] = useState(initialFormData);
   const [tabValue, setTabValue] = useState("");
   const queryClient = useQueryClient();
@@ -95,6 +99,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
       throw error;
     }
   };
+
+  console.log(settings)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["GET_EXAM_DATA"],
@@ -474,7 +480,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
         setErrors(allErrors);
       }
     },
-
   });
 
   const handleSaveDraft = () => {

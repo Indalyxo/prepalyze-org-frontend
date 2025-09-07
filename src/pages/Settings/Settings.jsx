@@ -1,117 +1,226 @@
-import { useEffect, useState } from "react"
-import { Container, TextInput, Title, Text, Divider, Card, Grid, NumberInput, Button, Group, Stack, Loader } from "@mantine/core"
+import { useEffect, useState } from "react";
+import {
+  Container,
+  TextInput,
+  Title,
+  Text,
+  Divider,
+  Card,
+  Grid,
+  NumberInput,
+  Button,
+  Group,
+  Stack,
+  Loader,
+  Switch,
+  LoadingOverlay,
+} from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
-import AdvancedEditor from "../../components/Generics/RichTextEditor"
-import styles from "./settings.module.scss"
-import apiClient from "../../utils/api"
-import useAuthStore from "../../context/auth-store"
+import AdvancedEditor from "../../components/Generics/RichTextEditor";
+import styles from "./settings.module.scss";
+import apiClient from "../../utils/api";
+import useAuthStore from "../../context/auth-store";
 import { IconPhoto } from "@tabler/icons-react";
-
-// ✅ Sonner
 import { Toaster, toast } from "sonner";
 
+// ✅ Defaults
+const DEFAULTS = {
+  detention: { maxTabs: 5, durationInMinutes: 30, concludeOnDetention: false },
+  exam: { instructions: "", watermark: "", backgroundImage: "" },
+};
+
 export function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, loadSettings } = useAuthStore();
   const orgId = user?.organization?._id || user?.organizationId;
 
-  const [detentionTabs, setDetentionTabs] = useState(5)
-  const [detentionDuration, setDetentionDuration] = useState(30)
-  const [examInstructions, setExamInstructions] = useState("")
-  const [watermark, setWatermark] = useState("")
-  const [backgroundImage, setBackgroundImage] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [detention, setDetention] = useState(DEFAULTS.detention);
+  const [exam, setExam] = useState(DEFAULTS.exam);
+  const [loading, setLoading] = useState(false);
 
+  // ✅ Fetch settings
   useEffect(() => {
     if (!orgId) return;
-    setLoading(true);
-    apiClient.get(`/settings/${orgId}`)
-      .then(res => {
-        const data = res.data.data;
-        setDetentionTabs(data.detention?.maxTabs ?? 5);
-        setDetentionDuration(data.detention?.durationInMinutes ?? 30);
-        setExamInstructions(data.exam?.instructions ?? "");
-        setWatermark(data.exam?.watermark ?? "");
-        setBackgroundImage(data.exam?.backgroundImage ?? "");
-      })
-      .catch(err => {
-        toast.dismiss();
-        toast.error(err.response?.data?.message || "Failed to fetch settings", { duration: 3000 });
-      })
-      .finally(() => setLoading(false));
+
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        const { data } = await apiClient.get(`/settings`);
+        setDetention({
+          maxTabs: data.data.detention?.maxTabs ?? DEFAULTS.detention.maxTabs,
+          durationInMinutes:
+            data.data.detention?.durationInMinutes ??
+            DEFAULTS.detention.durationInMinutes,
+          concludeOnDetention:
+            data.data.detention?.concludeOnDetention ??
+            DEFAULTS.detention.concludeOnDetention,
+        });
+        setExam({
+          instructions:
+            data.data.exam?.instructions ?? DEFAULTS.exam.instructions,
+          watermark: data.data.exam?.watermark ?? DEFAULTS.exam.watermark,
+          backgroundImage:
+            data.data.exam?.backgroundImage ?? DEFAULTS.exam.backgroundImage,
+        });
+        await loadSettings();
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to fetch settings");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
   }, [orgId]);
 
-  // Handle image upload
-  const handleImageDrop = async (files) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
+  // ✅ Image upload
+  const handleImageDrop = (files) => {
+    if (!files?.length) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setBackgroundImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    reader.onload = () =>
+      setExam((prev) => ({ ...prev, backgroundImage: reader.result }));
+    reader.readAsDataURL(files[0]);
   };
 
+  // ✅ Save
   const handleSave = async () => {
     if (!orgId) return;
-
-    // ✅ Required field validation
-    if (!watermark.trim()) {
-      toast.dismiss();
-      toast.error("Watermark is required!", { duration: 3000 });
+    if (!exam.watermark.trim()) {
+      toast.error("Watermark is required!");
       return;
     }
 
     setLoading(true);
     try {
-      const payload = {
-        detention: {
-          maxTabs: detentionTabs,
-          durationInMinutes: detentionDuration
-        },
-        exam: {
-          instructions: examInstructions,
-          watermark,
-          backgroundImage
-        }
-      };
-      await apiClient.put(`/settings/${orgId}`, payload);
-      toast.dismiss();
-      toast.success("Settings saved successfully.", { duration: 3000 });
+      await apiClient.put(`/settings/`, { detention, exam });
+      await loadSettings();
+      toast.success("Settings saved successfully.");
     } catch (err) {
-      toast.dismiss();
-      toast.error(err.response?.data?.message || "Failed to save settings", { duration: 3000 });
+      toast.error(err.response?.data?.message || "Failed to save settings");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }
+  };
 
+  // ✅ Reset
   const handleReset = () => {
-    setDetentionTabs(5)
-    setDetentionDuration(30)
-    setExamInstructions("")
-    setWatermark("")
-    setBackgroundImage("")
-    toast.dismiss();
-    toast.info("Settings have been reset.", { duration: 3000 });
+    setDetention(DEFAULTS.detention);
+    setExam(DEFAULTS.exam);
+    toast.info("Settings have been reset.");
+  };
+
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
   }
 
   return (
     <Container size="lg" className={styles.page}>
-      {/* ✅ Sonner Toaster */}
       <Toaster position="top-center" richColors duration={3000} />
 
-      <div className={styles.header}>
-        <Title order={1} className="text-balance">
-          Settings
+      {/* Header */}
+      <header className={styles.header}>
+        <Title order={1}>Settings</Title>
+        <Text c="dimmed">
+          Configure your application settings and preferences.
+        </Text>
+      </header>
+
+      <Divider my="lg" />
+      {/* Exam Section */}
+      <Card
+        withBorder
+        radius="lg"
+        p="xl"
+        mt="lg"
+        className={styles.sectionCard}
+      >
+        <Stack gap="xs">
+          <Title order={3}>Exam Settings</Title>
+
+          <TextInput
+            label="Watermark"
+            placeholder="Watermark for your Exams..."
+            mt="md"
+            value={exam.watermark}
+            onChange={(e) =>
+              setExam((prev) => ({ ...prev, watermark: e.currentTarget.value }))
+            }
+            disabled={loading}
+            required
+          />
+          <Text size="xs" c="dimmed" mt={6}>
+            The watermark will appear on all exam pages to prevent copying or
+            misuse.
+          </Text>
+
+          {/* Upload Section */}
+          <Title order={5} fw={600} mt="lg" mb="sm">
+            Background Image
+          </Title>
+
+          <Card withBorder p="lg" radius="md" className={styles.uploadCard}>
+            <Dropzone
+              onDrop={handleImageDrop}
+              maxSize={5 * 1024 ** 2}
+              accept={{ "image/*": [] }}
+              disabled={loading}
+            >
+              <Group
+                justify="center"
+                gap="md"
+                mih={180}
+                className={styles.dropArea}
+              >
+                <IconPhoto size={40} stroke={1.5} />
+                <div>
+                  <Text size="md" fw={500}>
+                    Drag images here or click to select files
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    Each file should not exceed 5MB
+                  </Text>
+                </div>
+              </Group>
+            </Dropzone>
+
+            {exam.backgroundImage && (
+              <img
+                src={exam.backgroundImage}
+                alt="Exam Background"
+                className={styles.previewImage}
+              />
+            )}
+          </Card>
+
+          <Text size="xs" c="dimmed" mt={6}>
+            Upload or manage background images that will be shown on exam pages.
+          </Text>
+        </Stack>
+
+        <Title order={5} fw={600} mt="lg" mb="sm">
+          Instructions for Exams
         </Title>
-        <Text c="dimmed">Configure your application settings and preferences.</Text>
-      </div>
-
-      <Divider my="md" />
-
-      {loading && <Loader my="md" />}
-
+        <AdvancedEditor
+          value={exam.instructions}
+          onChange={(val) =>
+            setExam((prev) => ({ ...prev, instructions: val }))
+          }
+          placeholder="Enter default exam instructions..."
+          disabled={loading}
+        />
+        <Text size="xs" c="dimmed" mt={6}>
+          These instructions will be displayed to students at the beginning of
+          each exam.
+        </Text>
+      </Card>
       {/* Detention Section */}
-      <Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
+      <Card withBorder radius="lg" p="xl" className={styles.sectionCard}>
         <Stack gap="xs">
           <Title order={3}>Detention Settings</Title>
           <Text size="sm" c="dimmed">
@@ -119,16 +228,36 @@ export function SettingsPage() {
           </Text>
         </Stack>
 
-        <Grid mt="md">
+        <Grid align="center" mt="lg" gutter="xl">
+          <Grid.Col span={{ base: 12, md: 6 }}>
+            <Switch
+              label="Conclude on Detention"
+              checked={detention.concludeOnDetention}
+              onChange={(e) =>
+                setDetention((prev) => ({
+                  ...prev,
+                  concludeOnDetention: e?.currentTarget?.checked || false,
+                }))
+              }
+              disabled={loading}
+            />
+            <Text size="xs" c="dimmed" mt={6}>
+              Automatically conclude the exam when detention is triggered
+            </Text>
+          </Grid.Col>
+
           <Grid.Col span={{ base: 12, md: 6 }}>
             <NumberInput
               label="Number of Tabs"
-              min={1} // ✅ minimum 1
+              min={1}
               max={20}
-              clampBehavior="strict"
-              value={detentionTabs}
-              onChange={(val) => setDetentionTabs(Math.max(1, Number(val ?? 1)))}
-              placeholder="Enter number of tabs"
+              value={detention.maxTabs}
+              onChange={(val) =>
+                setDetention((prev) => ({
+                  ...prev,
+                  maxTabs: Math.max(1, Number(val ?? 1)),
+                }))
+              }
               disabled={loading}
             />
             <Text size="xs" c="dimmed" mt={6}>
@@ -139,12 +268,15 @@ export function SettingsPage() {
           <Grid.Col span={{ base: 12, md: 6 }}>
             <NumberInput
               label="Duration (minutes)"
-              min={5} // ✅ minimum 5
+              min={5}
               max={180}
-              clampBehavior="strict"
-              value={detentionDuration}
-              onChange={(val) => setDetentionDuration(Math.max(5, Number(val ?? 5)))}
-              placeholder="Enter duration in minutes"
+              value={detention.durationInMinutes}
+              onChange={(val) =>
+                setDetention((prev) => ({
+                  ...prev,
+                  durationInMinutes: Math.max(5, Number(val ?? 5)),
+                }))
+              }
               disabled={loading}
             />
             <Text size="xs" c="dimmed" mt={6}>
@@ -154,97 +286,19 @@ export function SettingsPage() {
         </Grid>
       </Card>
 
-      {/* Exam Section */}
-      <Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
-        <Stack gap="xs">
-          <Title order={3}>Exam Settings</Title>
-
-          <TextInput
-            label="Watermark" // ✅ Removed *
-            placeholder="Watermark for your Exams..."
-            mt="md"
-            value={watermark}
-            onChange={e => setWatermark(e.currentTarget.value)}
-            disabled={loading}
-            required
-          />
-             <Text size="xs" c="dimmed" mt={6}>
-            The watermark will appear on all exam pages to prevent copying or misuse.
-          </Text>
-
-          {/* Upload Section */}
-          <div style={{ marginTop: 16 }}>
-            
-           <Title order={5} fw={600} mb={4}>Background Images</Title>
-
-            <Card withBorder padding="md" radius="md" mt="sm">
-
-              <Dropzone
-              
-                onDrop={handleImageDrop}
-                maxSize={5 * 1024 ** 2}
-                accept={{ "image/*": [] }}
-                disabled={loading}
-              >
-                <Group justify="center" gap="md" mih={180} style={{ pointerEvents: "none" }}>
-                  <IconPhoto size={40} stroke={1.5} />
-                  <div>
-                    <Text size="md" fw={500}>
-                      Drag images here or click to select files
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      Attach as many files as you like, each file should not exceed 5mb
-                    </Text>
-                  </div>
-                </Group>
-              </Dropzone>
-
-              {backgroundImage && (
-                <img
-                  src={backgroundImage}
-                  alt="Exam Background"
-                  style={{
-                    marginTop: 12,
-                    maxWidth: "100%",
-                    borderRadius: 8,
-                    border: "1px solid #e0e0e0"
-                  }}
-                />
-              )}
-            </Card>
-          </div>
-
-          <Text size="xs" c="dimmed" mt={6}>
-           Upload or manage background images that will be shown on exam pages.  
-          </Text>
-        </Stack>
-
-        <div style={{ marginTop: 16 }}>
-          <Title order={5} fw={600} mb={4}> Intructions for Exams</Title>
-
-          <AdvancedEditor
-            value={examInstructions}
-            onChange={setExamInstructions}
-            placeholder="Enter default exam instructions..."
-            disabled={loading}
-          />
-          <Text size="xs" c="dimmed" mt={6}>
-            These instructions will be displayed to students at the beginning of each exam
-          </Text>
-        </div>
-      </Card>
-
       {/* Actions */}
       <div className={styles.actions}>
-        <Group justify="flex-end">
+        <Group justify="flex-end" mt="lg">
           <Button variant="default" onClick={handleReset} disabled={loading}>
             Reset
           </Button>
-          <Button onClick={handleSave} loading={loading}>Save Settings</Button>
+          <Button onClick={handleSave} loading={loading}>
+            Save Settings
+          </Button>
         </Group>
       </div>
     </Container>
-  )
+  );
 }
 
-export default SettingsPage
+export default SettingsPage;

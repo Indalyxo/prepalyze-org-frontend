@@ -13,6 +13,7 @@ import apiClient from "../../utils/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import useAuthStore from "../../context/auth-store";
 
 const QuestionNavigation = ({
   sectionData,
@@ -65,6 +66,7 @@ const ExamInterface = ({ examData, attendance }) => {
   const { examId } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user, settings } = useAuthStore();
 
   useClipboardBlocker();
   const attendanceMutation = useMutation({
@@ -158,10 +160,32 @@ const ExamInterface = ({ examData, attendance }) => {
     return { answered, notAnswered, notVisited, marked, answeredMarked };
   };
 
-  const handleViolation = () => {
-    setDisabled(true);
-    setReset(true);
+const handleViolation = async () => {
+  if (settings.detention.concludeOnDetention) {
+    toast.error("Exam concluded due to multiple tab switches.");
+    handleSubmit();
+    return;
+  }
+
+  const notificationInformation = {
+    watermark: settings.exam.watermark,
+    organization: user.organization.name,
+    studentName: user.name,
+    exam: examData.examTitle, // make sure this exists
   };
+
+  const detention = await apiClient.post(`/api/exam/${examId}/detention`, {
+    student: user._id,
+    duration: settings.detention.durationInMinutes,
+    reason: "Tab switching detected",
+    startedAt: new Date().toISOString(),
+    notificationInformation,
+  });
+
+  setDisabled(true);
+  setReset(true);
+};
+
 
   const handleAnswerChange = (value) => {
     const currentQuestionData =
@@ -280,7 +304,7 @@ const ExamInterface = ({ examData, attendance }) => {
 
     return () => clearInterval(timer);
   }, [handleSubmit]);
-  
+
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];
   const statusCounts = getStatusCounts();
@@ -296,16 +320,22 @@ const ExamInterface = ({ examData, attendance }) => {
       <InstructionModal
         opened={instructionModalOpened}
         onClose={() => setInstructionModalOpened(false)}
-        section={currentSectionData}
+        instruction={settings.exam.instruction}
         gradeSchema={{}}
       />
       <TabSwitchTracker
+        maxViolations={settings.detention.maxTabs}
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
       />
-      <DetentionModal opened={disabled} onClose={() => setDisabled(false)} />
+      <DetentionModal
+        opened={disabled}
+        ruleViolated="Switching Tabs"
+        detentionMinutes={settings.detention.durationInMinutes}
+        onClose={() => setDisabled(false)}
+      />
 
       <ExamHeader
         examData={examData}
