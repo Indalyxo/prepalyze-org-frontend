@@ -1,33 +1,49 @@
+// Variables
+$color-bg: #fafafa;
+$color-border: #e8eaed;
+$color-border-hover: #dadce0;
+$color-text-primary: #3b82f6;
+$color-text-secondary: #5f6368;
+$color-text-muted: #6c757d;
+$radius-md: 8px;
+$transition-fast: all 0.2s ease;
+
 .container {
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: $color-bg;
+  padding: 2rem 0;
 }
 
 .header {
-  align-items: flex-start;
-  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 1rem;
+    align-items: flex-start;
   }
 }
 
 .title {
   font-size: 2rem;
-  font-weight: 600;
-  color: #212529;
-  margin: 0;
+  font-weight: 700;
+  color: var(--color-foreground);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .createButton {
-  background-color: #f1f3f4;
-  color: #5f6368;
+  background-color: $color-text-primary;
+  color: #fff;
   border: none;
-  
+  transition: $transition-fast;
+
   &:hover {
     background-color: #e8eaed;
   }
-  
+
   @media (max-width: 768px) {
     width: 100%;
   }
@@ -40,29 +56,33 @@
   margin-bottom: 0.75rem;
 }
 
+.groupsGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
 .groupItem {
   padding: 1rem;
-  width: 500px;
-  min-width: 300px;
-  border: 1px solid #e8eaed;
-  border-radius: 8px;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
   background-color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
-  
+  transition: $transition-fast;
+
   &:hover {
     background-color: #f8f9fa;
-    border-color: #dadce0;
+    border-color: $color-border-hover;
   }
 }
 
 .groupIcon {
-  color: #5f6368;
+  color: $color-text-secondary;
   flex-shrink: 0;
 }
 
 .groupName {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #3c4043;
   margin: 0;
@@ -71,31 +91,30 @@
 
 .memberCount {
   font-size: 0.75rem;
-  color: #5f6368;
+  color: $color-text-secondary;
   margin: 0;
-  line-height: 1.33;
 }
 
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
-}
 
-.emptyIcon {
-  color: #adb5bd;
-  margin-bottom: 1.5rem;
-}
+  .emptyIcon {
+    color: #adb5bd;
+    margin-bottom: 1.5rem;
+  }
 
-.emptyTitle {
-  margin-bottom: 0.5rem;
-  color: #495057;
-  font-size: 1.25rem;
-}
+  .emptyTitle {
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-size: 1.25rem;
+  }
 
-.emptyDescription {
-  margin-bottom: 2rem;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #6c757d;
+  .emptyDescription {
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    color: $color-text-muted;
+  }
 }

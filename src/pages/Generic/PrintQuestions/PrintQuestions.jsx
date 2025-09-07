@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../../utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, LoadingOverlay } from "@mantine/core";
@@ -9,6 +9,7 @@ import {
   IconLayoutSidebarLeftExpand,
   IconEye,
   IconEyeOff,
+  IconHome,
 } from "@tabler/icons-react";
 import { useState, useMemo } from "react";
 import styles from "./print-questions.module.scss";
@@ -42,7 +43,7 @@ const PrintQuestions = () => {
   const [selectedQuestions, setSelectedQuestions] = useState(new Set());
   const { user } = useAuthStore();
   const [allowStudentInformation, setAllowStudentInformation] = useState(false);
-
+  const navigate = useNavigate();
   const fetchExamsQuestions = async (page) => {
     try {
       const response = await apiClient.get(`/api/exam/${examId}/questions`, {
@@ -177,6 +178,15 @@ const PrintQuestions = () => {
               title="Template Selector"
             >
               <IconLayoutSidebarLeftExpand size={18} />
+            </ActionIcon>
+            <ActionIcon
+              variant="light"
+              color="blue"
+              aria-label="Open template sidebar"
+              onClick={() => navigate(-1)}
+              title="Template Selector"
+            >
+              <IconHome size={18} />
             </ActionIcon>
             <Title order={2}>Exam Question Paper</Title>
             <Text size="sm" c="dimmed">

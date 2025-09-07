@@ -1,35 +1,54 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import LoginPage from "./pages/LoginPage/LoginPage";
-import StudentLayout from "./layout/StudentLayout";
-import OrganizerLayout from "./layout/OrganizerLayout";
-import useAuthStore from "./context/auth-store";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, lazy } from "react";
 import { Toaster } from "sonner";
-import OrganizationIntellihub from "./pages/Organization/OrganizationIntellihub/OrganizationIntellihub";
-import Organization_group from "./pages/Organization/Groups/Organization_group";
-import LeaderboardVeiw from "./pages/Organization/components/LeaderboardView";
-import StudentDetails from "./pages/Organization/components/StudentDetails/StudentDetails";
-import ExamPage from "./pages/Exam/ExamPage";
-import ExamDetailsPage from "./pages/Generic/ExamDetailsPage";
-import UserDetailsPage from "./pages/Generic/UserDetailsPage";
-import NotFoundPage from "./pages/Generic/NotFoundPage";
+import useAuthStore from "./context/auth-store";
+
+// ✅ Eagerly loaded essentials
 import LoadingPage from "./components/Loading/LoadingPage";
-import ViewExamsPage from "./pages/Exam/ViewExamsPage";
-import Notification from "./pages/Notification/Notification";
-import SettingsPage from "./pages/Settings/Settings";
-import ExamQuestionsPage from "./pages/Generic/ExamQuestions/ExamQuestions";
-import ViewStudentsExamsPage from "./pages/Students/ExamPage/StudentExamPage";
-import ExamResult from "./components/Exam/Helpers/ExamResult/ExamResult";
-import StudentsViewDetailsPage from "./pages/Students/ViewDetailsPage/StudentsViewDetailsPage";
-import StudentIntellihub from "./pages/Students/Intellihub";
 import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
-import PrintQuestions from "./pages/Generic/PrintQuestions/PrintQuestions";
-import CheckingPage from "./pages/Generic/CheckingPage";
-import PrepalyzeLanding from "./pages/LandingPage";
+
+// ✅ Lazy-loaded pages/layouts
+const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage"));
+const StudentLayout = lazy(() => import("./layout/StudentLayout"));
+const OrganizerLayout = lazy(() => import("./layout/OrganizerLayout"));
+const OrganizationIntellihub = lazy(
+  () => import("./pages/Organization/OrganizationIntellihub/OrganizationIntellihub")
+);
+const Organization_group = lazy(
+  () => import("./pages/Organization/Groups/Organization_group")
+);
+const LeaderboardVeiw = lazy(
+  () => import("./pages/Organization/components/LeaderboardView")
+);
+const StudentDetails = lazy(
+  () => import("./pages/Organization/components/StudentDetails/StudentDetails")
+);
+const ExamPage = lazy(() => import("./pages/Exam/ExamPage"));
+const ExamDetailsPage = lazy(() => import("./pages/Generic/ExamDetailsPage"));
+const UserDetailsPage = lazy(() => import("./pages/Generic/UserDetailsPage"));
+const NotFoundPage = lazy(() => import("./pages/Generic/NotFoundPage"));
+const ViewExamsPage = lazy(() => import("./pages/Exam/ViewExamsPage"));
+const Notification = lazy(() => import("./pages/Notification/Notification"));
+const SettingsPage = lazy(() => import("./pages/Settings/Settings"));
+const ExamQuestionsPage = lazy(
+  () => import("./pages/Generic/ExamQuestions/ExamQuestions")
+);
+const ViewStudentsExamsPage = lazy(
+  () => import("./pages/Students/ExamPage/StudentExamPage")
+);
+const ExamResult = lazy(
+  () => import("./components/Exam/Helpers/ExamResult/ExamResult")
+);
+const StudentsViewDetailsPage = lazy(
+  () => import("./pages/Students/ViewDetailsPage/StudentsViewDetailsPage")
+);
+const StudentIntellihub = lazy(() => import("./pages/Students/Intellihub"));
+const PrintQuestions = lazy(() => import("./pages/Generic/PrintQuestions/PrintQuestions"));
+const CheckingPage = lazy(() => import("./pages/Generic/CheckingPage"));
+const PrepalyzeLanding = lazy(() => import("./pages/LandingPage"));
 
 const App = () => {
-  const { isAuthenticated, isInitializing, initializeAuth, user } =
-    useAuthStore();
+  const { isAuthenticated, isInitializing, initializeAuth, user } = useAuthStore();
 
   useEffect(() => {
     initializeAuth();
@@ -58,7 +77,7 @@ const App = () => {
             />
           )}
 
-          {/* Redirect root to appropriate dashboard */}
+          {/* Root redirect */}
           <Route
             path="/"
             index
@@ -77,9 +96,8 @@ const App = () => {
           {/* Student Routes */}
           {isAuthenticated && user?.role === "student" && (
             <Route path="/student" element={<StudentLayout />}>
-              <Route path="" element={<StudentIntellihub />} />
+              <Route index element={<StudentIntellihub />} />
               <Route path="exams" element={<ViewStudentsExamsPage />} />
-
               <Route
                 path="exams/details/:examId"
                 element={<StudentsViewDetailsPage />}
@@ -98,29 +116,23 @@ const App = () => {
           {/* Organizer Routes */}
           {isAuthenticated && user?.role === "organizer" && (
             <Route path="/organization" element={<OrganizerLayout />}>
-              <Route path="" element={<OrganizationIntellihub />} />
+              <Route index element={<OrganizationIntellihub />} />
               <Route path="group" element={<Organization_group />} />
               <Route path="leaderboard" element={<LeaderboardVeiw />} />
               <Route path="student/:id" element={<StudentDetails />} />
               <Route path="exams" element={<ViewExamsPage />} />
               <Route path="notification" element={<Notification />} />
               <Route path="settings" element={<SettingsPage />} />
-
-              <Route
-                path="exams/details/:examId"
-                element={<ExamDetailsPage />}
-              />
+              <Route path="exams/details/:examId" element={<ExamDetailsPage />} />
               <Route
                 path="exams/details/:examId/questions"
                 element={<ExamQuestionsPage />}
               />
-              <Route
-                path="exams/results/:userId"
-                element={<UserDetailsPage />}
-              />
+              <Route path="exams/results/:userId" element={<UserDetailsPage />} />
             </Route>
           )}
 
+          {/* Common Authenticated Routes */}
           {isAuthenticated && (
             <>
               <Route path="/exam/:examId" element={<ExamPage />} />
@@ -129,7 +141,7 @@ const App = () => {
             </>
           )}
 
-          {/* 404 Route */}
+          {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

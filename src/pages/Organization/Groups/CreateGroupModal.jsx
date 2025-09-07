@@ -1,5 +1,15 @@
-import { Modal, Title, TextInput, Button, Stack, Checkbox, Group, Text, ScrollArea } from "@mantine/core"
-import { IconUsers, IconPlus } from "@tabler/icons-react"
+import {
+  Modal,
+  Title,
+  TextInput,
+  Button,
+  Stack,
+  Checkbox,
+  Group,
+  Text,
+  ScrollArea,
+} from "@mantine/core";
+import { IconUsers, IconPlus } from "@tabler/icons-react";
 
 export default function CreateGroupModal({
   groupModalOpened,
@@ -17,10 +27,27 @@ export default function CreateGroupModal({
     <Modal
       opened={groupModalOpened}
       onClose={handleCloseModal}
+      styles={{
+        content: {
+          borderRadius: "12px",
+          padding: "24px",
+        },
+        header: {
+          borderBottom: "1px solid #e9ecef",
+          marginBottom: "16px",
+          paddingBottom: "12px",
+        },
+        title: {
+          fontWeight: 600,
+          fontSize: "18px",
+        },
+      }}
       title={
         <Group gap="sm">
           <IconUsers size={20} />
-          <Title order={3}>{editGroupId ? "Edit Group" : "Create New Group"}</Title>
+          <Title order={3}>
+            {editGroupId ? "Edit Group" : "Create New Group"}
+          </Title>
         </Group>
       }
       size="md"
@@ -46,8 +73,12 @@ export default function CreateGroupModal({
                     <Checkbox
                       key={student._id || student.id}
                       label={`${student.name} (${student.email})`}
-                      checked={selectedStudents.includes(student._id || student.id)}
-                      onChange={() => handleStudentToggle(student._id || student.id)}
+                      checked={selectedStudents.includes(
+                        student._id || student.id
+                      )}
+                      onChange={() =>
+                        handleStudentToggle(student._id || student.id)
+                      }
                     />
                   ))}
                 </Stack>
@@ -56,15 +87,23 @@ export default function CreateGroupModal({
           )}
 
           <Group justify="flex-end" gap="sm">
-            <Button variant="subtle" onClick={handleCloseModal} disabled={submitting}>
+            <Button
+              variant="subtle"
+              onClick={handleCloseModal}
+              disabled={submitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" loading={submitting} leftSection={<IconPlus size={16} />}>
+            <Button
+              type="submit"
+              loading={submitting}
+              leftSection={<IconPlus size={16} />}
+            >
               {editGroupId ? "Update Group" : "Create Group"}
             </Button>
           </Group>
         </Stack>
       </form>
     </Modal>
-  )
+  );
 }

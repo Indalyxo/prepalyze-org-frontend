@@ -60,6 +60,8 @@ export default function LoginForm() {
         <div className="decoration-circle decoration-circle-1"></div>
         <div className="decoration-circle decoration-circle-2"></div>
         <div className="decoration-circle decoration-circle-3"></div>
+        <div className="decoration-circle decoration-circle-4"></div>
+        <div className="decoration-circle decoration-circle-5"></div>
         <div className="decoration-dots">
           <div className="dot"></div>
           <div className="dot"></div>

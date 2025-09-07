@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppShell, Group, Title } from "@mantine/core";
-import {
-  IconContract,
-  IconDashboard,
-  IconUsers  ,
-} from "@tabler/icons-react";
+import { IconContract, IconDashboard, IconUsers } from "@tabler/icons-react";
 
-import Sidebar, { MobileSidebarTrigger } from "../../components/Sidebar/Sidebar";
+import Sidebar, {
+  MobileSidebarTrigger,
+} from "../../components/Sidebar/Sidebar";
 
 import "./oragnizer-layout.scss";
 import { useMediaQuery } from "@mantine/hooks";
+import useAuthStore from "../../context/auth-store";
 
 const OrganizerLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { settings } = useAuthStore();
 
   const navItems = [
     {
@@ -26,7 +26,7 @@ const OrganizerLayout = () => {
     },
     {
       name: "Groups",
-    icon: <IconUsers  />,
+      icon: <IconUsers />,
       redirectTo: "/organization/group",
       description: "Your Group Management Area",
     },

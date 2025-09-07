@@ -14,6 +14,9 @@ import {
   Divider,
   Tooltip,
   LoadingOverlay,
+  ActionIcon,
+  Flex,
+  UnstyledButton,
 } from "@mantine/core";
 import {
   IconUsers,
@@ -30,6 +33,9 @@ import {
   IconBook2,
   IconTags,
   IconListNumbers,
+  IconArrowBack,
+  IconArrowAutofitContentFilled,
+  IconArrowBigLeftFilled,
 } from "@tabler/icons-react";
 import "./generic.scss";
 import apiClient from "../../utils/api";
@@ -167,6 +173,28 @@ export default function ExamDetails() {
 
   return (
     <div className="exam-details-container exam-page">
+      <UnstyledButton
+        onClick={() => navigate(-1)}
+        aria-label="Go back"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          padding: "0.4rem 0.6rem",
+          borderRadius: "8px",
+          transition: "background 0.2s ease",
+        }}
+        className="back-btn"
+      >
+        <Tooltip label="Go back" position="bottom" withArrow>
+          <ActionIcon variant="light" color="blue" size="xl" radius="xl">
+            <IconArrowBigLeftFilled size={26} />
+          </ActionIcon>
+        </Tooltip>
+        <Text size="lg" c="dimmed" style={{ fontWeight: 500 }}>
+          Back
+        </Text>
+      </UnstyledButton>
       <Card
         className="exam-header page-header"
         shadow="sm"
@@ -415,7 +443,7 @@ export default function ExamDetails() {
           >
             Download PDF
           </Button>
-          <Button
+          {/* <Button
             leftSection={<IconFileTypeDoc size={18} />}
             className="ghost"
             variant="outline"
@@ -424,7 +452,7 @@ export default function ExamDetails() {
             size="md"
           >
             Download Word
-          </Button>
+          </Button> */}
         </div>
 
         <Group mt="lg" gap="lg" wrap="wrap">
