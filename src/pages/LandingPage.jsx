@@ -642,7 +642,7 @@ export default function PrepalyzeLanding() {
                 <Group gap="xs">
                   <IconCheck size={16} color="var(--color-accent)" />
                   <Text size="sm" c="var(--color-muted-foreground)">
-                    Basic support
+                    Full support
                   </Text>
                 </Group>
               </Stack>
