@@ -1,22 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { z } from "zod";
 import {
   Stack,
   Text,
-  TextInput,
-  Select,
-  Textarea,
   Button,
   Group,
   Box,
-  Progress,
   Badge,
   NumberInput,
   Checkbox,
   MultiSelect,
   Alert,
-  Divider,
-  Card,
   Accordion,
   Title,
   Tabs,
@@ -31,6 +25,7 @@ import {
   IconSend,
   IconAlertCircle,
 } from "@tabler/icons-react";
+import { useDebouncedCallback } from "@mantine/hooks";
 import ModalFrame from "../../Modals/ModalFrame";
 import "./exam-creation-form.scss";
 import {
@@ -50,6 +45,35 @@ import { toast } from "sonner";
 import apiClient from "../../../utils/api";
 import dayjs from "dayjs";
 import useAuthStore from "../../../context/auth-store";
+import SidebarContent from "./SidebarContent";
+
+// Debounced NumberInput Component
+const DebouncedNumberInput = ({
+  value,
+  onChange,
+  debounceMs = 200,
+  ...props
+}) => {
+  const [localValue, setLocalValue] = useState(value);
+
+  const debouncedOnChange = useDebouncedCallback((newValue) => {
+    onChange(newValue);
+  }, debounceMs);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleChange = useCallback(
+    (newValue) => {
+      setLocalValue(newValue);
+      debouncedOnChange(newValue);
+    },
+    [debouncedOnChange]
+  );
+
+  return <NumberInput {...props} value={localValue} onChange={handleChange} />;
+};
 
 const ExamCreationForm = ({ opened, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -100,19 +124,14 @@ const ExamCreationForm = ({ opened, onClose }) => {
     }
   };
 
-  console.log(settings)
-
   const { data, isLoading, error } = useQuery({
     queryKey: ["GET_EXAM_DATA"],
     queryFn: fetchExamData,
   });
 
   const [availableGroups, setAvailableGroups] = useState([]);
-
   const [availableSubjects, setAvailableSubjects] = useState([]);
-
   const [availableChapters, setAvailableChapters] = useState({});
-
   const [availableTopics, setAvailableTopics] = useState({});
 
   useEffect(() => {
@@ -125,21 +144,19 @@ const ExamCreationForm = ({ opened, onClose }) => {
     }
   }, [data]);
 
-  // Calculate totals when topic question counts change
-  useEffect(() => {
-    let totalQuestions = 0;
-    let totalMarks = 0;
+  // Optimized calculation of totals using useMemo
+  const { totalQuestions, totalMarks } = useMemo(() => {
+    let questions = 0;
+    let marks = 0;
 
-    Object.entries(formData.topicQuestionCounts).forEach(
-      ([topicId, counts]) => {
-        if (counts && typeof counts === "object") {
-          totalQuestions +=
-            (counts.mcq || 0) +
-            (counts.assertionReason || 0) +
-            (counts.numerical || 0);
-        }
+    Object.values(formData.topicQuestionCounts).forEach((counts) => {
+      if (counts && typeof counts === "object") {
+        questions +=
+          (counts.mcq || 0) +
+          (counts.assertionReason || 0) +
+          (counts.numerical || 0);
       }
-    );
+    });
 
     const markingScheme = {
       "JEE-MAINS": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
@@ -150,22 +167,35 @@ const ExamCreationForm = ({ opened, onClose }) => {
     const scheme =
       markingScheme[formData.examCategory] || markingScheme["Custom"];
 
-    Object.entries(formData.topicQuestionCounts).forEach(
-      ([topicId, counts]) => {
-        if (counts && typeof counts === "object") {
-          totalMarks += (counts.mcq || 0) * scheme.mcq;
-          totalMarks += (counts.assertionReason || 0) * scheme.assertionReason;
-          totalMarks += (counts.numerical || 0) * scheme.numerical;
-        }
+    Object.values(formData.topicQuestionCounts).forEach((counts) => {
+      if (counts && typeof counts === "object") {
+        marks += (counts.mcq || 0) * scheme.mcq;
+        marks += (counts.assertionReason || 0) * scheme.assertionReason;
+        marks += (counts.numerical || 0) * scheme.numerical;
       }
-    );
+    });
 
-    setFormData((prev) => ({
-      ...prev,
-      totalQuestions,
-      totalMarks,
-    }));
+    return { totalQuestions: questions, totalMarks: marks };
   }, [formData.topicQuestionCounts, formData.examCategory]);
+
+  // Update formData when totals change (less frequent)
+  useEffect(() => {
+    if (
+      formData.totalQuestions !== totalQuestions ||
+      formData.totalMarks !== totalMarks
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        totalQuestions,
+        totalMarks,
+      }));
+    }
+  }, [
+    totalQuestions,
+    totalMarks,
+    formData.totalQuestions,
+    formData.totalMarks,
+  ]);
 
   // Manage tab selection
   useEffect(() => {
@@ -294,6 +324,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
           errors.selectedTopics =
             "Please select at least one topic and specify question count";
         }
+        if (formData.totalQuestions > 75)
+          errors.totalQuestions = "Cannot exceed 75 questions";
         break;
 
       case 3:
@@ -324,11 +356,24 @@ const ExamCreationForm = ({ opened, onClose }) => {
     }));
   };
 
-  const handleInputChange = (field, value) => {
-    console.log(value);
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    validateField(field, value);
-  };
+  const handleInputChange = useCallback(
+    (field, value) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      validateField(field, value);
+    },
+    [currentStep]
+  );
+
+  // Optimized topic question counts update function
+  const updateTopicQuestionCounts = useCallback((topicId, newCounts) => {
+    setFormData((prev) => ({
+      ...prev,
+      topicQuestionCounts: {
+        ...prev.topicQuestionCounts,
+        [topicId]: newCounts,
+      },
+    }));
+  }, []);
 
   const handleStepClick = (stepIndex) => {
     if (
@@ -344,6 +389,9 @@ const ExamCreationForm = ({ opened, onClose }) => {
       if (currentStep < steps.length - 1) {
         setCurrentStep(currentStep + 1);
       }
+    } else {  
+      const message = Object.values(errors[`step_${currentStep}`])[0];
+      toast.error(message || "Please fix the errors before proceeding.");
     }
   };
 
@@ -498,223 +546,268 @@ const ExamCreationForm = ({ opened, onClose }) => {
     return errors[`step_${currentStep}`] || {};
   };
 
-  const renderSubjectConfiguration = (subjectId) => {
-    console.log(subjectId, "<--");
-    const subject = availableSubjects.find((s) => s.value === subjectId);
-    const subjectChapters = availableChapters[subjectId] || [];
-    console.log({ subjectChapters });
-    return (
-      <Box>
-        <Text size="lg" fw={500} mb="md">
-          {subject?.label}
+  // Memoized subject totals for the overview box
+  const subjectTotals = useMemo(() => {
+    const totals = Object.values(formData.topicQuestionCounts || {}).reduce(
+      (acc, counts) => ({
+        mcq: acc.mcq + (counts?.mcq || 0),
+        assertionReason: acc.assertionReason + (counts?.assertionReason || 0),
+        numerical: acc.numerical + (counts?.numerical || 0),
+      }),
+      { mcq: 0, assertionReason: 0, numerical: 0 }
+    );
+    return totals;
+  }, [formData.topicQuestionCounts]);
+
+  // Memoized overview box component
+  const ExamOverview = useMemo(
+    () => (
+      <Box
+        p="md"
+        style={{
+          backgroundColor: "rgba(255, 193, 7, 0.1)",
+          borderRadius: "8px",
+          border: "1px solid rgba(255, 193, 7, 0.3)",
+        }}
+      >
+        <Text size="md" fw={500} c="orange" mb="sm">
+          Exam Overview
         </Text>
+        <Grid>
+          <Grid.Col span={2}>
+            <Text size="sm" fw={500}>
+              Total MCQ: {subjectTotals.mcq}
+            </Text>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Text size="sm" fw={500}>
+              Total A&R: {subjectTotals.assertionReason}
+            </Text>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Text size="sm" fw={500}>
+              Total Numerical: {subjectTotals.numerical}
+            </Text>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Text size="sm" fw={600}>
+              Grand Total: {totalQuestions}
+            </Text>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Text size="sm" fw={600}>
+              Total Marks: {totalMarks}
+            </Text>
+          </Grid.Col>
+        </Grid>
+      </Box>
+    ),
+    [subjectTotals, totalQuestions, totalMarks]
+  );
 
-        <Accordion multiple variant="contained">
-          {subjectChapters.map((chapter) => {
-            const chapterTopics = availableTopics[chapter.value] || [];
-            const selectedTopicsForChapter = (
-              formData.selectedTopics || []
-            ).filter((topicId) =>
-              chapterTopics.some((topic) => topic.value === topicId)
-            );
-            console.log({
-              chapterTopics,
-              selectedTopicsForChapter,
-              availableTopics,
-            });
-            return (
-              <Accordion.Item key={chapter.value} value={chapter.value}>
-                <Accordion.Control>
-                  <Group justify="space-between" pr="md">
-                    <Text fw={500}>{chapter.label}</Text>
-                    <Badge variant="light" size="sm">
-                      {selectedTopicsForChapter.length} topics selected
-                    </Badge>
-                  </Group>
-                </Accordion.Control>
-                <Accordion.Panel>
-                  <Stack gap="md">
-                    <Text size="sm" fw={500} mb="xs">
-                      Select Topics:
-                    </Text>
+  // Optimized NumberInput component for question types
+  const renderOptimizedNumberInput = useCallback(
+    (topic, type, questionCounts, totalAvailable) => {
+      const typeLabels = {
+        mcq: "MCQ",
+        assertionReason: "A&R",
+        numerical: "Numerical",
+      };
 
-                    {chapterTopics.map((topic) => {
-                      const isSelected = (
-                        formData.selectedTopics || []
-                      ).includes(topic.value);
-                      const questionCounts = formData.topicQuestionCounts?.[
-                        topic.value
-                      ] || { mcq: 0, assertionReason: 0, numerical: 0 };
-                      const totalAvailable = topic.totalQuestions || {
-                        mcq: 30,
-                        assertionReason: 15,
-                        numerical: 5,
-                      };
+      return (
+        <DebouncedNumberInput
+          label={typeLabels[type]}
+          placeholder="0"
+          value={questionCounts[type] || 0}
+          onChange={(value) => {
+            const newCounts = {
+              ...questionCounts,
+              [type]: Math.min(value || 0, totalAvailable[type]),
+            };
+            updateTopicQuestionCounts(topic.value, newCounts);
+          }}
+          min={0}
+          max={totalAvailable[type]}
+          size="sm"
+          disabled={
+            totalAvailable[type] === 0 ||
+            (totalQuestions === 75 && (questionCounts[type] || 0) === 0)
+          }
+          debounceMs={200}
+        />
+      );
+    },
+    [updateTopicQuestionCounts, totalQuestions]
+  );
 
-                      console.log(topic);
+  // Optimized topic question inputs renderer
+  const renderTopicQuestionInputs = useCallback(
+    (topic, questionCounts, totalAvailable) => (
+      <Box style={{ minWidth: "300px" }}>
+        <Text size="sm" fw={500} mb="xs">
+          Question Types:
+        </Text>
+        <Grid>
+          <Grid.Col span={4}>
+            {renderOptimizedNumberInput(
+              topic,
+              "mcq",
+              questionCounts,
+              totalAvailable
+            )}
+          </Grid.Col>
+          <Grid.Col span={4}>
+            {renderOptimizedNumberInput(
+              topic,
+              "assertionReason",
+              questionCounts,
+              totalAvailable
+            )}
+          </Grid.Col>
+          <Grid.Col span={4}>
+            {renderOptimizedNumberInput(
+              topic,
+              "numerical",
+              questionCounts,
+              totalAvailable
+            )}
+          </Grid.Col>
+        </Grid>
 
-                      return (
-                        <Box
-                          key={`topic-${topic.value}`}
-                          p="sm"
-                          style={{
-                            border: "1px solid #e9ecef",
-                            borderRadius: "4px",
-                          }}
-                        >
-                          <Group justify="space-between" align="flex-start">
-                            <Box style={{ flex: 1 }}>
-                              <Checkbox
-                                label={topic.label}
-                                checked={isSelected}
-                                onChange={(event) => {
-                                  const newSelectedTopics = event.currentTarget
-                                    .checked
-                                    ? [
-                                        ...(formData.selectedTopics || []),
-                                        topic.value,
-                                      ]
-                                    : (formData.selectedTopics || []).filter(
-                                        (id) => id !== topic.value
-                                      );
+        <Text size="xs" c="blue" mt="xs" ta="center">
+          Total:{" "}
+          {(questionCounts.mcq || 0) +
+            (questionCounts.assertionReason || 0) +
+            (questionCounts.numerical || 0)}{" "}
+          questions
+        </Text>
+      </Box>
+    ),
+    [renderOptimizedNumberInput]
+  );
 
-                                  const newCounts = {
-                                    ...formData.topicQuestionCounts,
-                                  };
-                                  if (!event.currentTarget.checked) {
-                                    delete newCounts[topic.value];
-                                  }
+  const renderSubjectConfiguration = useCallback(
+    (subjectId) => {
+      const subject = availableSubjects.find((s) => s.value === subjectId);
+      const subjectChapters = availableChapters[subjectId] || [];
 
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    selectedTopics: newSelectedTopics,
-                                    topicQuestionCounts: newCounts,
-                                  }));
-                                }}
-                              />
-                              <Text size="xs" c="dimmed" mt={4}>
-                                Available: MCQ: {totalAvailable.mcq}, A&R:{" "}
-                                {totalAvailable.assertionReason}, Numerical:{" "}
-                                {totalAvailable.numerical}
-                              </Text>
-                            </Box>
+      return (
+        <Box>
+          <Text size="lg" fw={500} mb="md">
+            {subject?.label}
+          </Text>
 
-                            {isSelected && (
-                              <Box style={{ minWidth: "300px" }}>
-                                <Text size="sm" fw={500} mb="xs">
-                                  Question Types:
-                                </Text>
-                                <Grid>
-                                  <Grid.Col span={4}>
-                                    <NumberInput
-                                      label="MCQ"
-                                      placeholder="0"
-                                      value={questionCounts.mcq || 0}
-                                      onChange={(value) => {
-                                        const newCounts = {
-                                          ...formData.topicQuestionCounts,
-                                          [topic.value]: {
-                                            ...(formData.topicQuestionCounts[
-                                              topic.value
-                                            ] || {}),
-                                            mcq: Math.min(
-                                              value || 0,
-                                              totalAvailable.mcq
-                                            ),
-                                          },
-                                        };
-                                        handleInputChange(
-                                          "topicQuestionCounts",
-                                          newCounts
+          <Accordion multiple variant="contained">
+            {subjectChapters.map((chapter) => {
+              const chapterTopics = availableTopics[chapter.value] || [];
+              const selectedTopicsForChapter = (
+                formData.selectedTopics || []
+              ).filter((topicId) =>
+                chapterTopics.some((topic) => topic.value === topicId)
+              );
+              return (
+                <Accordion.Item key={chapter.value} value={chapter.value}>
+                  <Accordion.Control>
+                    <Group justify="space-between" pr="md">
+                      <Text fw={500}>{chapter.label}</Text>
+                      <Badge variant="light" size="sm">
+                        {selectedTopicsForChapter.length} topics selected
+                      </Badge>
+                    </Group>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <Stack gap="md">
+                      <Text size="sm" fw={500} mb="xs">
+                        Select Topics:
+                      </Text>
+
+                      {chapterTopics.map((topic) => {
+                        const isSelected = (
+                          formData.selectedTopics || []
+                        ).includes(topic.value);
+                        const questionCounts = formData.topicQuestionCounts?.[
+                          topic.value
+                        ] || { mcq: 0, assertionReason: 0, numerical: 0 };
+                        const totalAvailable = topic.totalQuestions || {
+                          mcq: 30,
+                          assertionReason: 15,
+                          numerical: 5,
+                        };
+
+                        return (
+                          <Box
+                            key={`topic-${topic.value}`}
+                            p="sm"
+                            style={{
+                              border: "1px solid #e9ecef",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            <Group justify="space-between" align="flex-start">
+                              <Box style={{ flex: 1 }}>
+                                <Checkbox
+                                  label={topic.label}
+                                  checked={isSelected}
+                                  onChange={(event) => {
+                                    const newSelectedTopics = event
+                                      .currentTarget.checked
+                                      ? [
+                                          ...(formData.selectedTopics || []),
+                                          topic.value,
+                                        ]
+                                      : (formData.selectedTopics || []).filter(
+                                          (id) => id !== topic.value
                                         );
-                                      }}
-                                      min={0}
-                                      max={totalAvailable.mcq}
-                                      size="sm"
-                                    />
-                                  </Grid.Col>
-                                  <Grid.Col span={4}>
-                                    <NumberInput
-                                      label="A&R"
-                                      placeholder="0"
-                                      value={
-                                        questionCounts.assertionReason || 0
-                                      }
-                                      onChange={(value) => {
-                                        const newCounts = {
-                                          ...formData.topicQuestionCounts,
-                                          [topic.value]: {
-                                            ...(formData.topicQuestionCounts[
-                                              topic.value
-                                            ] || {}),
-                                            assertionReason: Math.min(
-                                              value || 0,
-                                              totalAvailable.assertionReason
-                                            ),
-                                          },
-                                        };
-                                        handleInputChange(
-                                          "topicQuestionCounts",
-                                          newCounts
-                                        );
-                                      }}
-                                      min={0}
-                                      max={totalAvailable.assertionReason}
-                                      size="sm"
-                                    />
-                                  </Grid.Col>
-                                  <Grid.Col span={4}>
-                                    <NumberInput
-                                      label="Numerical"
-                                      placeholder="0"
-                                      value={questionCounts.numerical || 0}
-                                      onChange={(value) => {
-                                        const newCounts = {
-                                          ...formData.topicQuestionCounts,
-                                          [topic.value]: {
-                                            ...(formData.topicQuestionCounts[
-                                              topic.value
-                                            ] || {}),
-                                            numerical: Math.min(
-                                              value || 0,
-                                              totalAvailable.numerical
-                                            ),
-                                          },
-                                        };
-                                        handleInputChange(
-                                          "topicQuestionCounts",
-                                          newCounts
-                                        );
-                                      }}
-                                      min={0}
-                                      max={totalAvailable.numerical}
-                                      size="sm"
-                                    />
-                                  </Grid.Col>
-                                </Grid>
 
-                                <Text size="xs" c="blue" mt="xs" ta="center">
-                                  Total:{" "}
-                                  {(questionCounts.mcq || 0) +
-                                    (questionCounts.assertionReason || 0) +
-                                    (questionCounts.numerical || 0)}{" "}
-                                  questions
+                                    const newCounts = {
+                                      ...formData.topicQuestionCounts,
+                                    };
+                                    if (!event.currentTarget.checked) {
+                                      delete newCounts[topic.value];
+                                    }
+
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      selectedTopics: newSelectedTopics,
+                                      topicQuestionCounts: newCounts,
+                                    }));
+                                  }}
+                                />
+                                <Text size="xs" c="dimmed" mt={4}>
+                                  Available: MCQ: {totalAvailable.mcq}, A&R:{" "}
+                                  {totalAvailable.assertionReason}, Numerical:{" "}
+                                  {totalAvailable.numerical}
                                 </Text>
                               </Box>
-                            )}
-                          </Group>
-                        </Box>
-                      );
-                    })}
-                  </Stack>
-                </Accordion.Panel>
-              </Accordion.Item>
-            );
-          })}
-        </Accordion>
-      </Box>
-    );
-  };
+
+                              {isSelected &&
+                                renderTopicQuestionInputs(
+                                  topic,
+                                  questionCounts,
+                                  totalAvailable
+                                )}
+                            </Group>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              );
+            })}
+          </Accordion>
+        </Box>
+      );
+    },
+    [
+      availableSubjects,
+      availableChapters,
+      availableTopics,
+      formData.selectedTopics,
+      formData.topicQuestionCounts,
+      renderTopicQuestionInputs,
+    ]
+  );
 
   const renderStepContent = () => {
     const stepErrors = getCurrentStepErrors();
@@ -762,59 +855,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
               required
             />
 
-            {formData.selectedSubjects.length > 0 && (
-              <Box
-                p="md"
-                style={{
-                  backgroundColor: "rgba(255, 193, 7, 0.1)",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(255, 193, 7, 0.3)",
-                }}
-              >
-                <Text size="md" fw={500} c="orange" mb="sm">
-                  Exam Overview
-                </Text>
-                <Grid>
-                  <Grid.Col span={2}>
-                    <Text size="sm" fw={500}>
-                      Total MCQ:{" "}
-                      {Object.values(formData.topicQuestionCounts || {}).reduce(
-                        (sum, counts) => sum + (counts?.mcq || 0),
-                        0
-                      )}
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={3}>
-                    <Text size="sm" fw={500}>
-                      Total A&R:{" "}
-                      {Object.values(formData.topicQuestionCounts || {}).reduce(
-                        (sum, counts) => sum + (counts?.assertionReason || 0),
-                        0
-                      )}
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text size="sm" fw={500}>
-                      Total Numerical:{" "}
-                      {Object.values(formData.topicQuestionCounts || {}).reduce(
-                        (sum, counts) => sum + (counts?.numerical || 0),
-                        0
-                      )}
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={2}>
-                    <Text size="sm" fw={600}>
-                      Grand Total: {formData.totalQuestions}
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={3}>
-                    <Text size="sm" fw={600}>
-                      Total Marks: {formData.totalMarks}
-                    </Text>
-                  </Grid.Col>
-                </Grid>
-              </Box>
-            )}
+            {formData.selectedSubjects.length > 0 && ExamOverview}
 
             {formData.selectedSubjects.length > 0 && (
               <Box mt="md">
@@ -847,7 +888,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
 
                     {formData.selectedSubjects.map((subjectId) => (
                       <Tabs.Panel key={subjectId} value={subjectId} pt="md">
-                        {console.log(subjectId)}
                         {renderSubjectConfiguration(subjectId)}
                       </Tabs.Panel>
                     ))}
@@ -956,68 +996,22 @@ const ExamCreationForm = ({ opened, onClose }) => {
     transition: "all 0.2s ease",
   });
 
-  const sidebarContent = (
-    <Stack gap="sm">
-      <Box mb="md">
-        <Text size="sm" c="dimmed" mb="xs">
-          Step {currentStep + 1} of {steps.length}
-        </Text>
-        <Progress
-          value={((currentStep + 1) / steps.length) * 100}
-          size="sm"
-          color="blue"
-        />
-      </Box>
-
-      {steps.map((step, index) => {
-        const Icon = step.icon;
-        const isActive = index === currentStep;
-        const stepErrors = errors[`step_${index}`] || {};
-        const hasErrors = Object.keys(stepErrors).length > 0;
-        const isCompleted = index < currentStep && !hasErrors;
-
-        return (
-          <Box
-            key={`step-${step.id}`}
-            style={getStepItemStyles(isActive, isCompleted, hasErrors)}
-            onClick={() => handleStepClick(index)}
-          >
-            <Group gap="sm" align="center">
-              <Box style={getStepIconStyles(isActive, isCompleted)}>
-                {isCompleted ? <IconCheck size={16} /> : <Icon size={16} />}
-              </Box>
-              <Box flex={1}>
-                <Text size="sm" fw={isActive ? 600 : 400} c="white">
-                  {step.title}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {step.subtitle}
-                </Text>
-              </Box>
-              {isCompleted && !hasErrors && (
-                <Badge size="xs" color="green" variant="filled">
-                  Done
-                </Badge>
-              )}
-              {hasErrors && (
-                <Badge size="xs" color="red" variant="filled">
-                  Error
-                </Badge>
-              )}
-            </Group>
-          </Box>
-        );
-      })}
-    </Stack>
-  );
-
   return (
     <ModalFrame
       opened={opened}
       onClose={handleClose}
       title="Create Exam"
       subtitle="Set up your exam configuration"
-      sidebarContent={sidebarContent}
+      sidebarContent={
+        <SidebarContent
+          steps={steps}
+          currentStep={currentStep}
+          errors={errors}
+          handleStepClick={handleStepClick}
+          getStepItemStyles={getStepItemStyles}
+          getStepIconStyles={getStepIconStyles}
+        />
+      }
     >
       <Box
         style={{
