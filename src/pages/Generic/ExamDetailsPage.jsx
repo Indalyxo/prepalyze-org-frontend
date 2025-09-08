@@ -6,8 +6,6 @@ import {
   Stack,
   Button,
   Group,
-  Modal,
-  ScrollArea,
   Card,
   Avatar,
   Progress,
@@ -15,7 +13,6 @@ import {
   Tooltip,
   LoadingOverlay,
   ActionIcon,
-  Flex,
   UnstyledButton,
 } from "@mantine/core";
 import {
@@ -25,7 +22,6 @@ import {
   IconCalendar,
   IconEye,
   IconFileTypePdf,
-  IconFileTypeDoc,
   IconTrophy,
   IconMedal,
   IconAward,
@@ -33,8 +29,6 @@ import {
   IconBook2,
   IconTags,
   IconListNumbers,
-  IconArrowBack,
-  IconArrowAutofitContentFilled,
   IconArrowBigLeftFilled,
 } from "@tabler/icons-react";
 import "./generic.scss";

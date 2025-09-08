@@ -175,7 +175,7 @@ const handleViolation = async () => {
   };
 
   const detention = await apiClient.post(`/api/exam/${examId}/detention`, {
-    student: user._id,
+    student: user,
     duration: settings.detention.durationInMinutes,
     reason: "Tab switching detected",
     startedAt: new Date().toISOString(),
@@ -277,7 +277,7 @@ const handleViolation = async () => {
       }
 
       toast.success("✅ Result submitted successfully!");
-      // navigate(`/student/exams/details/${examId}/result/${resultId}`);
+      navigate(`/student/exams/details/${examId}/result/${resultId}`);
     } catch (error) {
       console.error("Result submission failed:", error);
 
@@ -304,6 +304,7 @@ const handleViolation = async () => {
 
     return () => clearInterval(timer);
   }, [handleSubmit]);
+  
 
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];

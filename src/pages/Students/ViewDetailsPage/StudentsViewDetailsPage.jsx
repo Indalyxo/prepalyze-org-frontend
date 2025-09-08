@@ -7,11 +7,12 @@ import {
   Button,
   Group,
   Card,
-  Avatar,
   Progress,
   Divider,
-  Tooltip,
   LoadingOverlay,
+  UnstyledButton,
+  Tooltip,
+  ActionIcon,
 } from "@mantine/core";
 import {
   IconUsers,
@@ -20,15 +21,14 @@ import {
   IconCalendar,
   IconEye,
   IconFileTypePdf,
-  IconFileTypeDoc,
   IconTrophy,
   IconMedal,
   IconAward,
-  IconChevronRight,
   IconBook2,
   IconTags,
   IconListNumbers,
   IconTrophyFilled,
+  IconArrowBigLeftFilled,
 } from "@tabler/icons-react";
 import "./student-view-details.scss";
 import apiClient from "../../../utils/api";
@@ -58,7 +58,6 @@ function getScoreColor(score = 0) {
   if (score >= 75) return "brand";
   return "blue";
 }
-
 
 function flattenQuestionsFromSections(sections = []) {
   const flat = [];
@@ -173,6 +172,28 @@ export default function StudentsViewDetailsPage() {
 
   return (
     <div className="exam-details-container exam-page">
+      <UnstyledButton
+        onClick={() => navigate("/student/exams")}
+        aria-label="Go back"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          padding: "0.4rem 0.6rem",
+          borderRadius: "8px",
+          transition: "background 0.2s ease",
+        }}
+        className="back-btn"
+      >
+        <Tooltip label="Go back" position="bottom" withArrow>
+          <ActionIcon variant="light" color="blue" size="xl" radius="xl">
+            <IconArrowBigLeftFilled size={26} />
+          </ActionIcon>
+        </Tooltip>
+        <Text size="lg" c="dimmed" style={{ fontWeight: 500 }}>
+          Back
+        </Text>
+      </UnstyledButton>
       <Card
         className="exam-header page-header"
         shadow="sm"
@@ -482,7 +503,7 @@ export default function StudentsViewDetailsPage() {
             className="ghost"
             variant="outline"
             color="brand"
-            onClick={() => console.log("Download PDF...")}
+            onClick={() => navigate(`/print/${examData.examId}`)}
             size="md"
             disabled={!hasTimeEnded}
           >

@@ -642,7 +642,7 @@ export default function PrepalyzeLanding() {
                 <Group gap="xs">
                   <IconCheck size={16} color="var(--color-accent)" />
                   <Text size="sm" c="var(--color-muted-foreground)">
-                    Basic support
+                    Full support
                   </Text>
                 </Group>
               </Stack>
@@ -818,7 +818,7 @@ export default function PrepalyzeLanding() {
               </Text>
             </Stack>
             <Stack align="center" gap="xs" className="stats-grid">
-              <Title className="stat-number">60K+</Title>
+              <Title className="stat-number">50K+</Title>
               <Text c="var(--color-muted-foreground)" fw={600} size="lg">
                 Questions
               </Text>
@@ -911,15 +911,7 @@ export default function PrepalyzeLanding() {
                   >
                     Pricing
                   </Text>
-                  <Text
-                    component="a"
-                    href="#security"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Security
-                  </Text>
+                  
                 </Stack>
 
                 <Stack gap="sm">

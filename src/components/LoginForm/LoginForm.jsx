@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export default function LoginForm() {
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -35,6 +36,7 @@ export default function LoginForm() {
       const { email, password } = form.values;
 
       try {
+        setIsLoading(true);
         const response = await login(email, password);
         console.log(response);
 
@@ -49,6 +51,8 @@ export default function LoginForm() {
         const errorMessage =
           error.response?.data?.message || "Login failed. Please try again.";
         toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -115,6 +119,7 @@ export default function LoginForm() {
 
               <Button
                 type="submit"
+                loading={isLoading}
                 onClick={handleSubmit}
                 className="login-button"
                 fullWidth

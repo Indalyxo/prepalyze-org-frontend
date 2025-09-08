@@ -23,7 +23,7 @@ const InstructionModal = ({
         <Group className={styles.titleGroup}>
           <IconInfoCircle size={22} />
           <Text fw={600} size="lg">
-            Instructions for {section.name}
+            Instructions 
           </Text>
         </Group>
       }
