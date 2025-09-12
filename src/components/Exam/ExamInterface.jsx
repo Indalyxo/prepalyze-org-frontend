@@ -63,6 +63,7 @@ const ExamInterface = ({ examData, attendance }) => {
   const [instructionModalOpened, setInstructionModalOpened] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [reset, setReset] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const { examId } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -73,13 +74,35 @@ const ExamInterface = ({ examData, attendance }) => {
     mutationFn: () => markAttendance(examId),
     onSuccess: () => {
       toast.success("Attendance marked successfully ✅");
-      queryClient.invalidateQueries(["attendance", examId]); // refresh attendance
+      queryClient.invalidateQueries(["attendance", examId]);
     },
     onError: () => {
       toast.error("Failed to mark attendance ❌");
     },
-    retry: 0, // disable retries
+    retry: 0,
   });
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullScreen(true);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullScreen(false);
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (examData && attendance.status === "absent") {
@@ -160,38 +183,35 @@ const ExamInterface = ({ examData, attendance }) => {
     return { answered, notAnswered, notVisited, marked, answeredMarked };
   };
 
-const handleViolation = async () => {
-  if (settings.detention.concludeOnDetention) {
-    toast.error("Exam concluded due to multiple tab switches.");
-    handleSubmit();
-    return;
-  }
+  const handleViolation = async () => {
+    if (settings.detention.concludeOnDetention) {
+      toast.error("Exam concluded due to multiple tab switches.");
+      handleSubmit();
+      return;
+    }
 
-  const notificationInformation = {
-    watermark: settings.exam.watermark,
-    organization: user.organization.name,
-    studentName: user.name,
-    exam: examData.examTitle, // make sure this exists
+    const notificationInformation = {
+      watermark: settings.exam.watermark,
+      organization: user.organization.name,
+      studentName: user.name,
+      exam: examData.examTitle,
+    };
+
+     await apiClient.post(`/api/exam/${examId}/detention`, {
+      student: user,
+      duration: settings.detention.durationInMinutes,
+      reason: "Tab switching detected",
+      startedAt: new Date().toISOString(),
+      notificationInformation,
+    });
+
+    setDisabled(true);
+    setReset(true);
   };
-
-  const detention = await apiClient.post(`/api/exam/${examId}/detention`, {
-    student: user,
-    duration: settings.detention.durationInMinutes,
-    reason: "Tab switching detected",
-    startedAt: new Date().toISOString(),
-    notificationInformation,
-  });
-
-  setDisabled(true);
-  setReset(true);
-};
-
 
   const handleAnswerChange = (value) => {
     const currentQuestionData =
       examData.sections[currentSection].questions[currentQuestion];
-
-    console.log(value, "<--value");
 
     setAnswers((prev) => ({
       ...prev,
@@ -261,10 +281,6 @@ const handleViolation = async () => {
   const handleSubmit = useCallback(async () => {
     try {
       const { gradeSchema } = examData;
-      console.log(examData);
-      console.log(answers);
-      console.log(gradeSchema);
-
       const { data } = await apiClient.post(`/api/exam/${examId}/result`, {
         answers,
         gradeSchema,
@@ -304,7 +320,6 @@ const handleViolation = async () => {
 
     return () => clearInterval(timer);
   }, [handleSubmit]);
-  
 
   const currentSectionData = examData.sections[currentSection];
   const currentQuestionData = currentSectionData.questions[currentQuestion];
@@ -324,13 +339,13 @@ const handleViolation = async () => {
         instruction={settings.exam.instruction}
         gradeSchema={{}}
       />
-      <TabSwitchTracker
+      {/* <TabSwitchTracker
         maxViolations={settings.detention.maxTabs}
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
-      />
+      /> */}
       <DetentionModal
         opened={disabled}
         ruleViolated="Switching Tabs"
@@ -344,6 +359,8 @@ const handleViolation = async () => {
         timeLeft={timeLeft}
         onSectionChange={handleSectionChange}
         onShowInstructions={handleShowInstructions}
+        onToggleFullScreen={toggleFullScreen}
+        isFullScreen={isFullScreen}
       />
 
       <Container fluid className="exam-content invisible-scrollbar">

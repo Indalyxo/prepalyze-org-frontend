@@ -127,14 +127,6 @@ const Step2 = ({
                                 label={topic.label}
                                 checked={isSelected}
                                 onChange={(event) => {
-                                  console.log("[DEBUG] Checkbox changed:", {
-                                    topicValue: topic.value,
-                                    checked: event.currentTarget.checked,
-                                    currentSelectedTopics:
-                                      formData.selectedTopics,
-                                    currentCounts: formData.topicQuestionCounts,
-                                  });
-
                                   const newSelectedTopics = event.currentTarget
                                     .checked
                                     ? [
@@ -145,18 +137,9 @@ const Step2 = ({
                                         (id) => id !== topic.value
                                       );
 
-                                  console.log(
-                                    "[DEBUG] New selected topics:",
-                                    newSelectedTopics
-                                  );
 
                                   // FIXED: Update both selectedTopics and topicQuestionCounts in a single state update
                                   setFormData((prev) => {
-                                    console.log("[DEBUG] Previous state:", {
-                                      selectedTopics: prev.selectedTopics,
-                                      topicQuestionCounts:
-                                        prev.topicQuestionCounts,
-                                    });
 
                                     const newCounts = {
                                       ...prev.topicQuestionCounts,
@@ -165,10 +148,6 @@ const Step2 = ({
                                     if (!event.currentTarget.checked) {
                                       // Remove count when unchecking
                                       delete newCounts[topic.value];
-                                      console.log(
-                                        "[DEBUG] Removed count for:",
-                                        topic.value
-                                      );
                                     }
 
                                     const newState = {
@@ -176,12 +155,6 @@ const Step2 = ({
                                       selectedTopics: newSelectedTopics,
                                       topicQuestionCounts: newCounts,
                                     };
-
-                                    console.log("[DEBUG] New state:", {
-                                      selectedTopics: newState.selectedTopics,
-                                      topicQuestionCounts:
-                                        newState.topicQuestionCounts,
-                                    });
 
                                     return newState;
                                   });
@@ -206,11 +179,6 @@ const Step2 = ({
                                 placeholder="0"
                                 value={questionCount}
                                 onChange={(value) => {
-                                  console.log(
-                                    "[FIXED] NumberInput changed:",
-                                    topic.value,
-                                    value
-                                  );
                                   const newCounts = {
                                     ...formData.topicQuestionCounts,
                                     [topic.value]: Math.min(
@@ -342,7 +310,6 @@ const Step2 = ({
               variant="outline"
               value={tabValue}
               onChange={(value) => {
-                console.log("[FIXED] Tab changed to:", value);
                 setTabValue(value);
               }}
             >

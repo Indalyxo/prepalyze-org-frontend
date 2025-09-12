@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import apiClient from "../../utils/api";
 import NoData from "../../components/Generics/NoData";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import LoadingPage from "../../components/Loading/LoadingPage";
 import ModalFrame from "../../components/Modals/ModalFrame";
 import { formatKey } from "../../utils/generals";
@@ -89,6 +89,39 @@ const notificationSidebarContent = {
   ),
 };
 
+const getIconForType = (item) => {
+  switch (item.type) {
+    case "malpractice":
+      return (
+        <IconShieldExclamation
+          size={20}
+          color={item.seen ? "gray" : "var(--mantine-color-red-6)"}
+        />
+      );
+    case "info":
+      return (
+        <IconInfoCircle
+          size={20}
+          color={item.seen ? "gray" : "var(--mantine-color-blue-6)"}
+        />
+      );
+    case "warning":
+      return (
+        <IconAlertTriangle
+          size={20}
+          color={item.seen ? "gray" : "var(--mantine-color-blue-6)"}
+        />
+      );
+    default:
+      return (
+        <IconMail
+          size={20}
+          color={item.seen ? "gray" : "var(--mantine-color-blue-6)"}
+        />
+      );
+  }
+};
+
 const Notification = () => {
   const [opened, setOpened] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
@@ -97,11 +130,11 @@ const Notification = () => {
     yesterday: [],
   });
   const [count, setCount] = useState(0);
+  const queryClient = useQueryClient();
 
   const fetchNotifications = async () => {
     try {
       const response = await apiClient.get("/notifications");
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -115,6 +148,35 @@ const Notification = () => {
     queryFn: fetchNotifications,
   });
 
+  const markNotificationAsSeen = async ({ id, section }) => {
+    const response = await apiClient.patch(`/notifications/${id}/seen`, {
+      id,
+      section,
+    });
+    return response.data;
+  };
+
+  // In your component
+  const { mutateAsync: markAsSeen } = useMutation({
+    mutationFn: markNotificationAsSeen,
+    onSuccess: (_, { id, section }) => {
+      setNotifications((prev) => {
+        const updated = { ...prev };
+        if (updated[section]) {
+          updated[section] = updated[section].map((item) =>
+            item.id === id ? { ...item, seen: true } : item
+          );
+        }
+        return updated;
+      });
+      queryClient.invalidateQueries(["attendance", examId]); // refresh attendance
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error("Failed to mark notification as seen");
+    },
+  });
+
   // Update local state when data changes
   useEffect(() => {
     if (data) {
@@ -124,23 +186,30 @@ const Notification = () => {
     }
   }, [data]);
 
-  console.log(count, notifications);
-
-  const handleCardClick = (section, id) => {
+  const handleCardClick = async (section, id) => {
     // Mark notification as seen
     const updated = { ...notifications };
-    if (updated[section]) {
-      updated[section] = updated[section].map((item) =>
-        item.id === id ? { ...item, seen: true } : item
-      );
-      setNotifications(updated);
 
-      // Find selected notification from the correct section
+    if (updated[section]) {
+      // Find the notification before updating
       const selected = updated[section].find((item) => item.id === id);
 
       if (selected) {
-        setSelectedNotification(selected);
+        const wasSeen = selected.seen; // <-- store whether it was seen or not
+
+        // Update state to mark as seen
+        updated[section] = updated[section].map((item) =>
+          item.id === id ? { ...item, seen: true } : item
+        );
+        setNotifications(updated);
+
+        setSelectedNotification({ ...selected, seen: true });
         setOpened(true);
+        console.log("Selected:", selected, "Was seen:", wasSeen);
+
+        if (!wasSeen) {
+          await markAsSeen({ id, section });
+        }
       }
     }
   };
@@ -182,10 +251,7 @@ const Notification = () => {
                     justifyContent: "center",
                   }}
                 >
-                  <IconMail
-                    size={20}
-                    color={item.seen ? "gray" : "var(--mantine-color-blue-6)"}
-                  />
+                  {getIconForType(item)}
                 </div>
                 <div style={{ flex: 1 }}>
                   <Text fw={item.seen ? 400 : 600}>
@@ -269,14 +335,15 @@ const Notification = () => {
         title={selectedNotification?.title}
         subtitle={""}
         showHeader={true}
-        headerContent={
-          <Group spacing="sm">
-            <IconBell size={28} color="#000" />
-            <Title order={3} fw={700} c="dark">
-              Notifications
-            </Title>
-          </Group>
-        }
+        noSidebar={true}
+        // headerContent={
+        //   <Group spacing="sm">
+        //     <IconBell size={28} color="#000" />
+        //     <Title order={3} fw={700} c="dark">
+        //       Notifications
+        //     </Title>
+        //   </Group>
+        // }
       >
         {selectedNotification?.message && (
           <div

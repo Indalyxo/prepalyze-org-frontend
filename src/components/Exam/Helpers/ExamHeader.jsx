@@ -1,58 +1,67 @@
-import { useEffect, useState } from "react"
-import { Container, Button, Text, Badge, Modal, Image } from "@mantine/core"
-import { IconClock, IconBook, IconInfoCircle } from "@tabler/icons-react"
-import useAuthStore from "../../../context/auth-store"
+import { useEffect, useState } from "react";
+import { Container, Button, Text, Badge, Modal, Image } from "@mantine/core";
+import { IconClock, IconBook, IconInfoCircle } from "@tabler/icons-react";
+import useAuthStore from "../../../context/auth-store";
 
-const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructions }) => {
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [examNotStarted, setExamNotStarted] = useState(false)
+const ExamHeader = ({
+  examData,
+  currentSection,
+  onSectionChange,
+  onShowInstructions,
+  onToggleFullScreen,
+  isFullScreen
+}) => {
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [examNotStarted, setExamNotStarted] = useState(false);
   const { user } = useAuthStore();
   // Convert ISO strings to Date objects
-  const examStart = new Date(examData?.timing?.start)
-  const examEnd = new Date(examData?.timing?.end)
+  const examStart = new Date(examData?.timing?.start);
+  const examEnd = new Date(examData?.timing?.end);
 
   useEffect(() => {
     const updateTimer = () => {
-      const now = new Date()
+      const now = new Date();
 
       if (now < examStart) {
-        setExamNotStarted(true)
-        setTimeLeft(Math.floor((examEnd - examStart) / 1000)) // full duration
+        setExamNotStarted(true);
+        setTimeLeft(Math.floor((examEnd - examStart) / 1000)); // full duration
       } else {
-        setExamNotStarted(false)
-        let remaining = Math.floor((examEnd - now) / 1000)
-        if (remaining < 0) remaining = 0
-        setTimeLeft(remaining)
+        setExamNotStarted(false);
+        let remaining = Math.floor((examEnd - now) / 1000);
+        if (remaining < 0) remaining = 0;
+        setTimeLeft(remaining);
       }
-    }
+    };
 
-    updateTimer()
-    const interval = setInterval(updateTimer, 1000)
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
 
-    return () => clearInterval(interval)
-  }, [examStart, examEnd])
+    return () => clearInterval(interval);
+  }, [examStart, examEnd]);
 
   const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
-      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
-  }
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const getTimerStatus = () => {
-    if (timeLeft > 1800) return "safe"
-    if (timeLeft > 300) return "warning"
-    return "danger"
-  }
+    if (timeLeft > 1800) return "safe";
+    if (timeLeft > 300) return "warning";
+    return "danger";
+  };
 
   return (
     <>
       {/* Modal for exam not started */}
       <Modal opened={false} onClose={() => {}} centered withCloseButton={false}>
         <div className="p-4 text-center">
-          <Text size="lg" fw={600}>⏳ Exam Not Started</Text>
+          <Text size="lg" fw={600}>
+            ⏳ Exam Not Started
+          </Text>
           <Text mt="sm">
             The exam has not started yet. Please wait until{" "}
             <strong>{examStart.toLocaleString()}</strong>.
@@ -68,7 +77,12 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
           <div className="header-main">
             <div className="exam-branding">
               <div className="exam-icon">
-                <Image src={user.organization.logoUrl} alt="exam icon" width={40} height={40} />
+                <Image
+                  src={user.organization.logoUrl}
+                  alt="exam icon"
+                  width={40}
+                  height={40}
+                />
               </div>
               <div className="exam-details">
                 <Text className="exam-title">{examData.examTitle}</Text>
@@ -80,6 +94,15 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
               <div className="candidate-info">
                 <Text>Candidate: {user.name}</Text>
               </div>
+
+              <Button
+                variant="outline"
+                leftSection={<IconBook size={16} />}
+                onClick={onToggleFullScreen}
+                className="download-btn"
+              >
+                {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+              </Button>
 
               <div className={`timer-container ${getTimerStatus()}`}>
                 <IconClock size={20} />
@@ -104,7 +127,9 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
               {examData.sections.map((section, index) => (
                 <div
                   key={index}
-                  className={`section-card ${index === currentSection ? "active" : ""}`}
+                  className={`section-card ${
+                    index === currentSection ? "active" : ""
+                  }`}
                   onClick={() => onSectionChange(index)}
                 >
                   <div className="section-content">
@@ -120,7 +145,7 @@ const ExamHeader = ({ examData, currentSection, onSectionChange, onShowInstructi
         </Container>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ExamHeader
+export default ExamHeader;

@@ -16,7 +16,6 @@ import {
   IconDots,
   IconEdit,
   IconTrash,
-  IconCircleCheck,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -24,6 +23,18 @@ import styles from "./ExamCard.module.scss";
 
 export default function ExamCard({ exam, route = "organization" }) {
   const navigate = useNavigate();
+  console.log(exam, "<--");
+  // ✅ Compute exam status
+  const now = dayjs();
+  const start = dayjs(exam.timing.start);
+  const end = dayjs(exam.timing.end);
+
+  let examStatus = "Scheduled";
+  if (now.isAfter(end)) {
+    examStatus = "Ended";
+  } else if (now.isAfter(start) && now.isBefore(end)) {
+    examStatus = "Ongoing";
+  }
 
   return (
     <Card shadow="md" radius="lg" className={styles.examCard} withBorder>
@@ -63,7 +74,7 @@ export default function ExamCard({ exam, route = "organization" }) {
               leftSection={<IconEdit size={16} />}
               onClick={() => navigate(`/exam/${exam.examId}/edit`)}
             >
-              Postponed Exam  
+              Postpone Exam
             </Menu.Item>
             <Menu.Item
               color="red"
@@ -86,7 +97,7 @@ export default function ExamCard({ exam, route = "organization" }) {
         </Text>
 
         {/* Exam Meta */}
-        <Group gap="md" mt="sm" className={styles.metaInfo}>
+        <Group gap="md" mt="auto" className={styles.metaInfo}>
           <Group gap={4}>
             <IconClock size={16} />
             <Text size="sm">{exam.duration} mins</Text>
@@ -97,12 +108,27 @@ export default function ExamCard({ exam, route = "organization" }) {
               {dayjs(exam.timing.start).format("DD MMM, YYYY hh:mm A")}
             </Text>
           </Group>
+
           {route === "organization" && (
             <Group gap={4}>
               <IconUsers size={16} />
               <Text size="sm">{exam.participants.length} Participants</Text>
             </Group>
           )}
+          {/* Exam Status Badge */}
+          <Badge
+            variant="filled"
+            color={
+              examStatus === "Ongoing"
+                ? "green"
+                : examStatus === "Ended"
+                ? "red"
+                : "yellow"
+            }
+            className={styles.examStatusBadge}
+          >
+            {examStatus}
+          </Badge>
         </Group>
 
         {/* Chapters & Topics */}
@@ -123,25 +149,25 @@ export default function ExamCard({ exam, route = "organization" }) {
 
         {route === "student" &&
           exam.examMode === "Online" &&
-          (() => {
-            const now = dayjs();
-            const start = dayjs(exam.timing.start);
-            const end = dayjs(exam.timing.end);
-
-            if (now.isAfter(end)) return null;
-
-            return (
-              <Button
-                variant="gradient"
-                gradient={{ from: "blue", to: "indigo" }}
-                radius="md"
-                disabled={now.isBefore(start)}
-                onClick={() => navigate(`/exam/${exam.examId}`)}
-              >
-                Take Exam
-              </Button>
-            );
-          })()}
+          examStatus !== "Ended" && (
+            <Button
+              variant="gradient"
+              gradient={{ from: "blue", to: "indigo" }}
+              radius="md"
+              disabled={examStatus === "Scheduled"}
+              onClick={() =>
+                navigate(`/exams/start/${exam.examId}`, {
+                  state: {
+                    examTitle: exam.examTitle,
+                    examId: exam.examId,
+                    instruction: exam?.instruction || "<p></p>",
+                  },
+                })
+              }
+            >
+              Take Exam
+            </Button>
+          )}
       </Group>
     </Card>
   );

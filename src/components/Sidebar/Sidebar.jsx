@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   Box,
   ScrollArea,
@@ -13,10 +13,11 @@ import {
   Portal,
   Avatar,
   Menu,
-} from "@mantine/core"
-import { useNavigate, useLocation } from "react-router-dom"
-import { useMediaQuery } from "@mantine/hooks"
-import useAuthStore from "../../context/auth-store"
+  Indicator,
+} from "@mantine/core";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMediaQuery } from "@mantine/hooks";
+import useAuthStore from "../../context/auth-store";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -28,8 +29,10 @@ import {
   IconSettings,
   IconChevronDown,
   IconBell,
-} from "@tabler/icons-react"
-import "./sidebar.scss"
+} from "@tabler/icons-react";
+import "./sidebar.scss";
+import { useQuery } from "@tanstack/react-query";
+import apiClient from "../../utils/api";
 
 const Sidebar = ({
   data = [],
@@ -42,127 +45,147 @@ const Sidebar = ({
   mobileOpen = false,
   onMobileToggle,
 }) => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const isMobile = useMediaQuery("(max-width: 768px)")
-  const [isCollapsed, setIsCollapsed] = useState(collapsed)
-  const [isMobileOpen, setIsMobileOpen] = useState(mobileOpen)
-  const { logout, user } = useAuthStore()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [isCollapsed, setIsCollapsed] = useState(collapsed);
+  const [isMobileOpen, setIsMobileOpen] = useState(mobileOpen);
+  const { logout, user } = useAuthStore();
+
+  const fetchNotificationCount = async () => {
+    try {
+      const notifications = await apiClient.get(`/notifications/count`);
+      return notifications.data.count;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to fetch notification count");
+    }
+  };
+
+  const { data: notificationCount } = useQuery({
+    queryKey: ["notifications", user?.id],
+    queryFn: fetchNotificationCount,
+    enabled: !!user?.id && user?.role === "organizer",
+    refetchInterval: 60000, // Refetch every minute
+    refetchOnWindowFocus: true,
+  });
+
 
   // Handle mobile state changes
   useEffect(() => {
     if (onMobileToggle) {
-      onMobileToggle(isMobileOpen)
+      onMobileToggle(isMobileOpen);
     }
-  }, [isMobileOpen, onMobileToggle])
+  }, [isMobileOpen, onMobileToggle]);
 
   // Close mobile sidebar when route changes
   useEffect(() => {
     if (isMobile) {
-      setIsMobileOpen(false)
+      setIsMobileOpen(false);
     }
-  }, [location.pathname, isMobile])
+  }, [location.pathname, isMobile]);
 
   // Handle escape key to close mobile sidebar
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && isMobile && isMobileOpen) {
-        setIsMobileOpen(false)
+        setIsMobileOpen(false);
       }
-    }
-    document.addEventListener("keydown", handleEscape)
-    return () => document.removeEventListener("keydown", handleEscape)
-  }, [isMobile, isMobileOpen])
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isMobile, isMobileOpen]);
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (isMobile && isMobileOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isMobile, isMobileOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobile, isMobileOpen]);
 
   const handleToggle = () => {
     if (isMobile) {
-      setIsMobileOpen(!isMobileOpen)
+      setIsMobileOpen(!isMobileOpen);
     } else {
-      const newCollapsed = !isCollapsed
-      setIsCollapsed(newCollapsed)
+      const newCollapsed = !isCollapsed;
+      setIsCollapsed(newCollapsed);
       if (onToggle) {
-        onToggle(newCollapsed)
+        onToggle(newCollapsed);
       }
     }
-  }
+  };
 
   const handleOverlayClick = () => {
     if (isMobile) {
-      setIsMobileOpen(false)
+      setIsMobileOpen(false);
     }
-  }
+  };
 
   const handleRedirect = (redirectTo) => {
     if (redirectTo) {
       // Close mobile sidebar when navigating
       if (isMobile) {
-        setIsMobileOpen(false)
+        setIsMobileOpen(false);
       }
       // Check if it's an external URL
       if (redirectTo.startsWith("http")) {
-        window.open(redirectTo, "_blank")
+        window.open(redirectTo, "_blank");
       } else {
         // Internal route
-        navigate(redirectTo)
+        navigate(redirectTo);
       }
     }
-  }
+  };
 
   const handleLogout = async () => {
-    await logout()
-    navigate("/login")
+    await logout();
+    navigate("/login");
     if (isMobile) {
-      setIsMobileOpen(false)
+      setIsMobileOpen(false);
     }
-  }
+  };
 
   const handleProfileAction = (action) => {
     if (isMobile) {
-      setIsMobileOpen(false)
+      setIsMobileOpen(false);
     }
 
     switch (action) {
       case "profile":
-        navigate("/profile")
-        break
+        navigate("/profile");
+        break;
       case "settings":
-        navigate("/organization/settings")
-        break
+        navigate("/organization/settings");
+        break;
       case "notifications":
-        navigate("/organization/notification")
-        break
+        navigate("/organization/notification");
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   const isActive = (redirectTo) => {
-    return location.pathname === redirectTo
-  }
+    return location.pathname === redirectTo;
+  };
 
   const renderUserProfile = () => {
-    const showCollapsed = !isMobile && isCollapsed
-    const userName = user?.name || user?.email || "User"
-    const userRole = user?.role || "Member"
-    const userAvatar = user?.organization?.logo || user?.organization?.logoUrl || null
+    const showCollapsed = !isMobile && isCollapsed;
+    const userName = user?.name || user?.email || "User";
+    const userRole = user?.role || "Member";
+    const userAvatar =
+      user?.organization?.logo || user?.organization?.logoUrl || null;
     const initials = userName
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
+      .slice(0, 2);
 
     if (showCollapsed) {
       return (
@@ -184,25 +207,62 @@ const Sidebar = ({
                 withArrow
                 offset={10}
               >
-                <Avatar src={userAvatar} size="md" radius="xl" className="sidebar__user-avatar">
-                  {initials}
-                </Avatar>
+                {user.role === "organizer" && notificationCount > 0 ? (
+                  <Indicator
+                    inline
+                    size={16}
+                    offset={4}
+                    color="red"
+                    label={notificationCount > 0 ? notificationCount : null}
+                  >
+                    <Avatar
+                      src={userAvatar}
+                      size="md"
+                      radius="xl"
+                      className="sidebar__user-avatar"
+                    >
+                      {initials}
+                    </Avatar>
+                  </Indicator>
+                ) : (
+                  <Avatar
+                    src={userAvatar}
+                    size="md"
+                    radius="xl"
+                    className="sidebar__user-avatar"
+                  >
+                    {initials}
+                  </Avatar>
+                )}
               </Tooltip>
             </UnstyledButton>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconUser size={16} />} onClick={() => handleProfileAction("profile")}>
+            <Menu.Item
+              leftSection={<IconUser size={16} />}
+              onClick={() => handleProfileAction("profile")}
+            >
               View Profile
             </Menu.Item>
-            <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => handleProfileAction("settings")}>
-              Settings
-            </Menu.Item>
-            <Menu.Item leftSection={<IconBell size={16} />} onClick={() => handleProfileAction("notifications")}>
-              Notifications
-            </Menu.Item>
+            {user.role === "organizer" && (
+              <>
+                <Menu.Item
+                  leftSection={<IconSettings size={16} />}
+                  onClick={() => handleProfileAction("settings")}
+                >
+                  Settings
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconBell size={16} />}
+                  onClick={() => handleProfileAction("notifications")}
+                >
+                  Notifications
+                </Menu.Item>
+              </>
+            )}
           </Menu.Dropdown>
         </Menu>
-      )
+      );
     }
 
     return (
@@ -210,51 +270,109 @@ const Sidebar = ({
         <Menu.Target>
           <UnstyledButton className="sidebar__user-profile">
             <Group gap="md" wrap="nowrap" align="center" w="100%">
-              <Avatar src={userAvatar} size="lg" radius="xl" className="sidebar__user-avatar">
-                {initials}
-              </Avatar>
-              <Box className="sidebar__user-info" style={{ flex: 1, minWidth: 0 }}>
-                <Text className="sidebar__user-name" size="sm" fw={600} truncate>
+              {user.role === "organizer" && notificationCount > 0 ? (
+                <Indicator
+                  inline
+                  size={16}
+                  offset={4}
+                  color="red"
+                  label={notificationCount > 0 ? notificationCount : null}
+                >
+                  <Avatar
+                    src={userAvatar}
+                    size="md"
+                    radius="xl"
+                    className="sidebar__user-avatar"
+                  >
+                    {initials}
+                  </Avatar>
+                </Indicator>
+              ) : (
+                <Avatar
+                  src={userAvatar}
+                  size="md"
+                  radius="xl"
+                  className="sidebar__user-avatar"
+                >
+                  {initials}
+                </Avatar>
+              )}
+              <Box
+                className="sidebar__user-info"
+                style={{ flex: 1, minWidth: 0 }}
+              >
+                <Text
+                  className="sidebar__user-name"
+                  size="sm"
+                  fw={600}
+                  truncate
+                >
                   {userName}
                 </Text>
-                <Text className="sidebar__user-role" size="xs" c="dimmed" truncate>
+                <Text
+                  className="sidebar__user-role"
+                  size="xs"
+                  c="dimmed"
+                  truncate
+                >
                   {userRole === "organizer" ? "Organization" : "Student"}
                 </Text>
               </Box>
-              <ActionIcon variant="subtle" size="sm" className="sidebar__user-menu-trigger">
+              <ActionIcon
+                variant="subtle"
+                size="sm"
+                className="sidebar__user-menu-trigger"
+              >
                 <IconChevronDown size={16} />
               </ActionIcon>
             </Group>
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Label>Account</Menu.Label>
+          <Menu.Label>Actions</Menu.Label>
           {/* <Menu.Item leftSection={<IconUser size={16} />} onClick={() => handleProfileAction("profile")}>
             View Profile
           </Menu.Item> */}
-          <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => handleProfileAction("settings")}>
-            Settings
-          </Menu.Item>
-          <Menu.Item leftSection={<IconBell size={16} />} onClick={() => handleProfileAction("notifications")}>
-            Notifications
-          </Menu.Item>
+
+          {user.role === "organizer" && (
+            <>
+              <Menu.Item
+                leftSection={<IconSettings size={16} />}
+                onClick={() => handleProfileAction("settings")}
+              >
+                Settings
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconBell size={16} />}
+                onClick={() => handleProfileAction("notifications")}
+              >
+                Notifications
+              </Menu.Item>
+            </>
+          )}
           <Menu.Divider />
-          <Menu.Item leftSection={<IconLogout size={16} />} onClick={handleLogout} color="red">
+          <Menu.Item
+            leftSection={<IconLogout size={16} />}
+            onClick={handleLogout}
+            color="red"
+          >
             Logout
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>
-    )
-  }
+    );
+  };
 
   const renderNavItem = (item, index) => {
-    const active = isActive(item.redirectTo)
-    const showCollapsed = !isMobile && isCollapsed
+    const active = isActive(item.redirectTo);
+    const showCollapsed = !isMobile && isCollapsed;
 
     const navButton = (
       <UnstyledButton
         key={index}
-        className={`sidebar__nav-item ${active ? "sidebar__nav-item--active" : ""}`}
+        className={`sidebar__nav-item ${
+          active ? "sidebar__nav-item--active" : ""
+        }`}
         onClick={() => handleRedirect(item.redirectTo)}
         w="100%"
         disabled={loading}
@@ -280,7 +398,7 @@ const Sidebar = ({
           )}
         </Group>
       </UnstyledButton>
-    )
+    );
 
     // Wrap with tooltip when collapsed (desktop only)
     if (showCollapsed) {
@@ -306,14 +424,14 @@ const Sidebar = ({
         >
           {navButton}
         </Tooltip>
-      )
+      );
     }
 
-    return navButton
-  }
+    return navButton;
+  };
 
   const renderSection = (section, sectionIndex) => {
-    const showCollapsed = !isMobile && isCollapsed
+    const showCollapsed = !isMobile && isCollapsed;
 
     return (
       <Box key={sectionIndex} className="sidebar__section">
@@ -326,11 +444,13 @@ const Sidebar = ({
           </>
         )}
         <Stack gap="xs" className="sidebar__section-items">
-          {section.items.map((item, itemIndex) => renderNavItem(item, `${sectionIndex}-${itemIndex}`))}
+          {section.items.map((item, itemIndex) =>
+            renderNavItem(item, `${sectionIndex}-${itemIndex}`)
+          )}
         </Stack>
       </Box>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -344,12 +464,16 @@ const Sidebar = ({
             />
           ))}
         </Stack>
-      )
+      );
     }
 
     // Handle array of sections
     if (Array.isArray(data) && data.length > 0 && data[0].items) {
-      return <Stack gap="xl">{data.map((section, index) => renderSection(section, index))}</Stack>
+      return (
+        <Stack gap="xl">
+          {data.map((section, index) => renderSection(section, index))}
+        </Stack>
+      );
     }
 
     // Handle flat array of items
@@ -360,7 +484,7 @@ const Sidebar = ({
             {data.map((item, index) => renderNavItem(item, index))}
           </Stack>
         </Box>
-      )
+      );
     }
 
     // Handle single item
@@ -371,7 +495,7 @@ const Sidebar = ({
             {renderNavItem(data, 0)}
           </Stack>
         </Box>
-      )
+      );
     }
 
     return (
@@ -381,14 +505,16 @@ const Sidebar = ({
           No navigation items
         </Text>
       </Box>
-    )
-  }
+    );
+  };
 
   const sidebarContent = (
     <Box
       className={`sidebar ${
         !isMobile && isCollapsed ? "sidebar--collapsed" : ""
-      } ${loading ? "sidebar--loading" : ""} ${isMobile && isMobileOpen ? "sidebar--mobile-open" : ""}`}
+      } ${loading ? "sidebar--loading" : ""} ${
+        isMobile && isMobileOpen ? "sidebar--mobile-open" : ""
+      }`}
       w={isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width}
       h="100vh"
     >
@@ -410,7 +536,11 @@ const Sidebar = ({
             disabled={loading}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isCollapsed ? <IconChevronRight size={20} /> : <IconChevronLeft size={20} />}
+            {isCollapsed ? (
+              <IconChevronRight size={20} />
+            ) : (
+              <IconChevronLeft size={20} />
+            )}
           </ActionIcon>
         )}
 
@@ -433,14 +563,24 @@ const Sidebar = ({
       </Box>
 
       {/* Content */}
-      <ScrollArea className="sidebar__content" h="calc(100vh - 200px)" scrollbarSize={4} scrollHideDelay={1000}>
+      <ScrollArea
+        className="sidebar__content"
+        h="calc(100vh - 200px)"
+        scrollbarSize={4}
+        scrollHideDelay={1000}
+      >
         <Box p="lg" pt="md">
           {renderContent()}
         </Box>
       </ScrollArea>
 
       {/* Footer */}
-      <Box className={`sidebar__footer ${!isMobile && isCollapsed ? "sidebar__footer--collapsed" : ""}`} p="lg">
+      <Box
+        className={`sidebar__footer ${
+          !isMobile && isCollapsed ? "sidebar__footer--collapsed" : ""
+        }`}
+        p="lg"
+      >
         {(isMobile || !isCollapsed) && (
           <Text size="xs" c="dimmed" ta="center" fw={500} mt="sm">
             © 2025 Prepalyze
@@ -448,7 +588,7 @@ const Sidebar = ({
         )}
       </Box>
     </Box>
-  )
+  );
 
   // Mobile rendering with overlay
   if (isMobile) {
@@ -457,7 +597,9 @@ const Sidebar = ({
         {/* Mobile overlay */}
         <Portal>
           <div
-            className={`sidebar-overlay ${isMobileOpen ? "sidebar-overlay--visible" : ""}`}
+            className={`sidebar-overlay ${
+              isMobileOpen ? "sidebar-overlay--visible" : ""
+            }`}
             onClick={handleOverlayClick}
           />
         </Portal>
@@ -465,18 +607,18 @@ const Sidebar = ({
         {/* Sidebar content */}
         {sidebarContent}
       </>
-    )
+    );
   }
 
   // Desktop rendering
-  return sidebarContent
-}
+  return sidebarContent;
+};
 
 // Mobile trigger button component
 export const MobileSidebarTrigger = ({ onToggle, className = "" }) => {
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
-  if (!isMobile) return null
+  if (!isMobile) return null;
 
   return (
     <ActionIcon
@@ -488,7 +630,7 @@ export const MobileSidebarTrigger = ({ onToggle, className = "" }) => {
     >
       <IconMenu2 size={24} />
     </ActionIcon>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

@@ -123,7 +123,6 @@ export default function PrepalyzeLanding() {
 
   const handleNavigation = (path) => {
     navigate(path);
-    console.log(`Navigate to: ${path}`);
     closeDrawer();
   };
 

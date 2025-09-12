@@ -47,6 +47,7 @@
 }
 
 .worksheetHeader {
+  /* No changes */
   display: grid;
   gap: 1.5rem;
   margin-bottom: 2rem;
@@ -70,10 +71,11 @@
 }
 
 .headerTop {
+  /* Use a more robust grid or flex approach for centering */
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
-  gap: 1rem;
+  grid-template-columns: 120px 1fr 120px; /* This ensures the middle section is centered */
   align-items: center;
+  gap: 1rem;
 
   @media screen and (max-width: 768px) {
     grid-template-columns: 80px 1fr 80px;
@@ -82,26 +84,16 @@
 }
 
 .logoSection {
+  /* New class for the image, making it easier to style */
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
-.logoPlaceholder {
+.logoImage {
   width: 96px;
-  height: 48px;
-  border: 1px dashed #c9c9c9;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  color: #999;
-  background: white;
-
-  @media screen and (max-width: 768px) {
-    width: 64px;
-    height: 32px;
-    font-size: 10px;
-  }
+  height: 96px; /* Adjusted for a better aspect ratio */
+  object-fit: contain; /* Ensures the image fits without distortion */
+  border-radius: 4px;
 }
 
 .institutionInfo {
@@ -517,7 +509,7 @@
 
 .answerKeyRow {
   display: grid;
-  grid-template-columns: 3rem 4rem 1fr;
+  grid-template-columns: 3rem 1fr;
   align-items: start;
   gap: 1rem;
   padding: 1rem;

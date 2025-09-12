@@ -29,7 +29,6 @@ export default function StudentDetails() {
       try {
         setIsLoading(true);
         const response = await apiClient.get(`/api/intellihub/progress/${id}`);
-        console.log(response.data?.user)
         setData(response.data?.data || []);
         setName(response.data?.user || "");
       } catch (error) {
@@ -50,7 +49,6 @@ export default function StudentDetails() {
     );
   }
 
-  console.log(name, "<--")
 
   return (
     <div style={{ padding: 20 }}>

@@ -38,7 +38,6 @@ export default function LoginForm() {
       try {
         setIsLoading(true);
         const response = await login(email, password);
-        console.log(response);
 
         if (response.user.role === "organizer") {
           navigate("/organization");
