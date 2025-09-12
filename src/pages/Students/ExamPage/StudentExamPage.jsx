@@ -1,34 +1,23 @@
 import {
   Container,
   Title,
-  Text,
-  Button,
   SimpleGrid,
-  Card,
   Group,
   LoadingOverlay,
 } from "@mantine/core";
-import {
-  IconCalendar,
-} from "@tabler/icons-react";
 import styles from "./student-exam-page.module.scss";
-import { useNavigate } from "react-router-dom";
-import { getIcons } from "../../../utils/get-ui";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
 import ExamCard from "../../../components/Generics/ExamCard/ExamCard";
 
 export default function ViewStudentsExamsPage() {
-  const navigate = useNavigate();
-
   const fetchExams = async (page) => {
     try {
       const response = await apiClient.get("/api/exam/student", {
         params: { page, itemsPerPage },
       });
 
-      console.log(response);
       return response.data.exams;
     } catch (error) {
       console.error(error);

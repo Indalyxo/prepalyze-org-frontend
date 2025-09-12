@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Title,
   Text,
@@ -12,8 +12,6 @@ import {
   Divider,
   Tooltip,
   LoadingOverlay,
-  ActionIcon,
-  UnstyledButton,
 } from "@mantine/core";
 import {
   IconUsers,
@@ -29,7 +27,6 @@ import {
   IconBook2,
   IconTags,
   IconListNumbers,
-  IconArrowBigLeftFilled,
 } from "@tabler/icons-react";
 import "./generic.scss";
 import apiClient from "../../utils/api";
@@ -38,6 +35,7 @@ import NoData from "../../components/Generics/NoData";
 import useAuthStore from "../../context/auth-store";
 import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
+import BackButton from "../../components/Generics/BackButton";
 
 function formatDateTime(iso) {
   if (!iso) return "-";
@@ -57,9 +55,9 @@ function formatDateTime(iso) {
 
 // Map scores to Mantine colors (kept minimal to match 5-color theme usage)
 function getScoreColor(score = 0) {
-  if (score >= 90) return "accent";
-  if (score >= 75) return "brand";
-  return "gray";
+  if (score >= 90) return "teal";
+  if (score >= 75) return "green";
+  return "blue";
 }
 
 function getRankIcon(rank) {
@@ -93,7 +91,7 @@ export default function ExamDetails() {
         });
         if (mounted) setExamData(res?.data?.examData || null);
       } catch (err) {
-        console.error("[v0] exam fetch error:", err);
+        console.error("[idxo] exam fetch error:", err);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -114,7 +112,7 @@ export default function ExamDetails() {
         setHasTimeEnded(true);
         clearInterval(interval);
       }
-    }, 2000); // Check every second
+    }, 1000); // Check every second
 
     // Cleanup function
     return () => clearInterval(interval);
@@ -167,28 +165,7 @@ export default function ExamDetails() {
 
   return (
     <div className="exam-details-container exam-page">
-      <UnstyledButton
-        onClick={() => navigate(-1)}
-        aria-label="Go back"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.4rem 0.6rem",
-          borderRadius: "8px",
-          transition: "background 0.2s ease",
-        }}
-        className="back-btn"
-      >
-        <Tooltip label="Go back" position="bottom" withArrow>
-          <ActionIcon variant="light" color="blue" size="xl" radius="xl">
-            <IconArrowBigLeftFilled size={26} />
-          </ActionIcon>
-        </Tooltip>
-        <Text size="lg" c="dimmed" style={{ fontWeight: 500 }}>
-          Back
-        </Text>
-      </UnstyledButton>
+      <BackButton />
       <Card
         className="exam-header page-header"
         shadow="sm"
@@ -522,7 +499,11 @@ export default function ExamDetails() {
                 <div
                   key={performer.id}
                   className={`leaderboard-item ${index < 3 ? "podium" : ""}`}
-                  onClick={() => console.log("Open result for", performer.id)}
+                  onClick={() =>
+                    navigate(
+                      `/organization/exams/details/${examData.examId}/result/${performer.resultId}?userId=${performer.id}`
+                    )
+                  }
                 >
                   <div className="rank-section">{getRankIcon(index + 1)}</div>
 
@@ -554,7 +535,7 @@ export default function ExamDetails() {
                         fw={700}
                         c={getScoreColor(performer.score)}
                       >
-                        {performer.score}%
+                        {performer.score?.toFixed(2)}%
                       </Text>
                       <Progress
                         value={performer.score}
@@ -599,7 +580,11 @@ export default function ExamDetails() {
                 <div
                   key={attendee.id}
                   className="attendee-card-new"
-                  onClick={() => console.log("Open result for", attendee.id)}
+                  onClick={() =>
+                    navigate(
+                      `/organization/exams/details/${examData.examId}/result/${attendee.resultId}?userId=${attendee.id}`
+                    )
+                  }
                 >
                   <Avatar
                     size="lg"
@@ -615,7 +600,9 @@ export default function ExamDetails() {
                     {/* <div className="attendee-email">{attendee.email}</div> */}
                     <div className="attendee-metrics">
                       <div className="metric">
-                        <span className="metric-value">{attendee.score}%</span>
+                        <span className="metric-value">
+                          {attendee.score?.toFixed(0)}%
+                        </span>
                         <span className="metric-label">Score</span>
                       </div>
                       <div className="metric">

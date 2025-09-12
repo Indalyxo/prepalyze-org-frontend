@@ -15,28 +15,56 @@ import {
   Tooltip,
   Divider,
   Paper,
-  Button,
   Loader,
+  ThemeIcon,
+  Alert,
+  Avatar,
 } from "@mantine/core";
+import {
+  IconTrendingUp,
+  IconClock,
+  IconTarget,
+  IconBulb,
+  IconAlertCircle,
+  IconCircleCheck as IconCheckCircle,
+  IconX,
+  IconUsers,
+} from "@tabler/icons-react";
 import styles from "./exam-result.module.scss";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../../../utils/api";
+import BackButton from "../../../Generics/BackButton";
+import useAuthStore from "../../../../context/auth-store";
 
-function StatCard({ label, value, subtext, color = "blue", rightSection }) {
+function StatCard({
+  label,
+  value,
+  subtext,
+  color = "blue",
+  rightSection,
+  icon,
+}) {
   return (
-    <Card withBorder radius="md" padding="lg">
+    <Card withBorder radius="md" padding="lg" className={styles.statCard}>
       <Group justify="space-between" align="flex-start" mb="xs">
-        <Text size="sm" c="dimmed">
-          {label}
-        </Text>
+        <Group gap="xs">
+          {icon && (
+            <ThemeIcon variant="light" color={color} size="sm">
+              {icon}
+            </ThemeIcon>
+          )}
+          <Text size="sm" c="dimmed" fw={500}>
+            {label}
+          </Text>
+        </Group>
         {rightSection}
       </Group>
-      <Text fw={700} fz="xl">
+      <Text fw={700} fz="xl" className={styles.statValue}>
         {value}
       </Text>
       {subtext ? (
-        <Text size="sm" c={color} mt={4}>
+        <Text size="sm" c={color} mt={4} fw={500}>
           {subtext}
         </Text>
       ) : null}
@@ -46,7 +74,7 @@ function StatCard({ label, value, subtext, color = "blue", rightSection }) {
 
 function MistakeDots({ answers = [] }) {
   return (
-    <Group gap="xs" wrap="wrap">
+    <Group gap="xs" wrap="wrap" className={styles.mistakeDots}>
       {answers.map((a, idx) => {
         const color =
           a.isCorrect === false && a.selectedOption === null
@@ -89,10 +117,12 @@ function SectionCard({ section }) {
       : "red";
 
   return (
-    <Card withBorder radius="md" padding="lg">
+    <Card withBorder radius="md" padding="lg" className={styles.sectionCard}>
       <Group justify="space-between" mb="sm">
-        <Title order={5}>{section.sectionName}</Title>
-        <Badge variant="light" color={color}>
+        <Title order={5} className={styles.sectionTitle}>
+          {section.sectionName}
+        </Title>
+        <Badge variant="light" color={color} size="lg">
           {correctPct}% correct
         </Badge>
       </Group>
@@ -114,14 +144,14 @@ function SectionCard({ section }) {
         />
         <Stack gap="sm" style={{ minWidth: 220, flex: 1 }}>
           <Group justify="space-between">
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="dimmed" fw={500}>
               Distribution
             </Text>
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="dimmed" fw={500}>
               {total} Q
             </Text>
           </Group>
-          <Progress value={correctPct} color={color} />
+          <Progress value={correctPct} color={color} size="md" />
           <Group gap="xs" wrap="wrap">
             <Badge color="green" variant="light">
               {section.sectionCorrect} correct
@@ -139,8 +169,8 @@ function SectionCard({ section }) {
         <>
           <Divider my="md" />
           <Stack gap="xs">
-            <Text size="sm" c="dimmed">
-              Answers
+            <Text size="sm" c="dimmed" fw={500}>
+              Answer Pattern
             </Text>
             <MistakeDots answers={section.answers} />
           </Stack>
@@ -150,14 +180,169 @@ function SectionCard({ section }) {
   );
 }
 
-export default function ExamResult({ primary = "blue" }) {
+function InsightsSection({ result }) {
+  const insights = useMemo(() => {
+    if (!result) return [];
+
+    const { percentage, sections, metaCounts } = result;
+    const timeSpent = Math.round(
+      (new Date(result.submittedAt).getTime() -
+        new Date(result.startedAt).getTime()) /
+        60000
+    );
+
+    const insights = [];
+
+    // Performance insight
+    if (percentage >= 80) {
+      insights.push({
+        type: "positive",
+        icon: <IconTrendingUp size={16} />,
+        title: "Excellent Performance",
+        description: `Outstanding score of ${percentage.toFixed(
+          1
+        )}%! You've demonstrated strong understanding across most topics.`,
+      });
+    } else if (percentage >= 60) {
+      insights.push({
+        type: "neutral",
+        icon: <IconTarget size={16} />,
+        title: "Good Foundation",
+        description: `Solid performance at ${percentage.toFixed(
+          1
+        )}%. With focused practice, you can reach excellence.`,
+      });
+    } else {
+      insights.push({
+        type: "negative",
+        icon: <IconAlertCircle size={16} />,
+        title: "Needs Improvement",
+        description: `Score of ${percentage.toFixed(
+          1
+        )}% indicates areas requiring significant attention and practice.`,
+      });
+    }
+
+    // Subject strength/weakness
+    const bestSection = sections.reduce((best, current) =>
+      current.sectionPercentage > best.sectionPercentage ? current : best
+    );
+    const worstSection = sections.reduce((worst, current) =>
+      current.sectionPercentage < worst.sectionPercentage ? current : worst
+    );
+
+    if (bestSection.sectionPercentage >= 80) {
+      insights.push({
+        type: "positive",
+        icon: <IconCheckCircle size={16} />,
+        title: `${bestSection.sectionName} Mastery`,
+        description: `Excellent command in ${bestSection.sectionName} with ${bestSection.sectionPercentage}% accuracy. This is your strongest subject.`,
+      });
+    }
+
+    if (worstSection.sectionPercentage < 70 && sections.length > 1) {
+      insights.push({
+        type: "negative",
+        icon: <IconX size={16} />,
+        title: `${worstSection.sectionName} Challenge`,
+        description: `${worstSection.sectionName} needs attention with ${worstSection.sectionPercentage}% accuracy. Focus practice here for improvement.`,
+      });
+    }
+
+    // Time management insight
+    if (timeSpent <= 45) {
+      insights.push({
+        type: "positive",
+        icon: <IconClock size={16} />,
+        title: "Efficient Time Management",
+        description: `Completed in ${timeSpent} minutes. Good pace management allows time for review and careful consideration.`,
+      });
+    } else if (timeSpent > 60) {
+      insights.push({
+        type: "neutral",
+        icon: <IconClock size={16} />,
+        title: "Time Optimization Needed",
+        description: `Took ${timeSpent} minutes. Consider practicing time management strategies for better exam efficiency.`,
+      });
+    }
+
+    // Strategy insight
+    if (metaCounts.totalUnattempted === 0) {
+      insights.push({
+        type: "positive",
+        icon: <IconBulb size={16} />,
+        title: "Complete Attempt Strategy",
+        description:
+          "Attempted all questions showing good exam strategy. This maximizes your scoring potential.",
+      });
+    } else {
+      insights.push({
+        type: "neutral",
+        icon: <IconBulb size={16} />,
+        title: "Strategic Approach",
+        description: `Left ${metaCounts.totalUnattempted} questions unattempted. Consider educated guessing to maximize scores.`,
+      });
+    }
+
+    return insights.slice(0, 4); // Return only first 4 insights
+  }, [result]);
+
+  return (
+    <Card withBorder radius="md" padding="lg" className={styles.insightsCard}>
+      <Group mb="lg" align="center">
+        <ThemeIcon variant="light" color="blue" size="lg">
+          <IconBulb size={20} />
+        </ThemeIcon>
+        <Title order={4}>Performance Insights</Title>
+      </Group>
+
+      <Grid>
+        {insights.map((insight, index) => (
+          <Grid.Col key={index} span={{ base: 12, sm: 6 }}>
+            <Alert
+              variant="light"
+              color={
+                insight.type === "positive"
+                  ? "green"
+                  : insight.type === "negative"
+                  ? "red"
+                  : "blue"
+              }
+              icon={insight.icon}
+              className={styles.insightAlert}
+            >
+              <Text fw={600} size="sm" mb={4}>
+                {insight.title}
+              </Text>
+              <Text size="xs" c="dimmed">
+                {insight.description}
+              </Text>
+            </Alert>
+          </Grid.Col>
+        ))}
+      </Grid>
+    </Card>
+  );
+}
+
+export default function ExamResult({ primary = "blue", path = "student" }) {
+  // Using mock data for demonstration
   const { examId } = useParams();
+  const user = useAuthStore().user;
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get("userId");
 
   const fetchAttendance = async (examId) => {
     try {
-      console.log('hi')
-      const res = await apiClient.get(`/api/exam/${examId}/attendance`);
-      console.log(res.data.result, "jlk")
+      const params = {};
+
+      if (path === "organization") {
+        params.userId = userId;
+      }
+      const res = await apiClient.get(`/api/exam/${examId}/attendance`, {
+        params: params,
+      });
+
       return res.data.result; // shape depends on backend response
     } catch (error) {
       console.error(error);
@@ -187,6 +372,7 @@ export default function ExamResult({ primary = "blue" }) {
     () => (result ? result.metaCounts.totalWrong : 0),
     [result]
   );
+
   const timeSpent = useMemo(() => {
     if (!result) return "N/A";
     const start = new Date(result.startedAt).getTime();
@@ -195,150 +381,240 @@ export default function ExamResult({ primary = "blue" }) {
     return durationInMinutes;
   }, [result]);
 
-  const isPassed = result?.percentage >= 50; // Assuming a passing score of 50%
+  const isPassed = result?.percentage >= 50;
+  const abspath = `/${
+    user.role === "organizer" ? "organization" : "student"
+  }/exams/details/${examId}`;
 
   if (isAttendanceLoading) {
-    return <Loader size={"lg"} />;
+    return (
+      <div className={styles.loadingContainer}>
+        <Loader size="lg" />
+      </div>
+    );
+  }
+
+  if (result?.status === "absent") {
+    return (
+      <Container size="md" p="lg" className={styles.examAnalytics}>
+        <BackButton path={abspath} />
+        <Card withBorder radius="lg" padding="xl" shadow="sm">
+          <Group justify="space-between" align="center" mb="lg">
+            <Title order={2}>Exam Attendance</Title>
+            <Badge color="red" variant="filled" size="lg">
+              Absent
+            </Badge>
+          </Group>
+          <Stack gap="sm">
+            <Text size="lg" fw={600} c="dimmed">
+              This student did not attend the exam.
+            </Text>
+            <Divider my="md" />
+            <Alert
+              variant="light"
+              color="orange"
+              title="No performance data"
+              icon={<IconAlertCircle size={18} />}
+            >
+              Since the student was absent, no score, insights, or section-wise
+              analysis is available.
+            </Alert>
+          </Stack>
+        </Card>
+      </Container>
+    );
   }
 
   return (
-    <MantineProvider theme={{ primaryColor: primary }}>
-      <div className={styles.examAnalytics}>
-        <Container size="lg" p="md">
-          <Stack gap="lg">
-            <Group justify="space-between" align="flex-end">
+    <div className={styles.examAnalytics}>
+      <Container size="xl" p="md">
+        <BackButton path={abspath} />
+        <Stack gap="xl">
+          <div className={styles.headerSection}>
+            <Group justify="space-between" align="center">
               <div>
-                <Title order={2}>Your Exam Result</Title>
-                <Text c="dimmed" size="sm">
-                  Personalized performance summary for your latest attempt.
+                <Title order={1} className={styles.mainTitle}>
+                  Exam Results Analysis
+                </Title>
+                <Text c="dimmed" size="lg" className={styles.subtitle}>
+                  Comprehensive performance breakdown and insights
                 </Text>
+                <Group align="center" spacing={4} mt="md">
+                  <Avatar
+                    radius="xl"
+                    size={40}
+                    src={user.organization.logo || user.organization.logoUrl}
+                  />
+                  <Text size="lg" fw={500}>
+                    {user.role === "organizer" ? result.userId.name : "You"}
+                  </Text>
+                </Group>
               </div>
               <Badge
                 color={isPassed ? "green" : "red"}
-                variant="light"
-                size="lg"
-                radius="sm"
+                variant="filled"
+                size="xl"
+                radius="md"
+                className={styles.statusBadge}
               >
-                {isPassed ? "Passed" : "Failed"}
+                {isPassed ? "✓ Passed" : "✗ Failed"}
               </Badge>
             </Group>
-            <Grid align="stretch">
-              <Grid.Col span={{ base: 12, md: 5 }}>
-                <Card withBorder radius="md" padding="lg">
-                  <Group
-                    align="center"
-                    justify="center"
-                    className={styles.eaRingWrap}
-                  >
-                    <RingProgress
-                      size={200}
-                      thickness={14}
-                      sections={[
-                        { value: result?.percentage, color: scoreColor },
-                      ]}
-                      label={
-                        <Stack gap={2} align="center">
-                          <Text fw={800} fz={36}>
-                            {result?.totalScore}
-                          </Text>
-                          <Text c="dimmed" size="sm">
-                            Score
-                          </Text>
-                        </Stack>
+          </div>
+
+          <Grid align="stretch" gutter="xl">
+            <Grid.Col span={{ base: 12, lg: 5 }}>
+              <Card
+                withBorder
+                radius="lg"
+                padding="xl"
+                className={styles.scoreCard}
+              >
+                <Group
+                  align="center"
+                  justify="center"
+                  className={styles.eaRingWrap}
+                >
+                  <RingProgress
+                    size={220}
+                    thickness={16}
+                    sections={[
+                      { value: result?.percentage, color: scoreColor },
+                    ]}
+                    label={
+                      <Stack gap={4} align="center">
+                        <Text fw={900} fz={42} className={styles.scoreText}>
+                          {result?.totalScore}
+                        </Text>
+                        <Text c="dimmed" size="sm" fw={500}>
+                          Total Score
+                        </Text>
+                        <Text fw={700} fz="lg" c={scoreColor}>
+                          {result?.percentage.toFixed(1)}%
+                        </Text>
+                      </Stack>
+                    }
+                  />
+                </Group>
+                <Divider my="xl" />
+                <Grid>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <StatCard
+                      label="Status"
+                      value={isPassed ? "Passed" : "Failed"}
+                      icon={
+                        isPassed ? (
+                          <IconCheckCircle size={16} />
+                        ) : (
+                          <IconX size={16} />
+                        )
+                      }
+                      rightSection={
+                        <Badge
+                          color={isPassed ? "green" : "red"}
+                          variant="light"
+                        >
+                          {isPassed ? "Success" : "Retry"}
+                        </Badge>
                       }
                     />
-                  </Group>
-                  <Divider my="lg" />
-                  <Grid>
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <StatCard
-                        label="Status"
-                        value={isPassed ? "Passed" : "Failed"}
-                        rightSection={
-                          <Badge
-                            color={isPassed ? "green" : "red"}
-                            variant="light"
-                          >
-                            {isPassed ? "Good" : "Retry"}
-                          </Badge>
-                        }
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <StatCard
+                      label="Time Spent"
+                      value={`${timeSpent} min`}
+                      subtext={
+                        timeSpent <= 45
+                          ? "Efficient pace"
+                          : "Consider time management"
+                      }
+                      color={timeSpent <= 45 ? "green" : "orange"}
+                      icon={<IconClock size={16} />}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12 }}>
+                    <Card
+                      withBorder
+                      radius="md"
+                      padding="lg"
+                      className={styles.progressCard}
+                    >
+                      <Group justify="space-between" mb="xs">
+                        <Text size="sm" c="dimmed" fw={500}>
+                          Overall Mastery
+                        </Text>
+                        <Text size="sm" c={scoreColor} fw={600}>
+                          {result?.percentage.toFixed(1)}%
+                        </Text>
+                      </Group>
+                      <Progress
+                        value={result?.percentage || 0}
+                        size="lg"
+                        color={scoreColor}
                       />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <StatCard
-                        label="Time Spent"
-                        value={`${timeSpent} min`}
-                        subtext={timeSpent <= 45 ? "On pace" : "Running long"}
-                        color={timeSpent <= 45 ? "green" : "red"}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12 }}>
-                      <Card withBorder radius="md" padding="lg">
-                        <Group justify="space-between" mb="xs">
-                          <Text size="sm" c="dimmed">
-                            Mastery Progress
-                          </Text>
-                          <Text size="sm" c="dimmed">
-                            {result?.percentage}%
-                          </Text>
-                        </Group>
-                        <Progress value={result?.percentage || 0} />
-                      </Card>
-                    </Grid.Col>
-                  </Grid>
-                </Card>
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 7 }}>
-                <Paper withBorder radius="md" p="lg">
+                    </Card>
+                  </Grid.Col>
+                </Grid>
+              </Card>
+            </Grid.Col>
+
+            <Grid.Col span={{ base: 12, lg: 7 }}>
+              <Stack gap="lg">
+                <Paper
+                  withBorder
+                  radius="lg"
+                  p="xl"
+                  className={styles.breakdownCard}
+                >
                   <Group justify="space-between" align="center" mb="sm">
-                    <Title order={4}>Answer Breakdown</Title>
+                    <Title order={4} className={styles.sectionTitle}>
+                      Answer Breakdown
+                    </Title>
                     <Badge
                       color={incorrectCount > 0 ? "red" : "green"}
                       variant="light"
+                      size="lg"
                     >
                       {incorrectCount} incorrect
                     </Badge>
                   </Group>
                   <Divider mb="lg" />
                   <Stack gap="md">
-                    <Text size="sm" c="dimmed">
-                      Tap the dots to see correctness by question.
+                    <Text size="sm" c="dimmed" fw={500}>
+                      Question-by-question performance visualization
                     </Text>
                     {result?.sections?.length > 0 && (
                       <MistakeDots answers={result.sections[0].answers} />
                     )}
                   </Stack>
                 </Paper>
-                {result?.sections?.length ? (
-                  <Stack mt="lg" gap="md">
-                    <Title order={4}>Section Results</Title>
-                    <Grid>
-                      {result.sections?.map((sec, idx) => (
-                        <Grid.Col key={idx} span={{ base: 12, sm: 6 }}>
-                          <SectionCard section={sec} />
-                        </Grid.Col>
-                      ))}
-                    </Grid>
-                  </Stack>
-                ) : null}
-                {/* <Group justify="flex-end" mt="md">
-                  <Button
-                    variant="light"
-                    onClick={() => {
-                      console.log(
-                        "[v0] Download summary for user:",
-                        result?.userId?.$oid
-                      );
-                    }}
-                  >
-                    Download Summary
-                  </Button>
-                </Group> */}
-              </Grid.Col>
-            </Grid>
-          </Stack>
-        </Container>
-      </div>
-    </MantineProvider>
+
+                <InsightsSection result={result} />
+              </Stack>
+            </Grid.Col>
+          </Grid>
+
+          {result?.sections?.length ? (
+            <Stack gap="lg">
+              <Group align="center" gap="sm">
+                <ThemeIcon variant="light" color="blue" size="lg">
+                  <IconTarget size={20} />
+                </ThemeIcon>
+                <Title order={3} className={styles.sectionTitle}>
+                  Subject-wise Performance
+                </Title>
+              </Group>
+              <Grid>
+                {result.sections?.map((sec, idx) => (
+                  <Grid.Col key={idx} span={{ base: 12, md: 6 }}>
+                    <SectionCard section={sec} />
+                  </Grid.Col>
+                ))}
+              </Grid>
+            </Stack>
+          ) : null}
+        </Stack>
+      </Container>
+    </div>
   );
 }

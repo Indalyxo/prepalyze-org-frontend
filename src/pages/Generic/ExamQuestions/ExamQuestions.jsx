@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import {
   Tabs,
   Card,
@@ -25,6 +24,8 @@ import apiClient from "../../../utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParams } from "react-router-dom";
+import "katex/dist/katex.min.css";
+
 
 function OptionRow({ label, content, isCorrect }) {
   return (
@@ -33,12 +34,12 @@ function OptionRow({ label, content, isCorrect }) {
       gap="sm"
       className={`qv-option ${isCorrect ? "qv-option--correct" : ""}`}
     >
-      <Text fw={800} className="qv-option-label">
+      <p fw={800} className="qv-option-label">
         {label}
-      </Text>
-      <div className="qv-option-content">
+      </p>
+      <span className="qv-option-content">
         {renderWithLatexAndImages(content)}
-      </div>
+      </span>
       {isCorrect ? (
         <Badge
           color="green"
@@ -131,7 +132,6 @@ export default function ExamQuestionsPage() {
     try {
       const response = await apiClient.get(`/api/exam/${examId}/questions`, {});
 
-      console.log(response);
       return response.data.examData;
     } catch (error) {
       console.error(error);

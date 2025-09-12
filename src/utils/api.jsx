@@ -64,7 +64,6 @@ apiClient.interceptors.response.use(
 
     // Handle network errors - don't logout, just return the error
     if (isNetworkError(error)) {
-      console.log('Network error detected, not logging out:', error.message);
       return Promise.reject(error);
     }
 

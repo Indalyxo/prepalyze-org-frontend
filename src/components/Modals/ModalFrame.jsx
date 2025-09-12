@@ -11,24 +11,25 @@ const ModalFrame = ({
   sidebarContent,
   showHeader = false,
   headerContent,
+  noSidebar = false,
 }) => {
   // Fixed: Add escape key handler
   useEffect(() => {
     const handleEscapeKey = (event) => {
-      if (event.key === 'Escape' && opened) {
+      if (event.key === "Escape" && opened) {
         onClose();
       }
     };
 
     if (opened) {
-      document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener("keydown", handleEscapeKey);
       // Fixed: Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscapeKey);
+      document.body.style.overflow = "unset";
     };
   }, [opened, onClose]);
 
@@ -107,50 +108,58 @@ const ModalFrame = ({
             </Stack>
           )}
 
-          <Box style={{ minHeight: 0 }}> {/* Fixed: Ensure content area can scroll */}
+          <Box style={{ minHeight: 0 }}>
+            {" "}
+            {/* Fixed: Ensure content area can scroll */}
             {children}
           </Box>
         </Box>
 
         {/* Right Section - Sidebar */}
-        <Box
-          className="modal-sidebar invisible-scrollbar"
-          style={{
-            width: "320px",
-            minWidth: "320px", // Fixed: Prevent sidebar from shrinking too much
-            backgroundColor: "var(--mantine-color-dark-7)",
-            padding: "1.5rem",
-            borderLeft: "1px solid var(--mantine-color-dark-5)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            overflowY: "auto", // Fixed: Add scroll to sidebar if content overflows
-          }}
-        >
-          <Group justify="space-between" align="center" mb="lg">
-            {title && (
-              <Text size="lg" fw={600} c="white" style={{ flex: 1 }}> {/* Fixed: Allow title to take available space */}
-                {title}
-              </Text>
-            )}
-            <ActionIcon
-              variant="light"
-              color="gray"
-              onClick={onClose}
-              style={{ 
-                color: "white",
-                flexShrink: 0 // Fixed: Prevent close button from shrinking
-              }}
-              aria-label="Close modal" // Fixed: Add accessibility label
-            >
-              <IconX size={18} />
-            </ActionIcon>
-          </Group>
+        {!noSidebar && (
+          <Box
+            className="modal-sidebar invisible-scrollbar"
+            style={{
+              width: "320px",
+              minWidth: "320px", // Fixed: Prevent sidebar from shrinking too much
+              backgroundColor: "var(--mantine-color-dark-7)",
+              padding: "1.5rem",
+              borderLeft: "1px solid var(--mantine-color-dark-5)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              overflowY: "auto", // Fixed: Add scroll to sidebar if content overflows
+            }}
+          >
+            <Group justify="space-between" align="center" mb="lg">
+              {title && (
+                <Text size="lg" fw={600} c="white" style={{ flex: 1 }}>
+                  {" "}
+                  {/* Fixed: Allow title to take available space */}
+                  {title}
+                </Text>
+              )}
+              <ActionIcon
+                variant="light"
+                color="gray"
+                onClick={onClose}
+                style={{
+                  color: "white",
+                  flexShrink: 0, // Fixed: Prevent close button from shrinking
+                }}
+                aria-label="Close modal" // Fixed: Add accessibility label
+              >
+                <IconX size={18} />
+              </ActionIcon>
+            </Group>
 
-          <Box style={{ flex: 1, minHeight: 0 }}> {/* Fixed: Allow sidebar content to scroll */}
-            {sidebarContent}
+            <Box style={{ flex: 1, minHeight: 0 }}>
+              {" "}
+              {/* Fixed: Allow sidebar content to scroll */}
+              {sidebarContent}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
 
       <style>

@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../../utils/api";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, LoadingOverlay } from "@mantine/core";
+import { Alert, Box, LoadingOverlay } from "@mantine/core";
 import { Button, Divider, Title, Text, Group, Stack } from "@mantine/core";
 import { Drawer, Radio, Checkbox, ScrollArea, Accordion } from "@mantine/core";
 import { Table, ActionIcon } from "@mantine/core";
@@ -52,7 +52,6 @@ const PrintQuestions = () => {
         },
       });
 
-      console.log(response);
       return response.data.examData;
     } catch (error) {
       console.error(error);
@@ -356,16 +355,15 @@ const PrintQuestions = () => {
       </Drawer>
 
       {/* Worksheet Header */}
-      <div className={styles.worksheetHeader}>
-        <div className={styles.headerTop}>
+      {/* Worksheet Header */}
+      <Box className={styles.worksheetHeader}>
+        <Group className={styles.headerTop} wrap="nowrap" justify="center">
           <div className={styles.logoSection}>
-            <div className={styles.logoPlaceholder}>
-              <img
-                src={user.organization?.logoUrl}
-                alt="logo"
-                style={{ width: "50px", height: "50px" }}
-              />
-            </div>
+            <img
+              src={user.organization?.logoUrl || user?.organization?.logo}
+              alt="logo"
+              className={styles.logoImage}
+            />
           </div>
           <div className={styles.institutionInfo}>
             <Title order={1} className={styles.institutionName}>
@@ -374,38 +372,32 @@ const PrintQuestions = () => {
             <Text className={styles.examTitle}>
               {data?.examTitle || "Practice Worksheet"}
             </Text>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text c={"dark"} className={styles.examTitle}>
-                <span style={{ fontWeight: 600 }}> Exam: </span>
+            <Group justify="center" gap="sm" mt="xs">
+              <Text c="dark" className={styles.examTitle}>
+                <span style={{ fontWeight: 600 }}>Exam:</span>{" "}
                 {data?.examCategory}
               </Text>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text c={"dark"} className={styles.examTitle}>
-                <span style={{ fontWeight: 600 }}>Time Allowed: </span>{" "}
+            </Group>
+            <Group justify="center" gap="md" mt="xs">
+              <Text c="dark" className={styles.examTitle}>
+                <span style={{ fontWeight: 600 }}>Time Allowed:</span>{" "}
                 {data?.duration}
               </Text>
-              <Text c={"dark"} className={styles.examTitle}>
-                <span style={{ fontWeight: 600 }}> Maximum Marks: </span>{" "}
+              <Text c="dark" className={styles.examTitle}>
+                <span style={{ fontWeight: 600 }}>Maximum Marks:</span>{" "}
                 {data?.totalMarks}
               </Text>
-            </div>
+            </Group>
           </div>
-        </div>
+          {/* A placeholder for a potential right-side logo or additional info */}
+          <div className={styles.logoSection} style={{ visibility: "hidden" }}>
+            <img
+              src={user.organization?.logoUrl || user?.organization?.logo}
+              alt="logo"
+              className={styles.logoImage}
+            />
+          </div>
+        </Group>
 
         {allowStudentInformation && (
           <div className={styles.examDetails}>
@@ -429,21 +421,7 @@ const PrintQuestions = () => {
             </div>
           </div>
         )}
-
-        {/* <div className={styles.instructions}>
-          <Title order={4} className={styles.instructionsTitle}>
-            Instructions:
-          </Title>
-          <ul className={styles.instructionsList}>
-            <li>Read all questions carefully before starting.</li>
-            <li>Choose the most appropriate answer for each question.</li>
-            <li>Mark your answers clearly in the answer sheet.</li>
-            <li>Use blue or black pen only.</li>
-            <li>No correction fluid/tape allowed.</li>
-          </ul>
-        </div> */}
-      </div>
-
+      </Box>
       {/* Questions Content - Now uses filteredData */}
       <div className={styles.questionsContent}>
         {template === "worksheet" && (
@@ -657,16 +635,14 @@ const PrintQuestions = () => {
                       sIdx,
                       qIdx
                     );
-                    const letter = findCorrectLetter(q);
+                    const letter = findCorrectLetter(q.correctOption);
                     const explanation =
                       q?.explanation ?? q?.solution ?? q?.reason ?? null;
                     return (
                       <div key={q.id} className={styles.answerKeyRow}>
                         <div className={styles.answerKeyNumber}>{number}.</div>
-                        <div className={styles.answerKeyAnswer}>
-                          {letter || "-"}
-                        </div>
                         <div className={styles.answerKeyExplanation}>
+                          <Text c={"blue"} fw={800}>{q.correctOption}</Text>
                           {explanation ? (
                             renderWithLatexAndImages(explanation)
                           ) : (

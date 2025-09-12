@@ -36,6 +36,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import NoData from "../../../components/Generics/NoData";
 import useAuthStore from "../../../context/auth-store";
 import dayjs from "dayjs";
+import BackButton from "../../../components/Generics/BackButton";
 
 function formatDateTime(iso) {
   if (!iso) return "-";
@@ -54,8 +55,8 @@ function formatDateTime(iso) {
 }
 
 function getScoreColor(score = 0) {
-  if (score >= 90) return "accent";
-  if (score >= 75) return "brand";
+  if (score >= 90) return "teal";
+  if (score >= 75) return "green";
   return "blue";
 }
 
@@ -79,6 +80,7 @@ export default function StudentsViewDetailsPage() {
   const [examData, setExamData] = useState(null);
   const [userScoreData, setUserScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isResultLoading, setIsResultLoading] = useState(false);  
 
   const { examId: routeExamId } = useParams();
   const navigate = useNavigate();
@@ -165,35 +167,13 @@ export default function StudentsViewDetailsPage() {
     chapters = [],
   } = examData;
 
-  console.log(userScoreData, timing, user, "userScoreData");
   const userHasScore = hasTimeEnded;
   const yourScorePercentage = userHasScore ? userScoreData.percentage : 0;
   const yourScoreColor = getScoreColor(yourScorePercentage);
 
   return (
     <div className="exam-details-container exam-page">
-      <UnstyledButton
-        onClick={() => navigate("/student/exams")}
-        aria-label="Go back"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.4rem 0.6rem",
-          borderRadius: "8px",
-          transition: "background 0.2s ease",
-        }}
-        className="back-btn"
-      >
-        <Tooltip label="Go back" position="bottom" withArrow>
-          <ActionIcon variant="light" color="blue" size="xl" radius="xl">
-            <IconArrowBigLeftFilled size={26} />
-          </ActionIcon>
-        </Tooltip>
-        <Text size="lg" c="dimmed" style={{ fontWeight: 500 }}>
-          Back
-        </Text>
-      </UnstyledButton>
+      <BackButton path={"/student/exams"} />
       <Card
         className="exam-header page-header"
         shadow="sm"
@@ -276,7 +256,7 @@ export default function StudentsViewDetailsPage() {
               </Badge>
             </Group>
             <Progress
-              value={yourScorePercentage}
+              value={yourScorePercentage.toFixed(0)}
               color={yourScoreColor}
               size="xl"
               radius="sm"

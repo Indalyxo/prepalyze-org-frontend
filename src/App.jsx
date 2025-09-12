@@ -11,17 +11,17 @@ import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
 const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage"));
 const StudentLayout = lazy(() => import("./layout/StudentLayout"));
 const OrganizerLayout = lazy(() => import("./layout/OrganizerLayout"));
-const OrganizationIntellihub = lazy(
-  () => import("./pages/Organization/OrganizationIntellihub/OrganizationIntellihub")
+const OrganizationIntellihub = lazy(() =>
+  import("./pages/Organization/OrganizationIntellihub/OrganizationIntellihub")
 );
-const Organization_group = lazy(
-  () => import("./pages/Organization/Groups/Organization_group")
+const Organization_group = lazy(() =>
+  import("./pages/Organization/Groups/Organization_group")
 );
-const LeaderboardVeiw = lazy(
-  () => import("./pages/Organization/components/LeaderboardView")
+const LeaderboardVeiw = lazy(() =>
+  import("./pages/Organization/components/LeaderboardView")
 );
-const StudentDetails = lazy(
-  () => import("./pages/Organization/components/StudentDetails/StudentDetails")
+const StudentDetails = lazy(() =>
+  import("./pages/Organization/components/StudentDetails/StudentDetails")
 );
 const ExamPage = lazy(() => import("./pages/Exam/ExamPage"));
 const ExamDetailsPage = lazy(() => import("./pages/Generic/ExamDetailsPage"));
@@ -30,25 +30,31 @@ const NotFoundPage = lazy(() => import("./pages/Generic/NotFoundPage"));
 const ViewExamsPage = lazy(() => import("./pages/Exam/ViewExamsPage"));
 const Notification = lazy(() => import("./pages/Notification/Notification"));
 const SettingsPage = lazy(() => import("./pages/Settings/Settings"));
-const ExamQuestionsPage = lazy(
-  () => import("./pages/Generic/ExamQuestions/ExamQuestions")
+const ExamQuestionsPage = lazy(() =>
+  import("./pages/Generic/ExamQuestions/ExamQuestions")
 );
-const ViewStudentsExamsPage = lazy(
-  () => import("./pages/Students/ExamPage/StudentExamPage")
+const ViewStudentsExamsPage = lazy(() =>
+  import("./pages/Students/ExamPage/StudentExamPage")
 );
-const ExamResult = lazy(
-  () => import("./components/Exam/Helpers/ExamResult/ExamResult")
+const ExamResult = lazy(() =>
+  import("./components/Exam/Helpers/ExamResult/ExamResult")
 );
-const StudentsViewDetailsPage = lazy(
-  () => import("./pages/Students/ViewDetailsPage/StudentsViewDetailsPage")
+const StudentsViewDetailsPage = lazy(() =>
+  import("./pages/Students/ViewDetailsPage/StudentsViewDetailsPage")
 );
 const StudentIntellihub = lazy(() => import("./pages/Students/Intellihub"));
-const PrintQuestions = lazy(() => import("./pages/Generic/PrintQuestions/PrintQuestions"));
+const PrintQuestions = lazy(() =>
+  import("./pages/Generic/PrintQuestions/PrintQuestions")
+);
 const CheckingPage = lazy(() => import("./pages/Generic/CheckingPage"));
 const PrepalyzeLanding = lazy(() => import("./pages/LandingPage"));
+const ExamStartPage = lazy(() =>
+  import("./pages/Exam/ExamStartPage/ExamStartPage")
+);
 
 const App = () => {
-  const { isAuthenticated, isInitializing, initializeAuth, user } = useAuthStore();
+  const { isAuthenticated, isInitializing, initializeAuth, user } =
+    useAuthStore();
 
   useEffect(() => {
     initializeAuth();
@@ -123,12 +129,22 @@ const App = () => {
               <Route path="exams" element={<ViewExamsPage />} />
               <Route path="notification" element={<Notification />} />
               <Route path="settings" element={<SettingsPage />} />
-              <Route path="exams/details/:examId" element={<ExamDetailsPage />} />
+              <Route
+                path="exams/details/:examId"
+                element={<ExamDetailsPage />}
+              />
               <Route
                 path="exams/details/:examId/questions"
                 element={<ExamQuestionsPage />}
               />
-              <Route path="exams/results/:userId" element={<UserDetailsPage />} />
+              <Route
+                path="exams/results/:userId"
+                element={<UserDetailsPage />}
+              />
+              <Route
+                path="exams/details/:examId/result/:resultId"
+                element={<ExamResult path={"organization"} />}
+              />
             </Route>
           )}
 
@@ -139,6 +155,10 @@ const App = () => {
               <Route path="/print/:examId" element={<PrintQuestions />} />
               <Route path="/check" element={<CheckingPage />} />
             </>
+          )}
+
+          {isAuthenticated && user?.role === "student" && (
+            <Route path="exams/start/:examId" element={<ExamStartPage />} />
           )}
 
           {/* 404 */}

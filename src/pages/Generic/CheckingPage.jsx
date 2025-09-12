@@ -3,6 +3,8 @@ import apiClient from "../../utils/api";
 import { useQuery } from "@tanstack/react-query";
 import { renderWithLatexAndImages } from "../../utils/render/render";
 import { Loader } from "@mantine/core";
+import "katex/dist/katex.min.css";
+
 
 const CheckingPage = () => {
   const [start, setStart] = useState("");
@@ -135,7 +137,6 @@ const CheckingPage = () => {
               style={{
                 marginTop: "12px",
                 fontSize: "16px",
-                lineHeight: 1.6,
                 color: "#4B5563",
               }}
             >

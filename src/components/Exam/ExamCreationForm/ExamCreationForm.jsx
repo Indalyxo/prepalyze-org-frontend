@@ -136,7 +136,6 @@ const ExamCreationForm = ({ opened, onClose }) => {
 
   useEffect(() => {
     if (data) {
-      console.log(data);
       setAvailableChapters(data.availableChapters);
       setAvailableGroups(data.groups);
       setAvailableSubjects(data.availableSubjects);
