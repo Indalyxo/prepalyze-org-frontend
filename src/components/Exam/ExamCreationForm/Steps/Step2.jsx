@@ -27,7 +27,7 @@ const Step2 = ({
   useEffect(() => {
     const validChapters = formData.selectedChapters.filter((chapterId) => {
       return formData.selectedSubjects.some((subjectId) => {
-        const chapters = availableChapters[subjectId] || [];
+        const chapters = availableChapters?.[subjectId] || [];
         return chapters.some((chapter) => chapter.value === chapterId);
       });
     });
@@ -71,7 +71,7 @@ const Step2 = ({
   ]);
 
   const renderSubjectConfiguration = (subjectId) => {
-    const subject = availableSubjects.find((s) => s.value === subjectId);
+    const subject = availableSubjects?.find((s) => s.value === subjectId);
     const subjectChapters = availableChapters[subjectId] || [];
 
     return (
@@ -315,7 +315,7 @@ const Step2 = ({
             >
               <Tabs.List>
                 {formData.selectedSubjects.map((subjectId) => {
-                  const subject = availableSubjects.find(
+                  const subject = availableSubjects?.find(
                     (s) => s.value === subjectId
                   );
                   return (

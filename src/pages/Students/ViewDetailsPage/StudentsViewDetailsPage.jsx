@@ -96,7 +96,7 @@ export default function StudentsViewDetailsPage() {
         setHasTimeEnded(true);
         clearInterval(interval);
       }
-    }, 2000); // Check every second
+    }, 1000); // Check every second
 
     // Cleanup function
     return () => clearInterval(interval);

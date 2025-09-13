@@ -80,22 +80,25 @@ const ExamCreationForm = ({ opened, onClose }) => {
   const [errors, setErrors] = useState({});
   const { settings } = useAuthStore();
 
+  console.log(settings)
+
   const initialFormData = {
     // Exam Metadata
     examTitle: "",
     subtitle: "",
-    instructions: settings?.exam?.instructions ?? "",
+    instructions: settings?.exam?.instructions || "",
     examDate: null,
     duration: 60,
     examType: "",
     examMode: "",
-    examCategory: "",
+    examCategory: "NEET-UG",
 
     // Participants
     selectedGroups: [],
 
     // Questions Setup
     selectedSubjects: [],
+
     selectedChapters: [],
     selectedTopics: [],
     topicQuestionCounts: {}, // Changed structure: { topicId: { mcq: 0, assertionReason: 0, numerical: 0 } }
@@ -133,15 +136,15 @@ const ExamCreationForm = ({ opened, onClose }) => {
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableChapters, setAvailableChapters] = useState({});
   const [availableTopics, setAvailableTopics] = useState({});
-
+  
   useEffect(() => {
     if (data) {
-      setAvailableChapters(data.availableChapters);
+      setAvailableChapters(data.availableChapters[formData.examCategory] || {});
       setAvailableGroups(data.groups);
-      setAvailableSubjects(data.availableSubjects);
-      setAvailableTopics(data.availableTopics);
+      setAvailableSubjects(data.availableSubjects[formData.examCategory] || []);
+      setAvailableTopics(data.availableTopics[formData.examCategory] || {});
     }
-  }, [data]);
+  }, [data, formData.examCategory]);
 
   // Optimized calculation of totals using useMemo
   const { totalQuestions, totalMarks } = useMemo(() => {
@@ -158,7 +161,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
     });
 
     const markingScheme = {
-      "JEE-MAINS": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
+      "JEE-MAIN": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
       "NEET-UG": { mcq: 4, assertionReason: 4, numerical: 4, negative: -1 },
       Custom: { mcq: 1, assertionReason: 1, numerical: 1, negative: 0 },
     };
@@ -238,7 +241,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
     const validChapters = (formData.selectedChapters || []).filter(
       (chapterId) => {
         return (formData.selectedSubjects || []).some((subjectId) => {
-          const chapters = availableChapters[subjectId] || [];
+          const chapters = availableChapters?.[subjectId] || [];
           return chapters.some((chapter) => chapter.value === chapterId);
         });
       }
@@ -434,7 +437,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
                 chapterData = foundChapter;
 
                 // Find the subject
-                subjectData = availableSubjects.find(
+                subjectData = availableSubjects?.find(
                   (subject) => subject.value === subjectId
                 );
                 break;
@@ -687,8 +690,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
 
   const renderSubjectConfiguration = useCallback(
     (subjectId) => {
-      const subject = availableSubjects.find((s) => s.value === subjectId);
-      const subjectChapters = availableChapters[subjectId] || [];
+      const subject = availableSubjects?.find((s) => s?.value === subjectId) || {};
+      const subjectChapters = availableChapters?.[subjectId] || [];
 
       return (
         <Box>
@@ -702,7 +705,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
               const selectedTopicsForChapter = (
                 formData.selectedTopics || []
               ).filter((topicId) =>
-                chapterTopics.some((topic) => topic.value === topicId)
+                chapterTopics.some((topic) => topic?.value === topicId)
               );
               return (
                 <Accordion.Item key={chapter.value} value={chapter.value}>
@@ -841,7 +844,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
             <MultiSelect
               label="Select Subjects"
               placeholder="Choose subjects for the exam"
-              value={formData.selectedSubjects}
+              value={formData?.selectedSubjects || []}
               onChange={(value) => {
                 if (formData.examType === "Single Subject") {
                   handleInputChange("selectedSubjects", value.slice(-1));
@@ -850,7 +853,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
                 }
               }}
               error={stepErrors.selectedSubjects}
-              data={availableSubjects}
+              data={availableSubjects || []}
               required
             />
 
@@ -874,7 +877,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
                   >
                     <Tabs.List>
                       {formData.selectedSubjects.map((subjectId) => {
-                        const subject = availableSubjects.find(
+                        const subject = availableSubjects?.find(
                           (s) => s.value === subjectId
                         );
                         return (

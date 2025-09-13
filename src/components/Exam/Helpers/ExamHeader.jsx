@@ -78,7 +78,7 @@ const ExamHeader = ({
             <div className="exam-branding">
               <div className="exam-icon">
                 <Image
-                  src={user.organization.logoUrl}
+                  src={user.organization.logoUrl || user.organization.logo}
                   alt="exam icon"
                   width={40}
                   height={40}

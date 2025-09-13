@@ -471,7 +471,7 @@ export default function ExamDetails() {
           </Card> */}
           {organization?.logoUrl ? (
             <Tooltip label={organization?.name || "Organization"} withArrow>
-              <Avatar src={organization.logoUrl} radius="xl" size="lg" />
+              <Avatar src={organization.logoUrl || user.organization.logo} radius="xl" size="lg" />
             </Tooltip>
           ) : null}
         </Group>
@@ -510,7 +510,7 @@ export default function ExamDetails() {
                   <Avatar
                     size="lg"
                     radius="xl"
-                    src={user.organization.logoUrl}
+                    src={user.organization.logoUrl || user.organization.logo}
                     alt={performer.name}
                     className="performer-avatar"
                     color={getScoreColor(performer.score)}
@@ -589,7 +589,7 @@ export default function ExamDetails() {
                   <Avatar
                     size="lg"
                     radius="xl"
-                    src={user.organization.logoUrl}
+                    src={user.organization.logo || user.organization.logoUrl}
                     alt={attendee.name}
                     className="performer-avatar"
                     color={getScoreColor(attendee.score)}
