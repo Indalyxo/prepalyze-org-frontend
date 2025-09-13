@@ -15,6 +15,8 @@ import { useState, useMemo } from "react";
 import styles from "./print-questions.module.scss";
 import { renderWithLatexAndImages } from "../../../utils/render/render";
 import useAuthStore from "../../../context/auth-store";
+import "katex/dist/katex.min.css";
+
 
 function findCorrectLetter(q) {
   if (!q.correctOption) return undefined;
@@ -355,7 +357,6 @@ const PrintQuestions = () => {
       </Drawer>
 
       {/* Worksheet Header */}
-      {/* Worksheet Header */}
       <Box className={styles.worksheetHeader}>
         <Group className={styles.headerTop} wrap="nowrap" justify="center">
           <div className={styles.logoSection}>
@@ -514,96 +515,44 @@ const PrintQuestions = () => {
                     <Title order={3} className={styles.sectionTitle}>
                       {"Section "}
                       {String.fromCharCode(65 + sIdx)}
-                      {/* {": "}
-                      {section.name} */}
                     </Title>
                     <Divider className={styles.sectionDivider} />
                   </>
                 )}
 
-                {/* Two-column layout with vertical separator */}
-                <div className={styles.twoColumnLayout}>
-                  <div className={styles.leftColumn}>
-                    {section.questions
-                      .map((q, qIdx) => ({ question: q, originalIdx: qIdx }))
-                      .filter((_, index) => index % 2 === 0) // Take 1st, 3rd, 5th... questions
-                      .map(({ question: q, originalIdx }) => {
-                        const number = getGlobalQuestionNumber(
-                          filteredData,
-                          sIdx,
-                          originalIdx
-                        );
-                        return (
-                          <div key={q.id} className={styles.questionBlock}>
-                            <div className={styles.questionHeader}>
-                              <Text fw={600} className={styles.questionNumber}>
-                                {number}.
-                              </Text>
-                              <div className={styles.questionContent}>
-                                {renderWithLatexAndImages(q.text)}
-                              </div>
-                            </div>
-                            <div className={styles.optionsContainer}>
-                              {q.options.map((opt, oIdx) => (
-                                <div
-                                  key={opt._id}
-                                  className={styles.optionItem}
-                                >
-                                  <span className={styles.optionLetter}>
-                                    {getOptionLetter(oIdx)})
-                                  </span>
-                                  <span className={styles.optionText}>
-                                    {renderWithLatexAndImages(opt.text)}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
+                {/* Multi-column layout */}
+                <div className={styles.multiColumnLayout}>
+                  {section.questions.map((q, qIdx) => {
+                    const number = getGlobalQuestionNumber(
+                      filteredData,
+                      sIdx,
+                      qIdx
+                    );
+                    return (
+                      <div key={q.id} className={styles.questionBlock}>
+                        <div className={styles.questionHeader}>
+                          <Text fw={600} className={styles.questionNumber}>
+                            {number}.
+                          </Text>
+                          <div className={styles.questionContent}>
+                            {renderWithLatexAndImages(q.text)}
                           </div>
-                        );
-                      })}
-                  </div>
-
-                  <div className={styles.columnSeparator}></div>
-
-                  <div className={styles.rightColumn}>
-                    {section.questions
-                      .map((q, qIdx) => ({ question: q, originalIdx: qIdx }))
-                      .filter((_, index) => index % 2 === 1) // Take 2nd, 4th, 6th... questions
-                      .map(({ question: q, originalIdx }) => {
-                        const number = getGlobalQuestionNumber(
-                          filteredData,
-                          sIdx,
-                          originalIdx
-                        );
-                        return (
-                          <div key={q.id} className={styles.questionBlock}>
-                            <div className={styles.questionHeader}>
-                              <Text fw={600} className={styles.questionNumber}>
-                                {number}.
-                              </Text>
-                              <div className={styles.questionContent}>
-                                {renderWithLatexAndImages(q.text)}
-                              </div>
+                        </div>
+                        <div className={styles.optionsContainer}>
+                          {q.options.map((opt, oIdx) => (
+                            <div key={opt._id} className={styles.optionItem}>
+                              <span className={styles.optionLetter}>
+                                {getOptionLetter(oIdx)})
+                              </span>
+                              <span className={styles.optionText}>
+                                {renderWithLatexAndImages(opt.text)}
+                              </span>
                             </div>
-                            <div className={styles.optionsContainer}>
-                              {q.options.map((opt, oIdx) => (
-                                <div
-                                  key={opt._id}
-                                  className={styles.optionItem}
-                                >
-                                  <span className={styles.optionLetter}>
-                                    {getOptionLetter(oIdx)})
-                                  </span>
-                                  <span className={styles.optionText}>
-                                    {renderWithLatexAndImages(opt.text)}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {hasMultiple && sIdx < filteredData.sections.length - 1 && (
@@ -613,6 +562,7 @@ const PrintQuestions = () => {
             ))}
           </div>
         )}
+
         {template === "answer-key" && (
           <div className={styles.answerKeyTemplate}>
             <Title order={3} className={styles.answerKeyTitle}>
@@ -642,7 +592,9 @@ const PrintQuestions = () => {
                       <div key={q.id} className={styles.answerKeyRow}>
                         <div className={styles.answerKeyNumber}>{number}.</div>
                         <div className={styles.answerKeyExplanation}>
-                          <Text c={"blue"} fw={800}>{q.correctOption}</Text>
+                          <Text c={"blue"} fw={800}>
+                            {q.correctOption}
+                          </Text>
                           {explanation ? (
                             renderWithLatexAndImages(explanation)
                           ) : (

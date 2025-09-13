@@ -224,10 +224,10 @@ function InsightsSection({ result }) {
     }
 
     // Subject strength/weakness
-    const bestSection = sections.reduce((best, current) =>
+    const bestSection = sections?.reduce((best, current) =>
       current.sectionPercentage > best.sectionPercentage ? current : best
     );
-    const worstSection = sections.reduce((worst, current) =>
+    const worstSection = sections?.reduce((worst, current) =>
       current.sectionPercentage < worst.sectionPercentage ? current : worst
     );
 
@@ -394,6 +394,8 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
     );
   }
 
+  console.log(result);
+
   if (result?.status === "absent") {
     return (
       <Container size="md" p="lg" className={styles.examAnalytics}>
@@ -425,6 +427,48 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
     );
   }
 
+  if (result?.sections.length === 0) {
+    return (
+      <Container size="md" p="lg" className={styles.examAnalytics}>
+        <BackButton path={abspath} />
+        <Card withBorder radius="lg" padding="xl" shadow="sm">
+          <Group justify="space-between" align="center" mb="lg">
+            <div>
+              <Title order={2}>Exam Attendance</Title>
+              <Text size="sm" c="dimmed">
+                Status of this student’s exam participation
+              </Text>
+            </div>
+            <Badge color="orange" variant="filled" size="lg" radius="sm">
+              Incomplete
+            </Badge>
+          </Group>
+
+          <Stack gap="sm">
+            <Text size="lg" fw={600}>
+              <strong style={{ fontWeight: 700, color: "black" }}>
+                {user.role === "organizer" ? result.userId.name : "You"}
+              </strong>{" "}
+              started the exam but did not complete or submit it.
+            </Text>
+
+            <Divider my="md" />
+
+            <Alert
+              variant="light"
+              color="orange"
+              title="No performance data available"
+              icon={<IconAlertCircle size={18} />}
+            >
+              Because the exam was not submitted, no score, insights, or
+              section-wise analysis can be shown.
+            </Alert>
+          </Stack>
+        </Card>
+      </Container>
+    );
+  }
+
   return (
     <div className={styles.examAnalytics}>
       <Container size="xl" p="md">
@@ -437,7 +481,7 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
                   Exam Results Analysis
                 </Title>
                 <Text c="dimmed" size="lg" className={styles.subtitle}>
-                  Comprehensive performance breakdown and insights
+                  Status of this student’s exam participation
                 </Text>
                 <Group align="center" spacing={4} mt="md">
                   <Avatar

@@ -161,6 +161,11 @@ export default function ExamCard({ exam, route = "organization" }) {
                     examTitle: exam.examTitle,
                     examId: exam.examId,
                     instruction: exam?.instruction || "<p></p>",
+                    timing: exam.timing,
+                    duration: exam.duration,
+                    totalQuestions: exam.totalQuestions,
+                    totalMarks: exam.totalMarks,
+                    sections: exam.subjects.length || 0,
                   },
                 })
               }

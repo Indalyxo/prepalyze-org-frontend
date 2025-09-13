@@ -99,6 +99,8 @@ export default function Leaderboard() {
   const leaderboardData = data.data || [];
   const topPerformer = leaderboardData[0];
 
+  if (data.data.length === 0) return <div>No data available</div>;
+
   return (
     <div className="leaderboard-container">
       {/* Header */}
@@ -215,7 +217,7 @@ export default function Leaderboard() {
               className="view-button"
               onClick={() => navigate("/organization/leaderboard")}
             >
-              View All
+              View in Detail
             </Button>
           </Flex>
         </Stack>

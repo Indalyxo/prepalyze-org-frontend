@@ -13,7 +13,7 @@
   }
 
   @media print {
-    max-width: 100%;
+    max-width: 210mm;
     margin: 0;
     padding: 0;
   }
@@ -299,50 +299,24 @@
   }
 }
 
-// New two-column layout styles
-.twoColumnLayout {
-  display: grid;
-  grid-template-columns: 1fr 2px 1fr;
-  gap: 1.5rem;
-  min-height: 100vh;
+.multiColumnLayout {
+  columns: 2; // Two column flow
+  column-gap: 2rem; // Space between columns
 
   @media print {
-    min-height: auto;
-    gap: 1rem;
+    columns: 2;
+    column-gap: 1.5rem;
   }
 
   @media screen and (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-.leftColumn,
-.rightColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  @media print {
-    gap: 1rem;
-  }
-}
-
-.columnSeparator {
-  background: #1a1919;
-  width: 2px;
-  min-height: 100vh;
-
-  @media print {
-    background: #000;
-    width: 2px;
-    min-height: auto;
+    columns: 1; // Collapse to single column on mobile
   }
 }
 
 .questionBlock {
-  break-inside: avoid;
+  break-inside: avoid; // Prevent breaking in weird places
   -webkit-column-break-inside: avoid;
+  margin-bottom: 1rem;
   background: #f8f9fa;
   border-radius: 6px;
   padding: 1rem;
@@ -351,17 +325,12 @@
     background: transparent;
     border-radius: 0;
     padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  @media screen and (max-width: 768px) {
-    padding: 0.75rem;
+    margin-bottom: 0.75rem;
   }
 }
 
 .questionHeader {
   display: flex;
-  align-items: flex-start;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -370,7 +339,6 @@
   min-width: 2rem;
   font-weight: 700;
   color: #228be6;
-  flex-shrink: 0;
 
   @media print {
     color: #000;
@@ -387,7 +355,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-left: 2.75rem; // Align with question content
+  margin-left: 2.75rem;
 
   @media print {
     margin-left: 2.5rem;
@@ -396,7 +364,6 @@
 
 .optionItem {
   display: flex;
-  align-items: flex-start;
   gap: 0.5rem;
   line-height: 1.4;
 }
@@ -405,7 +372,6 @@
   font-weight: 600;
   color: #666;
   min-width: 1.5rem;
-  flex-shrink: 0;
 
   @media print {
     color: #000;
@@ -415,6 +381,8 @@
 .optionText {
   flex: 1;
 }
+
+
 .questionHeader {
   display: flex;
   align-items: baseline;
@@ -629,5 +597,17 @@
 .buttons {
   @media print {
     display: none !important;
+  }
+}
+
+@media print {
+  .worksheetHeader {
+    position: running(header);
+  }
+
+  @page {
+    @top-center {
+      content: element(header);
+    }
   }
 }
