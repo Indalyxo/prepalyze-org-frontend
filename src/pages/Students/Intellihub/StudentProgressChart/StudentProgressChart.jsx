@@ -71,7 +71,7 @@ const StudentProgressChart = () => {
               <Tooltip formatter={(value) => `${value}%`} />
               <Legend />
               <Bar dataKey="score" fill="#4dabf7" radius={[6, 6, 0, 0]}>
-                <LabelList dataKey="score" position="top" formatter={(v) => `${v}%`} />
+                <LabelList dataKey="score" position="top" formatter={(v) => `${v?.toFixed(2)}%`} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

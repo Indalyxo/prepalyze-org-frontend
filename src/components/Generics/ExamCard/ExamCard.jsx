@@ -23,7 +23,6 @@ import styles from "./ExamCard.module.scss";
 
 export default function ExamCard({ exam, route = "organization" }) {
   const navigate = useNavigate();
-  console.log(exam, "<--");
   // ✅ Compute exam status
   const now = dayjs();
   const start = dayjs(exam.timing.start);

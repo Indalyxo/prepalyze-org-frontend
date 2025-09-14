@@ -6,6 +6,7 @@ import useAuthStore from "./context/auth-store";
 // ✅ Eagerly loaded essentials
 import LoadingPage from "./components/Loading/LoadingPage";
 import OfflineAlert from "./components/Generics/Connection/OfflineAlert";
+import PrintQuestionAnswersheet from "./pages/Generic/PrintQuestionAnswersheet/PrintQuestionAnswersheet";
 
 // ✅ Lazy-loaded pages/layouts
 const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage"));
@@ -51,6 +52,8 @@ const PrepalyzeLanding = lazy(() => import("./pages/LandingPage"));
 const ExamStartPage = lazy(() =>
   import("./pages/Exam/ExamStartPage/ExamStartPage")
 );
+
+const CalendarPage = lazy(() => import("./components/Generics/Calendar/Calendar"));
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -116,6 +119,7 @@ const App = () => {
                 path="exams/details/:examId/result/:resultId"
                 element={<ExamResult />}
               />
+              <Route path="calendar" element={<CalendarPage path={"student"} />} />
             </Route>
           )}
 
@@ -145,6 +149,8 @@ const App = () => {
                 path="exams/details/:examId/result/:resultId"
                 element={<ExamResult path={"organization"} />}
               />
+              <Route path="calendar" element={<CalendarPage path="organization" />} />
+              <Route path="print/:examId" element={<PrintQuestionAnswersheet />} />
             </Route>
           )}
 
@@ -154,6 +160,8 @@ const App = () => {
               <Route path="/exam/:examId" element={<ExamPage />} />
               <Route path="/print/:examId" element={<PrintQuestions />} />
               <Route path="/check" element={<CheckingPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+
             </>
           )}
 

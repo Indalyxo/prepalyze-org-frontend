@@ -9,6 +9,7 @@ import {
   Divider,
   Modal,
   Badge,
+  LoadingOverlay,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -22,7 +23,6 @@ import { toast } from "sonner";
 import apiClient from "../../utils/api";
 import NoData from "../../components/Generics/NoData";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import LoadingPage from "../../components/Loading/LoadingPage";
 import ModalFrame from "../../components/Modals/ModalFrame";
 import { formatKey } from "../../utils/generals";
 
@@ -205,7 +205,6 @@ const Notification = () => {
 
         setSelectedNotification({ ...selected, seen: true });
         setOpened(true);
-        console.log("Selected:", selected, "Was seen:", wasSeen);
 
         if (!wasSeen) {
           await markAsSeen({ id, section });
@@ -281,7 +280,14 @@ const Notification = () => {
 
   // Show loading state
   if (isLoading) {
-    return <LoadingPage />;
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
   }
 
   // Show error state

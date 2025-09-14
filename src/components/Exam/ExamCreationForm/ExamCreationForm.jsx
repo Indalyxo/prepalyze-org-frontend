@@ -15,6 +15,7 @@ import {
   Title,
   Tabs,
   Grid,
+  Loader,
 } from "@mantine/core";
 import {
   IconCheck,
@@ -75,19 +76,17 @@ const DebouncedNumberInput = ({
   return <NumberInput {...props} value={localValue} onChange={handleChange} />;
 };
 
-const ExamCreationForm = ({ opened, onClose }) => {
+const ExamCreationForm = ({ opened, onClose, date }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState({});
   const { settings } = useAuthStore();
-
-  console.log(settings)
 
   const initialFormData = {
     // Exam Metadata
     examTitle: "",
     subtitle: "",
     instructions: settings?.exam?.instructions || "",
-    examDate: null,
+    examDate: date,
     duration: 60,
     examType: "",
     examMode: "",
@@ -136,7 +135,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
   const [availableSubjects, setAvailableSubjects] = useState([]);
   const [availableChapters, setAvailableChapters] = useState({});
   const [availableTopics, setAvailableTopics] = useState({});
-  
+
   useEffect(() => {
     if (data) {
       setAvailableChapters(data.availableChapters[formData.examCategory] || {});
@@ -391,7 +390,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
       if (currentStep < steps.length - 1) {
         setCurrentStep(currentStep + 1);
       }
-    } else {  
+    } else {
       const message = Object.values(errors[`step_${currentStep}`])[0];
       toast.error(message || "Please fix the errors before proceeding.");
     }
@@ -690,7 +689,8 @@ const ExamCreationForm = ({ opened, onClose }) => {
 
   const renderSubjectConfiguration = useCallback(
     (subjectId) => {
-      const subject = availableSubjects?.find((s) => s?.value === subjectId) || {};
+      const subject =
+        availableSubjects?.find((s) => s?.value === subjectId) || {};
       const subjectChapters = availableChapters?.[subjectId] || [];
 
       return (
@@ -1023,7 +1023,7 @@ const ExamCreationForm = ({ opened, onClose }) => {
           justifyContent: "space-between",
         }}
       >
-        {isLoading ? "loading" : renderStepContent()}
+        {isLoading ? <Loader /> : renderStepContent()}
 
         <Group
           justify="space-between"
@@ -1042,9 +1042,9 @@ const ExamCreationForm = ({ opened, onClose }) => {
           <Group gap="sm">
             {currentStep === steps.length - 1 ? (
               <>
-                <Button variant="outline" onClick={handleSaveDraft}>
+                {/* <Button variant="outline" onClick={handleSaveDraft}>
                   Save as Draft
-                </Button>
+                </Button> */}
                 <Button
                   onClick={handleSubmit}
                   disabled={!formData.confirmed || isPending}
