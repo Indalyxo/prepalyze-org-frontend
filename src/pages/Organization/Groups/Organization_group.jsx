@@ -126,7 +126,10 @@ export default function OrganizationGroup() {
   const handleConfirmDelete = async () => {
     if (!groupToDelete) return;
     try {
-      await groupAPI.deleteGroup(organizationId, groupToDelete._id || groupToDelete.id);
+      await groupAPI.deleteGroup(
+        organizationId,
+        groupToDelete._id || groupToDelete.id
+      );
       await fetchGroups();
       setDeleteModalOpened(false);
     } catch {
@@ -140,7 +143,10 @@ export default function OrganizationGroup() {
 
     setSubmitting(true);
     try {
-      const groupData = { name: newGroupName.trim(), students: selectedStudents };
+      const groupData = {
+        name: newGroupName.trim(),
+        students: selectedStudents,
+      };
 
       if (editGroupId) {
         await groupAPI.updateGroup(organizationId, editGroupId, groupData);
@@ -151,7 +157,11 @@ export default function OrganizationGroup() {
       await fetchGroups();
       handleCloseModal();
     } catch {
-      setError(`Failed to ${editGroupId ? "update" : "create"} group. Please try again.`);
+      setError(
+        `Failed to ${
+          editGroupId ? "update" : "create"
+        } group. Please try again.`
+      );
     } finally {
       setSubmitting(false);
     }
@@ -177,16 +187,25 @@ export default function OrganizationGroup() {
   const getStudentDetails = (ids) =>
     availableStudents.filter((s) => ids.includes(s._id || s.id));
 
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
+  }
+
   // UI
   return (
     <div className={classes.container}>
       <Container size="xl">
-        <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ blur: 2 }} />
-
         {/* Header */}
         <Group justify="space-between" mb="xl" className={classes.header}>
           <Title order={1} className={classes.title}>
-           Your Groups
+            Your Groups
           </Title>
           <Button
             onClick={handleCreateGroup}
@@ -216,7 +235,11 @@ export default function OrganizationGroup() {
         {/* Groups */}
         {!loading && groups.length > 0 && (
           <Box>
-            <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md" className={classes.groupsGrid}>
+            <SimpleGrid
+              cols={{ base: 1, sm: 2, md: 3 }}
+              spacing="md"
+              className={classes.groupsGrid}
+            >
               {groups.map((group) => (
                 <Paper
                   key={group._id || group.id}
@@ -229,7 +252,8 @@ export default function OrganizationGroup() {
                       <Box>
                         <Text className={classes.groupName}>{group.name}</Text>
                         <Text className={classes.memberCount}>
-                          {group.studentCount || group.students?.length || 0} members
+                          {group.studentCount || group.students?.length || 0}{" "}
+                          members
                         </Text>
                       </Box>
                     </Group>
@@ -281,7 +305,10 @@ export default function OrganizationGroup() {
             <Text className={classes.emptyDescription}>
               Create your first group to start organizing students
             </Text>
-            <Button onClick={handleCreateGroup} leftSection={<IconPlus size={16} />}>
+            <Button
+              onClick={handleCreateGroup}
+              leftSection={<IconPlus size={16} />}
+            >
               Create Your First Group
             </Button>
           </Box>

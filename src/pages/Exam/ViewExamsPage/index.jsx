@@ -23,7 +23,7 @@ import {
   IconTrendingUp,
 } from "@tabler/icons-react";
 import styles from "./ViewExamsPage.module.scss";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import ExamCreationForm from "../../../components/Exam/ExamCreationForm/ExamCreationForm";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -52,11 +52,14 @@ export default function ViewExamsPage() {
   const [selectedExamType, setSelectedExamType] = useState("All Types");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All Levels");
   const [searchQuery, setSearchQuery] = useState("");
-  const [openCreateModal, setOpenCreateModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState("All Dates");
   const { ref, inView } = useInView();
-  const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const create = searchParams.get("create");
+  const date = searchParams.get("date");
+
+  const [openCreateModal, setOpenCreateModal] = useState(create || false);
   const itemsPerPage = 6;
 
   const fetchExams = async ({ pageParam = 0 }) => {
@@ -239,7 +242,13 @@ export default function ViewExamsPage() {
         </Paper>
         <ExamCreationForm
           opened={openCreateModal}
-          onClose={() => setOpenCreateModal(false)}
+          date={date || null}
+          onClose={() => {
+            setOpenCreateModal(false);
+            searchParams.delete("create");
+            searchParams.delete("date");
+            setSearchParams(searchParams);
+          }}
         />
         {allExams.length === 0 ? (
           <NoData />

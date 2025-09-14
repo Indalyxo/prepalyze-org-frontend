@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppShell, Group, Title } from "@mantine/core";
-import { IconContract, IconDashboard, IconUsers } from "@tabler/icons-react";
+import { IconCalendarBolt, IconContract, IconDashboard, IconUsers } from "@tabler/icons-react";
 
 import Sidebar, {
   MobileSidebarTrigger,
@@ -31,11 +31,18 @@ const OrganizerLayout = () => {
       description: "Your Group Management Area",
     },
     {
+      name: "Calendar",
+      icon: <IconCalendarBolt />,
+      redirectTo: "/organization/calendar",
+      description: "Your Calendar",
+    },
+    {
       name: "Exams",
       icon: <IconContract />,
       redirectTo: "/organization/exams",
       description: "Your Assessment Zone",
     },
+
   ];
   return (
     <AppShell

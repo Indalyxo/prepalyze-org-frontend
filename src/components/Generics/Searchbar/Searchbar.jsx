@@ -1,4 +1,3 @@
-"use client"
 import { useState, useCallback } from "react"
 import { ActionIcon } from "@mantine/core"
 import { IconSearch, IconX } from "@tabler/icons-react"

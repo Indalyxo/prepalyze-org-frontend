@@ -1,0 +1,136 @@
+.calendar-page {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  .calendar-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    letter-spacing: -0.025em;
+  }
+
+  .fc {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-family: inherit;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+  }
+
+  .fc-button {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    color: #495057;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+      background: #f8f9fa;
+      border-color: #adb5bd;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    &.fc-button-active {
+      background: #007bff;
+      border-color: #007bff;
+      color: #ffffff;
+
+      &:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+      }
+    }
+  }
+
+  .fc-daygrid-day {
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+      background: #f8f9fa;
+      cursor: pointer;
+    }
+  }
+
+  .fc-daygrid-day-number {
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .fc-event {
+    border: none;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-bottom: 1px;
+  }
+
+  .fc-event-regular {
+    background: #007bff;
+    color: #ffffff;
+  }
+
+  .fc-event-exam {
+    background: #dc3545;
+    color: #ffffff;
+  }
+
+  .fc-day-today {
+    background: #e3f2fd !important;
+  }
+
+  .fc-day-sat,
+  .fc-day-sun {
+    background: #fafafa;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    
+    .calendar-title {
+      font-size: 1.25rem;
+    }
+
+    .fc {
+      padding: 0.75rem;
+    }
+
+    .fc-toolbar {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .fc-toolbar-chunk {
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+.mantine-Modal-content {
+  .mantine-Card-root {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+  }
+
+  .mantine-Badge-root {
+    text-transform: capitalize;
+  }
+}

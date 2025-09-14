@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container, Grid, Title, Text } from "@mantine/core";
-import AverageMarksChart from "../components/AverageMarksChart";
-import AverageTimeChart from "../components/AverageTimeChart";
+import AverageMarksChart from '../../Organization/components/AverageMarksChart';
+// import AverageTimeChart from "../components/AverageTimeChart";
 import Leaderboard from "../components/Leaderboard";
 
 import "./organization-intellihub.scss";
@@ -22,9 +22,9 @@ const StudentIntellihub = () => {
           </Grid.Col>
 
           {/* Second row: Average Time Chart in a new full-width block */}
-          <Grid.Col span={12}>
+          {/* <Grid.Col span={12}>
             <AverageTimeChart />
-          </Grid.Col>
+          </Grid.Col> */}
         </Grid>
       </Container>
     </div>

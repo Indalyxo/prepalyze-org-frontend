@@ -1,24 +1,23 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Paper, Title, Text, Center, Loader } from '@mantine/core';
-import './average-marks-chart.scss';
-import apiClient from '../../../../utils/api';
-import { useQuery } from '@tanstack/react-query';
-
-const marksData = [
-  { test: "Math Test 1", average: 78 },
-  { test: "Science Quiz", average: 85 },
-  { test: "History Exam", average: 72 },
-  { test: "English Test", average: 88 },
-  { test: "Physics Lab", average: 91 },
-  { test: "Chemistry Test", average: 76 },
-];
+import React from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LabelList,
+} from "recharts";
+import { Paper, Title, Text, Center, Loader } from "@mantine/core";
+import "./average-marks-chart.scss";
+import apiClient from "../../../../utils/api";
+import { useQuery } from "@tanstack/react-query";
 
 const AverageMarksChart = () => {
-    const fetchExamMarks = async () => {
+  const fetchExamMarks = async () => {
     try {
       const response = await apiClient.get("/api/intellihub/averages");
-      // console.log(response.data.data);
       return response.data.data;
     } catch (error) {
       console.error(error);
@@ -50,22 +49,34 @@ const AverageMarksChart = () => {
     <Paper className="chart-container" shadow="sm" p="md">
       <div className="chart-header">
         <Title order={3}>Average Marks in Each Test</Title>
-        <Text size="sm" color="dimmed">Class performance overview</Text>
+        <Text size="sm" color="dimmed">
+          Class performance overview
+        </Text>
       </div>
       <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+          <BarChart
+            data={data}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="examName" 
-              angle={-45} 
-              textAnchor="end" 
+            <XAxis
+              dataKey="examName"
+              angle={-45}
+              textAnchor="end"
               height={80}
               fontSize={12}
             />
             <YAxis domain={[0, 100]} />
-            <Tooltip />
-            <Bar dataKey="averagePercentage" fill="#339af0" radius={[4, 4, 0, 0]} />
+            <Tooltip formatter={(v) => `${v?.toFixed(2)}`} />
+
+            <Bar
+              dataKey="averagePercentage"
+              fill="#339af0"
+              radius={[4, 4, 0, 0]}
+            >
+              <LabelList dataKey="averagePercentage" position="top" formatter={(v) => `${v?.toFixed(2)} % `} />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

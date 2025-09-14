@@ -1,0 +1,131 @@
+.qp-root {
+  padding: 2rem;
+  background: #fafafa;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+  color: #1a1a1a;
+}
+
+// Header styling
+.qp-header-paper {
+  text-align: center;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid #eaeaea;
+
+  .qp-exam-title {
+    font-weight: 700;
+    color: #111;
+  }
+
+  .qp-exam-subtitle {
+    font-weight: 500;
+  }
+
+  .qp-export-btn {
+    font-weight: 500;
+    border-radius: 0.5rem;
+  }
+}
+
+// Question card
+.qp-question-card {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  &--compact {
+    margin-bottom: 1rem;
+  }
+
+  .qp-question-header {
+    display: flex;
+    align-items: center;
+
+    .qp-question-number {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .qp-question-type {
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .qp-question-text {
+    margin: 0.75rem 0;
+    .qp-question-content {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  }
+
+  .qp-options-container {
+    margin-top: 0.5rem;
+
+    .qp-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.5rem;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #fafafa;
+      }
+
+      &--correct {
+        background: #f0faf3;
+        border: 1px solid #d3f0d9;
+
+        .qp-option-label {
+          color: #157f3a;
+        }
+      }
+
+      .qp-option-circle {
+        min-width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background: #f1f1f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .qp-option-label {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #333;
+      }
+
+      .qp-option-content {
+        flex: 1;
+        font-size: 0.9rem;
+        color: #444;
+      }
+    }
+  }
+
+  .qp-correct-answer {
+    font-weight: 600;
+    color: #157f3a;
+    margin-top: 0.25rem;
+  }
+}
+
+// Loader / error states
+.qp-loader,
+.qp-error {
+  text-align: center;
+  color: #666;
+}

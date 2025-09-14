@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppShell } from "@mantine/core";
-import { IconContract, IconDashboard } from "@tabler/icons-react";
+import { IconCalendarBolt, IconContract, IconDashboard } from "@tabler/icons-react";
 
 import Sidebar from "../../components/Sidebar/Sidebar";
 
@@ -29,6 +29,12 @@ const StudentLayout = () => {
       redirectTo: "/student/exams",
       description: "Your Exam Zone",
     },
+    {
+      name: "Calendar",
+      icon: <IconCalendarBolt />,
+      redirectTo: "/student/calendar",
+      description: "Your Calendar",
+    }
   ];
 
   return (

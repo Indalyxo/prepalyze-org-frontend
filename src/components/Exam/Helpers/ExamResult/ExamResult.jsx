@@ -394,8 +394,6 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
     );
   }
 
-  console.log(result);
-
   if (result?.status === "absent") {
     return (
       <Container size="md" p="lg" className={styles.examAnalytics}>

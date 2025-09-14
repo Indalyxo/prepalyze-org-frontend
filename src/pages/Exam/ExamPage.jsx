@@ -3,9 +3,9 @@ import ExamInterface from "../../components/Exam/ExamInterface";
 import "katex/dist/katex.min.css";
 import { toast } from "sonner";
 import apiClient from "../../utils/api";
-import LoadingPage from "../../components/Loading/LoadingPage";
 import { Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { LoadingOverlay } from "@mantine/core";
 
 const fetchExamData = async (examId) => {
   const res = await apiClient.get(`/api/exam/${examId}`);
@@ -61,7 +61,14 @@ const ExamPage = () => {
   }, [attendance]);
 
   if (isExamLoading || isAttendanceLoading) {
-    return <LoadingPage />;
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
   }
 
   if (isExamError || isAttendanceError) {

@@ -25,6 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParams } from "react-router-dom";
 import "katex/dist/katex.min.css";
+import BackButton from "../../../components/Generics/BackButton";
 
 
 function OptionRow({ label, content, isCorrect }) {
@@ -167,6 +168,7 @@ export default function ExamQuestionsPage() {
 
   return (
     <Container size="xl" className="qv-root">
+      <BackButton />
       <div className="qv-header">
         <Group justify="space-between" align="center">
           <div>
