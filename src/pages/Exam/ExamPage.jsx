@@ -29,7 +29,7 @@ const ExamPage = () => {
     queryKey: ["exam", examId],
     queryFn: () => fetchExamData(examId),
     staleTime: 5 * 60 * 1000, // don’t refetch for 5 min
-    cacheTime: 30 * 60 * 1000, // keep in cache 30 min after unused
+    cacheTime: 25 * 60 * 1000, // keep in cache 30 min after unused
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     onError: () => toast.error("Failed to fetch exam data"),

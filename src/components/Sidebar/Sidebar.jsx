@@ -30,7 +30,7 @@ import {
   IconChevronDown,
   IconBell,
 } from "@tabler/icons-react";
-import "./sidebar.scss";
+// import "./sidebar.scss";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/api";
 
@@ -49,7 +49,6 @@ const Sidebar = ({
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
-  const [isMobileOpen, setIsMobileOpen] = useState(mobileOpen);
   const { logout, user } = useAuthStore();
 
   const fetchNotificationCount = async () => {
@@ -70,47 +69,40 @@ const Sidebar = ({
     refetchOnWindowFocus: true,
   });
 
-
-  // Handle mobile state changes
-  useEffect(() => {
-    if (onMobileToggle) {
-      onMobileToggle(isMobileOpen);
-    }
-  }, [isMobileOpen, onMobileToggle]);
-
   // Close mobile sidebar when route changes
   useEffect(() => {
-    if (isMobile) {
-      setIsMobileOpen(false);
+    if (isMobile && mobileOpen && onMobileToggle) {
+      onMobileToggle(false);
     }
-  }, [location.pathname, isMobile]);
+  }, [location.pathname]);
 
   // Handle escape key to close mobile sidebar
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && isMobile && isMobileOpen) {
-        setIsMobileOpen(false);
+      if (e.key === "Escape" && isMobile && mobileOpen && onMobileToggle) {
+        onMobileToggle(false);
       }
     };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isMobile, isMobileOpen]);
+    
+    if (isMobile && mobileOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [isMobile, mobileOpen, onMobileToggle]);
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
-    if (isMobile && isMobileOpen) {
+    if (isMobile && mobileOpen) {
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+      return () => {
+        document.body.style.overflow = "unset";
+      };
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMobile, isMobileOpen]);
+  }, [isMobile, mobileOpen]);
 
   const handleToggle = () => {
-    if (isMobile) {
-      setIsMobileOpen(!isMobileOpen);
+    if (isMobile && onMobileToggle) {
+      onMobileToggle(!mobileOpen);
     } else {
       const newCollapsed = !isCollapsed;
       setIsCollapsed(newCollapsed);
@@ -121,16 +113,16 @@ const Sidebar = ({
   };
 
   const handleOverlayClick = () => {
-    if (isMobile) {
-      setIsMobileOpen(false);
+    if (isMobile && mobileOpen && onMobileToggle) {
+      onMobileToggle(false);
     }
   };
 
   const handleRedirect = (redirectTo) => {
     if (redirectTo) {
       // Close mobile sidebar when navigating
-      if (isMobile) {
-        setIsMobileOpen(false);
+      if (isMobile && mobileOpen && onMobileToggle) {
+        onMobileToggle(false);
       }
       // Check if it's an external URL
       if (redirectTo.startsWith("http")) {
@@ -145,14 +137,14 @@ const Sidebar = ({
   const handleLogout = async () => {
     await logout();
     navigate("/login");
-    if (isMobile) {
-      setIsMobileOpen(false);
+    if (isMobile && mobileOpen && onMobileToggle) {
+      onMobileToggle(false);
     }
   };
 
   const handleProfileAction = (action) => {
-    if (isMobile) {
-      setIsMobileOpen(false);
+    if (isMobile && mobileOpen && onMobileToggle) {
+      onMobileToggle(false);
     }
 
     switch (action) {
@@ -191,7 +183,15 @@ const Sidebar = ({
       return (
         <Menu shadow="md" width={200} position="right-start" offset={10}>
           <Menu.Target>
-            <UnstyledButton className="sidebar__user-profile sidebar__user-profile--collapsed">
+            <UnstyledButton 
+              style={{ 
+                padding: '8px',
+                borderRadius: '8px',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center'
+              }}
+            >
               <Tooltip
                 label={
                   <Box>
@@ -207,7 +207,7 @@ const Sidebar = ({
                 withArrow
                 offset={10}
               >
-                {user.role === "organizer" && notificationCount > 0 ? (
+                {user?.role === "organizer" && notificationCount > 0 ? (
                   <Indicator
                     inline
                     size={16}
@@ -219,7 +219,6 @@ const Sidebar = ({
                       src={userAvatar}
                       size="md"
                       radius="xl"
-                      className="sidebar__user-avatar"
                     >
                       {initials}
                     </Avatar>
@@ -229,7 +228,6 @@ const Sidebar = ({
                     src={userAvatar}
                     size="md"
                     radius="xl"
-                    className="sidebar__user-avatar"
                   >
                     {initials}
                   </Avatar>
@@ -244,7 +242,7 @@ const Sidebar = ({
             >
               View Profile
             </Menu.Item>
-            {user.role === "organizer" && (
+            {user?.role === "organizer" && (
               <>
                 <Menu.Item
                   leftSection={<IconSettings size={16} />}
@@ -268,9 +266,17 @@ const Sidebar = ({
     return (
       <Menu shadow="md" width={280} position="bottom-start">
         <Menu.Target>
-          <UnstyledButton className="sidebar__user-profile">
+          <UnstyledButton 
+            style={{
+              padding: '12px',
+              borderRadius: '8px',
+              width: '100%',
+              border: '1px solid var(--mantine-color-gray-3)',
+              backgroundColor: 'var(--mantine-color-gray-0)',
+            }}
+          >
             <Group gap="md" wrap="nowrap" align="center" w="100%">
-              {user.role === "organizer" && notificationCount > 0 ? (
+              {user?.role === "organizer" && notificationCount > 0 ? (
                 <Indicator
                   inline
                   size={16}
@@ -282,7 +288,6 @@ const Sidebar = ({
                     src={userAvatar}
                     size="md"
                     radius="xl"
-                    className="sidebar__user-avatar"
                   >
                     {initials}
                   </Avatar>
@@ -292,37 +297,19 @@ const Sidebar = ({
                   src={userAvatar}
                   size="md"
                   radius="xl"
-                  className="sidebar__user-avatar"
                 >
                   {initials}
                 </Avatar>
               )}
-              <Box
-                className="sidebar__user-info"
-                style={{ flex: 1, minWidth: 0 }}
-              >
-                <Text
-                  className="sidebar__user-name"
-                  size="sm"
-                  fw={600}
-                  truncate
-                >
+              <Box style={{ flex: 1, minWidth: 0 }}>
+                <Text size="sm" fw={600} truncate>
                   {userName}
                 </Text>
-                <Text
-                  className="sidebar__user-role"
-                  size="xs"
-                  c="dimmed"
-                  truncate
-                >
+                <Text size="xs" c="dimmed" truncate>
                   {userRole === "organizer" ? "Organization" : "Student"}
                 </Text>
               </Box>
-              <ActionIcon
-                variant="subtle"
-                size="sm"
-                className="sidebar__user-menu-trigger"
-              >
+              <ActionIcon variant="subtle" size="sm">
                 <IconChevronDown size={16} />
               </ActionIcon>
             </Group>
@@ -330,11 +317,7 @@ const Sidebar = ({
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Label>Actions</Menu.Label>
-          {/* <Menu.Item leftSection={<IconUser size={16} />} onClick={() => handleProfileAction("profile")}>
-            View Profile
-          </Menu.Item> */}
-
-          {user.role === "organizer" && (
+          {user?.role === "organizer" && (
             <>
               <Menu.Item
                 leftSection={<IconSettings size={16} />}
@@ -370,29 +353,33 @@ const Sidebar = ({
     const navButton = (
       <UnstyledButton
         key={index}
-        className={`sidebar__nav-item ${
-          active ? "sidebar__nav-item--active" : ""
-        }`}
         onClick={() => handleRedirect(item.redirectTo)}
         w="100%"
         disabled={loading}
+        style={{
+          padding: '12px',
+          borderRadius: '8px',
+          backgroundColor: active ? 'var(--mantine-color-blue-0)' : 'transparent',
+          border: active ? '1px solid var(--mantine-color-blue-3)' : '1px solid transparent',
+          color: active ? 'var(--mantine-color-blue-7)' : 'inherit',
+        }}
       >
         <Group gap="md" wrap="nowrap" align="center">
-          <Box className="sidebar__nav-icon">{item.icon}</Box>
+          <Box style={{ color: 'inherit' }}>{item.icon}</Box>
           {!showCollapsed && (
-            <Box className="sidebar__nav-content" style={{ flex: 1 }}>
-              <Text className="sidebar__nav-name" size="sm">
+            <Box style={{ flex: 1 }}>
+              <Text size="sm" fw={active ? 600 : 400}>
                 {item.name}
               </Text>
               {item.description && (
-                <Text size="xs" className="sidebar__nav-description">
+                <Text size="xs" c="dimmed">
                   {item.description}
                 </Text>
               )}
             </Box>
           )}
           {!showCollapsed && item.badge && (
-            <Badge className="sidebar__nav-badge" size="sm" variant="filled">
+            <Badge size="sm" variant="filled">
               {item.badge}
             </Badge>
           )}
@@ -434,16 +421,16 @@ const Sidebar = ({
     const showCollapsed = !isMobile && isCollapsed;
 
     return (
-      <Box key={sectionIndex} className="sidebar__section">
+      <Box key={sectionIndex}>
         {!showCollapsed && section.title && (
           <>
-            <Text className="sidebar__section-title" size="xs">
+            <Text size="xs" fw={600} c="dimmed" mb="sm" tt="uppercase">
               {section.title}
             </Text>
-            <Divider className="sidebar__section-divider" />
+            <Divider mb="md" />
           </>
         )}
-        <Stack gap="xs" className="sidebar__section-items">
+        <Stack gap="xs">
           {section.items.map((item, itemIndex) =>
             renderNavItem(item, `${sectionIndex}-${itemIndex}`)
           )}
@@ -459,8 +446,12 @@ const Sidebar = ({
           {Array.from({ length: 6 }).map((_, index) => (
             <Box
               key={index}
-              className="sidebar__nav-item sidebar__nav-item--loading"
-              h={!isMobile && isCollapsed ? 48 : 60}
+              style={{
+                height: !isMobile && isCollapsed ? 48 : 60,
+                backgroundColor: 'var(--mantine-color-gray-1)',
+                borderRadius: '8px',
+                opacity: 0.5,
+              }}
             />
           ))}
         </Stack>
@@ -468,7 +459,7 @@ const Sidebar = ({
     }
 
     // Handle array of sections
-    if (Array.isArray(data) && data.length > 0 && data[0].items) {
+    if (Array.isArray(data) && data.length > 0 && data[0]?.items) {
       return (
         <Stack gap="xl">
           {data.map((section, index) => renderSection(section, index))}
@@ -477,51 +468,44 @@ const Sidebar = ({
     }
 
     // Handle flat array of items
-    if (Array.isArray(data)) {
+    if (Array.isArray(data) && data.length > 0) {
       return (
-        <Box className="sidebar__section">
-          <Stack gap="xs" className="sidebar__section-items">
-            {data.map((item, index) => renderNavItem(item, index))}
-          </Stack>
-        </Box>
+        <Stack gap="xs">
+          {data.map((item, index) => renderNavItem(item, index))}
+        </Stack>
       );
     }
 
     // Handle single item
-    if (data.name) {
-      return (
-        <Box className="sidebar__section">
-          <Stack gap="xs" className="sidebar__section-items">
-            {renderNavItem(data, 0)}
-          </Stack>
-        </Box>
-      );
+    if (data?.name) {
+      return renderNavItem(data, 0);
     }
 
     return (
-      <Box className="sidebar__empty">
-        <IconSparkles size={48} className="sidebar__empty-icon" />
-        <Text c="dimmed" ta="center" size="sm">
+      <Box style={{ textAlign: 'center', padding: '40px 20px' }}>
+        <IconSparkles size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
+        <Text c="dimmed" size="sm">
           No navigation items
         </Text>
       </Box>
     );
   };
 
+  const sidebarStyles = {
+    width: isMobile ? 280 : (!isMobile && isCollapsed ? collapsedWidth : width),
+    height: '100vh',
+    backgroundColor: 'var(--mantine-color-white)',
+    borderRight: '1px solid var(--mantine-color-gray-3)',
+    display: 'flex',
+    flexDirection: 'column',
+  };
+
   const sidebarContent = (
-    <Box
-      className={`sidebar ${
-        !isMobile && isCollapsed ? "sidebar--collapsed" : ""
-      } ${loading ? "sidebar--loading" : ""} ${
-        isMobile && isMobileOpen ? "sidebar--mobile-open" : ""
-      }`}
-      w={isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width}
-      h="100vh"
-    >
+    <Box style={sidebarStyles}>
       {/* Header */}
-      <Group className="sidebar__header" justify="space-between" p="lg">
+      <Group justify="space-between" p="lg" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
         {(!isCollapsed || isMobile) && (
-          <Text className="sidebar__title" fw={700} size="lg">
+          <Text fw={700} size="lg">
             {title}
           </Text>
         )}
@@ -530,7 +514,6 @@ const Sidebar = ({
         {!isMobile && (
           <ActionIcon
             variant="subtle"
-            className="sidebar__toggle"
             onClick={handleToggle}
             size="md"
             disabled={loading}
@@ -545,11 +528,10 @@ const Sidebar = ({
         )}
 
         {/* Mobile close button */}
-        {isMobile && (
+        {isMobile && mobileOpen && (
           <ActionIcon
             variant="subtle"
-            className="sidebar__close-btn"
-            onClick={() => setIsMobileOpen(false)}
+            onClick={() => onMobileToggle?.(false)}
             size="md"
             aria-label="Close sidebar"
           >
@@ -558,14 +540,14 @@ const Sidebar = ({
         )}
       </Group>
 
-      <Box className="sidebar__user-section" p="lg" pb="md">
+      {/* User Profile Section */}
+      <Box p="lg" pb="md">
         {renderUserProfile()}
       </Box>
 
       {/* Content */}
       <ScrollArea
-        className="sidebar__content"
-        h="calc(100vh - 200px)"
+        style={{ flex: 1 }}
         scrollbarSize={4}
         scrollHideDelay={1000}
       >
@@ -575,14 +557,9 @@ const Sidebar = ({
       </ScrollArea>
 
       {/* Footer */}
-      <Box
-        className={`sidebar__footer ${
-          !isMobile && isCollapsed ? "sidebar__footer--collapsed" : ""
-        }`}
-        p="lg"
-      >
+      <Box p="lg" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
         {(isMobile || !isCollapsed) && (
-          <Text size="xs" c="dimmed" ta="center" fw={500} mt="sm">
+          <Text size="xs" c="dimmed" ta="center" fw={500}>
             © 2025 Prepalyze
           </Text>
         )}
@@ -595,17 +572,44 @@ const Sidebar = ({
     return (
       <>
         {/* Mobile overlay */}
-        <Portal>
-          <div
-            className={`sidebar-overlay ${
-              isMobileOpen ? "sidebar-overlay--visible" : ""
-            }`}
-            onClick={handleOverlayClick}
-          />
-        </Portal>
+        {mobileOpen && (
+          <Portal>
+            <div
+              onClick={handleOverlayClick}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 999,
+                opacity: mobileOpen ? 1 : 0,
+                visibility: mobileOpen ? 'visible' : 'hidden',
+                transition: 'opacity 0.3s ease, visibility 0.3s ease'
+              }}
+            />
+          </Portal>
+        )}
 
-        {/* Sidebar content */}
-        {sidebarContent}
+        {/* Sidebar content with proper positioning */}
+        {mobileOpen && (
+          <Portal>
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                height: '100vh',
+                zIndex: 1000,
+                transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease'
+              }}
+            >
+              {sidebarContent}
+            </div>
+          </Portal>
+        )}
       </>
     );
   }
@@ -625,7 +629,7 @@ export const MobileSidebarTrigger = ({ onToggle, className = "" }) => {
       variant="subtle"
       onClick={onToggle}
       size="lg"
-      className={`mobile-sidebar-trigger ${className}`}
+      className={className}
       aria-label="Open sidebar"
     >
       <IconMenu2 size={24} />

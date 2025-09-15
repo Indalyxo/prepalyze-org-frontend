@@ -43,7 +43,7 @@ const subjects = [
   "Botany",
   "Zoology",
 ];
-const examTypes = ["All Types", "NEET-UG", "JEE-MAIN"];
+const examTypes = ["All Types", "NEET-UG", "JEE-Main"];
 const difficulties = ["All Levels", "Easy", "Medium", "Hard"];
 
 export default function ViewExamsPage() {

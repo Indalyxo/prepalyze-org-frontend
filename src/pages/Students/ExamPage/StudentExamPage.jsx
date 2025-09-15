@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import apiClient from "../../../utils/api";
 import ExamCard from "../../../components/Generics/ExamCard/ExamCard";
+import NoData from "../../../components/Generics/NoData";
 
 export default function ViewStudentsExamsPage() {
   const fetchExams = async (page) => {
@@ -59,15 +60,19 @@ export default function ViewStudentsExamsPage() {
           </Group>
         </div>
 
-        <SimpleGrid
-          cols={{ base: 1, sm: 2, lg: 3 }}
-          spacing="lg"
-          className={styles.examGrid}
-        >
-          {exams.map((exam) => (
-            <ExamCard exam={exam} route="student" key={exam.examId} />
-          ))}
-        </SimpleGrid>
+        {exams?.length === 0 ? (
+          <NoData message="Currently, no exams are available for you." />
+        ) : (
+          <SimpleGrid
+            cols={{ base: 1, sm: 2, lg: 3 }}
+            spacing="lg"
+            className={styles.examGrid}
+          >
+            {exams.map((exam) => (
+              <ExamCard exam={exam} route="student" key={exam.examId} />
+            ))}
+          </SimpleGrid>
+        )}
 
         {/* <div className={styles.paginationContainer}>
           <Pagination

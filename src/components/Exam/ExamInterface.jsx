@@ -63,7 +63,7 @@ const ExamInterface = ({ examData, attendance }) => {
   const [instructionModalOpened, setInstructionModalOpened] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [reset, setReset] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(true);
   const { examId } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -93,6 +93,15 @@ const ExamInterface = ({ examData, attendance }) => {
       });
     }
   };
+
+  // Enter fullscreen automatically on load
+  useEffect(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.warn("Fullscreen request failed:", err);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const handleFullScreenChange = () => {
@@ -197,7 +206,7 @@ const ExamInterface = ({ examData, attendance }) => {
       exam: examData.examTitle,
     };
 
-     await apiClient.post(`/api/exam/${examId}/detention`, {
+    await apiClient.post(`/api/exam/${examId}/detention`, {
       student: user,
       duration: settings.detention.durationInMinutes,
       reason: "Tab switching detected",

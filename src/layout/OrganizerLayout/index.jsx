@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppShell, Group, Title } from "@mantine/core";
-import { IconCalendarBolt, IconContract, IconDashboard, IconUsers } from "@tabler/icons-react";
+import {
+  IconCalendarBolt,
+  IconContract,
+  IconDashboard,
+  IconUsers,
+} from "@tabler/icons-react";
 
 import Sidebar, {
   MobileSidebarTrigger,
@@ -42,7 +47,6 @@ const OrganizerLayout = () => {
       redirectTo: "/organization/exams",
       description: "Your Assessment Zone",
     },
-
   ];
   return (
     <AppShell
@@ -68,7 +72,7 @@ const OrganizerLayout = () => {
           collapsed={sidebarCollapsed}
           onToggle={setSidebarCollapsed}
           mobileOpen={mobileSidebarOpen}
-          onMobileToggle={setMobileSidebarOpen}
+          onMobileToggle={(prop) => setMobileSidebarOpen(prop)}
           width={300}
           collapsedWidth={80}
         />

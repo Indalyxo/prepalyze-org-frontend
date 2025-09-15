@@ -24,7 +24,7 @@ const useAuthStore = create(
           });
           const { user, accessToken, refreshToken, settings } = response.data.data;
 
-          set({ user, isAuthenticated: true, isLoading: false, settings: settings });
+          set({ user, isAuthenticated: true, isLoading: false });
           localStorage.setItem("prepalyze-accessToken", accessToken);
 
           if (refreshToken) {
