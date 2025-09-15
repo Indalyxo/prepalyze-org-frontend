@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { Badge, Card, Group, MultiSelect, Stack, Text } from "@mantine/core";
+import React from "react";
+import {
+  Badge,
+  Card,
+  Group,
+  MultiSelect,
+  Stack,
+  Switch,
+  Text,
+} from "@mantine/core";
 
 const Step1 = ({
   formData,
@@ -12,32 +20,48 @@ const Step1 = ({
       <Text size="xl" fw={600} mb="md">
         Participants
       </Text>
-      <MultiSelect
-        label="Choose Groups / Batches / Users"
-        placeholder="Select participants for the exam"
-        value={formData.selectedGroups}
-        onChange={(value) => handleInputChange("selectedGroups", value)}
-        error={stepErrors.selectedGroups}
-        data={availableGroups}
-        searchable
-        required
+
+      {/* Open Exam Switch */}
+      <Switch
+        label="Open Exam (no participants required)"
+        checked={formData.isOpenExam}
+        onChange={(event) =>
+          handleInputChange("isOpenExam", event.currentTarget.checked)
+        }
       />
-      {formData.selectedGroups.length > 0 && (
-        <Card withBorder p="md">
-          <Text size="sm" fw={500} mb="xs">
-            Selected Groups ({formData.selectedGroups.length})
-          </Text>
-          <Group gap="xs">
-            {formData.selectedGroups.map((groupId) => {
-              const group = availableGroups.find((g) => g.value === groupId);
-              return (
-                <Badge key={groupId} variant="light">
-                  {group?.label}
-                </Badge>
-              );
-            })}
-          </Group>
-        </Card>
+
+      {/* Only show group selection if NOT an open exam */}
+      {!formData.isOpenExam && (
+        <>
+          <MultiSelect
+            label="Choose Groups / Batches / Users"
+            placeholder="Select participants for the exam"
+            value={formData.selectedGroups}
+            onChange={(value) => handleInputChange("selectedGroups", value)}
+            error={stepErrors.selectedGroups}
+            data={availableGroups}
+            searchable
+            required
+          />
+
+          {formData.selectedGroups.length > 0 && (
+            <Card withBorder p="md">
+              <Text size="sm" fw={500} mb="xs">
+                Selected Groups ({formData.selectedGroups.length})
+              </Text>
+              <Group gap="xs">
+                {formData.selectedGroups.map((groupId) => {
+                  const group = availableGroups.find((g) => g.value === groupId);
+                  return (
+                    <Badge key={groupId} variant="light">
+                      {group?.label}
+                    </Badge>
+                  );
+                })}
+              </Group>
+            </Card>
+          )}
+        </>
       )}
     </Stack>
   );

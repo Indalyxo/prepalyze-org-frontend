@@ -25,8 +25,8 @@ const examMetadataSchema = z.object({
 
 const participantsSchema = z.object({
   selectedGroups: z
-    .array(z.string())
-    .min(1, "At least one group must be selected"),
+    .array(z.string()),
+  isOpenExam: z.boolean().default(false),
 });
 
 // Updated schema to handle question types (MCQ, Assertion & Reason, Numerical)

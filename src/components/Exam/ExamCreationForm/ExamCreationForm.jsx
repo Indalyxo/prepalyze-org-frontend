@@ -97,6 +97,7 @@ const ExamCreationForm = ({ opened, onClose, date }) => {
 
     // Questions Setup
     selectedSubjects: [],
+    isOpenExam: false,
 
     selectedChapters: [],
     selectedTopics: [],
@@ -295,10 +296,12 @@ const ExamCreationForm = ({ opened, onClose, date }) => {
         if (formData.duration < 30)
           errors.duration = "Duration must be at least 30 minutes";
         break;
-
       case 1:
-        if ((formData.selectedGroups || []).length === 0) {
-          errors.selectedGroups = "At least one group must be selected";
+        if (
+          !formData.isOpenExam &&
+          (formData.selectedGroups || []).length === 0
+        ) {
+          errors.selectedGroups = "At least one group must be selected for non-open exams";
         }
         break;
 
@@ -485,7 +488,7 @@ const ExamCreationForm = ({ opened, onClose, date }) => {
       totalQuestions: input.totalQuestions,
       totalMarks: input.totalMarks,
       confirmed: input.confirmed || false,
-
+      isOpenExam: input.isOpenExam || false,
       timing: {
         start: start.toISOString(), // string instead of Date
         end: end.toISOString(),

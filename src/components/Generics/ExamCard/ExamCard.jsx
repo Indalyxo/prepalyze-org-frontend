@@ -108,7 +108,12 @@ export default function ExamCard({ exam, route = "organization" }) {
             </Text>
           </Group>
 
-          {route === "organization" && (
+          {route === "organization" && exam.isOpenExam ? (
+            <Group gap={4}>
+              <IconUsers size={16} />
+              <Text size="sm">Open Exam</Text>
+            </Group>
+          ) : (
             <Group gap={4}>
               <IconUsers size={16} />
               <Text size="sm">{exam.participants.length} Participants</Text>
