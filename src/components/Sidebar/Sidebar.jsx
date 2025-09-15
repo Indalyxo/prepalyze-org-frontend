@@ -264,7 +264,7 @@ const Sidebar = ({
     }
 
     return (
-      <Menu shadow="md" width={280} position="bottom-start">
+      <Menu shadow="lg" width={280} zIndex={1000} position="bottom-start">
         <Menu.Target>
           <UnstyledButton 
             style={{
@@ -503,9 +503,9 @@ const Sidebar = ({
   const sidebarContent = (
     <Box style={sidebarStyles}>
       {/* Header */}
-      <Group justify="space-between" p="lg" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+      <Group bg="#0e1521" color="white" justify="space-between" p="lg" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
         {(!isCollapsed || isMobile) && (
-          <Text fw={700} size="lg">
+          <Text fw={700} size="lg" c={"white"}>
             {title}
           </Text>
         )}
@@ -533,6 +533,7 @@ const Sidebar = ({
             variant="subtle"
             onClick={() => onMobileToggle?.(false)}
             size="md"
+            color="white"
             aria-label="Close sidebar"
           >
             <IconX size={20} />
