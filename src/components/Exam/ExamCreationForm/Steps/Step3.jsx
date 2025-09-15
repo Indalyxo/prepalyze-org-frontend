@@ -40,7 +40,7 @@ const Step3 = ({
             Marking Scheme:
           </Text>
           <Text size="sm" c="dimmed">
-            {formData.examCategory === "JEE-MAIN" &&
+            {formData.examCategory === "JEE-Main" &&
               "JEE: +4 for correct, -1 for incorrect"}
             {formData.examCategory === "NEET-UG" &&
               "NEET: +4 for correct, -1 for incorrect"}

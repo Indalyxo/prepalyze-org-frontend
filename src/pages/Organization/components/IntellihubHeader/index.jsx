@@ -105,8 +105,8 @@ const IntellihubHeader = () => {
   return (
     <div className="dashboard-header-section">
       <SimpleGrid
-        cols={4}
-        spacing="lg"
+        cols={{ base: 2, sm: 2, md: 3, lg: 4 }}
+        spacing={{ base: "xs", sm: "sm", md: "md", lg: "lg" }}
         breakpoints={[{ maxWidth: "md", cols: 1 }]}
       >
         {headerData.map((stat) => {
