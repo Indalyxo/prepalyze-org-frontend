@@ -63,7 +63,7 @@ const PrintQuestions = () => {
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["GET_EXAMS_QUESTIONS_FOR_PRINT"],
+    queryKey: ["GET_EXAMS_QUESTIONS_FOR_PRINT", examId],
     queryFn: fetchExamsQuestions,
   });
 
@@ -545,7 +545,10 @@ const PrintQuestions = () => {
                                 {getOptionLetter(oIdx)})
                               </span>
                               <span className={styles.optionText}>
-                                {renderWithLatexAndImages(opt.text)}
+                                {renderWithLatexAndImages(opt.text, {
+                                  maxWidth: "120px",
+                                  maxHeight: "120px",
+                                })}
                               </span>
                             </div>
                           ))}
@@ -593,7 +596,7 @@ const PrintQuestions = () => {
                         <div className={styles.answerKeyNumber}>{number}.</div>
                         <div className={styles.answerKeyExplanation}>
                           <Text c={"blue"} fw={800}>
-                            {q.correctOption}
+                            {renderWithLatexAndImages(q.correctOption)}
                           </Text>
                           {explanation ? (
                             renderWithLatexAndImages(explanation)
