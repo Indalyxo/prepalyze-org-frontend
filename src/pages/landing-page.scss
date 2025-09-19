@@ -412,23 +412,36 @@
   padding: 80px 0;
   background: var(--color-primary);
 
+  // Styles for the container stacking the buttons
   .mobile-stack {
+    margin-top: 1.5rem; // Adds some space above the buttons
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
 
+    // Media query for desktop view
     @media (min-width: 768px) {
       flex-direction: row;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem; // Increases gap on larger screens
     }
   }
 
+  // Ensures buttons are full-width on mobile and auto-width on desktop
   .responsive-button {
     width: 100%;
 
     @media (min-width: 768px) {
       width: auto;
+    }
+
+    // Styling for the outline variant to make sure it looks good on the dark background
+    &[data-variant="outline"] {
+      border-color: rgba(255, 255, 255, 0.5);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     }
   }
 }
@@ -497,4 +510,112 @@ button:focus,
 a:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+// GSAP Animation Enhancement Classes
+.gsap-fade-up {
+  opacity: 0;
+  transform: translateY(50px);
+}
+
+.gsap-fade-left {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.gsap-fade-right {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.gsap-scale-up {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+// Floating animation for icons
+.floating-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// Smooth scroll behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// Enhanced hover effects for interactive elements
+.interactive-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Stagger animation delays
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+// Parallax effect for background elements
+.parallax-bg {
+  will-change: transform;
+}
+
+// Performance optimizations
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// Mobile animation adjustments
+@media (max-width: 768px) {
+  .gsap-fade-up,
+  .gsap-fade-left,
+  .gsap-fade-right {
+    transform: translateY(30px);
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .floating-icon {
+    animation: none;
+  }
+
+  .pulse-btn {
+    animation: none;
+  }
 }

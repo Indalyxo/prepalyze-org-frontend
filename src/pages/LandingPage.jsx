@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Container,
   Title,
@@ -18,6 +18,8 @@ import {
   SimpleGrid,
   Image,
 } from "@mantine/core";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   IconFileText,
   IconClipboardCheck,
@@ -38,69 +40,14 @@ import {
   IconUser,
   IconBuilding,
   IconBuildingSkyscraper,
+  IconPhone,
+  IconMail,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import "./landing-page.scss";
-
-const appSections = [
-  {
-    title: "Organization Dashboard",
-    description:
-      "Comprehensive overview of all your exams, students, and performance metrics in one place",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255634/dasboard_cinofn.avif",
-    icon: IconDeviceDesktop,
-    features: ["Real-time analytics", "Quick actions", "Performance overview"],
-  },
-  {
-    title: "Exam Page",
-    description:
-      "Create and manage your exams with ease using our intuitive repository interface",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255637/utk3d6fa5fzj9ppobuil_q7z8cr.avif",
-    icon: IconDatabase,
-    features: ["Manage exams", "Schedule Exams", "Online/Offline modes"],
-  },
-  {
-    title: "Exam Builder",
-    description:
-      "Intuitive interface to create professional exam papers in minutes",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255606/create-option_az50j2.avif",
-    icon: IconPalette,
-    features: ["Single/Multi Subject", "Templates", "Preview mode"],
-  },
-  {
-    title: "Online Exams",
-    description:
-      "Secure online testing environment with anti-cheating measures and real-time results",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/exam-interface_x01edq.avif",
-    icon: IconLock,
-    features: ["Live testing", "Anti-Cheat", "Time management"],
-  },
-  {
-    title: "Group Students",
-    description:
-      "Easily organize students into groups for targeted exams and performance tracking",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/group-page_zqqknf.avif",
-    icon: IconUsers,
-    features: ["Create groups", "Assign exams", "Track performance"],
-  },
-  {
-    title: "Downloadable Questions Editor",
-    description:
-      "Easily create and edit downloadable question papers with worksheet support",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255635/downloa-page_tr9yhj.avif",
-    icon: IconClipboardCheck,
-    features: ["Worksheet support", "Customization", "Multiple formats"],
-  },
-  {
-    title: "Student Performance Dashboard",
-    description:
-      "Deep insights into student performance with detailed reports and recommendations",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255607/student-dashboard_raqehq.avif",
-    icon: IconChartBar,
-    features: ["Performance trends", "Comparative analysis", "Custom reports"],
-  },
-];
+import { appSections } from "../constants";
+import { SupportedExams } from "./SupportedExams";
 
 export default function PrepalyzeLanding() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -108,15 +55,188 @@ export default function PrepalyzeLanding() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
+
+  // GSAP refs
+  const heroRef = useRef(null);
+  const featuresRef = useRef(null);
+  const showcaseRef = useRef(null);
+  const pricingRef = useRef(null);
+  const statsRef = useRef(null);
+  const ctaRef = useRef(null);
+  const headerRef = useRef(null);
+
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Auto-rotate slides
+  // GSAP Animations
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Header animation
+    gsap.fromTo(
+      headerRef.current,
+      { y: -100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
+    );
+
+    // Hero section animation
+    const heroTl = gsap.timeline();
+    heroTl
+      .fromTo(
+        ".hero-title",
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
+      )
+      .fromTo(
+        ".hero-subtitle",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+        "-=0.5"
+      )
+      .fromTo(
+        ".hero-buttons",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+        "-=0.3"
+      )
+      .fromTo(
+        ".hero-video",
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1, ease: "back.out(1.7)" },
+        "-=0.5"
+      );
+
+    // Features section animation
+    gsap.fromTo(
+      ".feature-card-enhanced",
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: "top 80%",
+          end: "bottom 20%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Showcase section animation
+    gsap.fromTo(
+      ".slider-container",
+      { x: -100, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: showcaseRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Pricing cards animation
+    gsap.fromTo(
+      ".pricing-card",
+      { y: 50, opacity: 0, scale: 0.9 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: pricingRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Stats animation
+    gsap.fromTo(
+      ".stats-grid",
+      { y: 30, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // CTA section animation
+    gsap.fromTo(
+      ctaRef.current,
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ctaRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Floating animation for feature icons
+    gsap.to(".feature-icon", {
+      y: -10,
+      duration: 2,
+      ease: "power2.inOut",
+      yoyo: true,
+      repeat: -1,
+      stagger: 0.2,
+    });
+
+    // Pulse animation for CTA buttons
+    gsap.to(".pulse-btn", {
+      scale: 1.05,
+      duration: 1.5,
+      ease: "power2.inOut",
+      yoyo: true,
+      repeat: -1,
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
+
+  // Auto-rotate slides with GSAP
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % appSections.length);
+      setActiveSlide((prev) => {
+        const nextSlide = (prev + 1) % appSections.length;
+
+        // Animate slide transition
+        gsap.to(".slider-content", {
+          x: `-${nextSlide * 100}%`,
+          duration: 0.8,
+          ease: "power2.inOut",
+        });
+
+        return nextSlide;
+      });
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -129,7 +249,7 @@ export default function PrepalyzeLanding() {
   return (
     <Box className="prepalyze-landing">
       {/* Header */}
-      <header className="prepalyze-header">
+      <header className="prepalyze-header" ref={headerRef}>
         <Container size="md">
           <Group justify="space-between" align="center">
             <Group align="center" gap="xs">
@@ -143,20 +263,91 @@ export default function PrepalyzeLanding() {
 
             {/* Desktop Navigation */}
             <Group gap="xl" visibleFrom="md">
-              <Text component="a" href="#home" className="nav-link">
+              <Text 
+                component="a" 
+                href="#home" 
+                className="nav-link"
+                style={{ 
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  fontWeight: 500,
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--color-primary)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'white';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
                 Home
               </Text>
-              <Text component="a" href="#features" className="nav-link">
+              <Text 
+                component="a" 
+                href="#features" 
+                className="nav-link"
+                style={{ 
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  fontWeight: 500,
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--color-primary)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'white';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
                 Features
               </Text>
-              <Text component="a" href="#app-showcase" className="nav-link">
+              <Text 
+                component="a" 
+                href="#app-showcase" 
+                className="nav-link"
+                style={{ 
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  fontWeight: 500,
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--color-primary)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'white';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
                 App Showcase
               </Text>
-              <Text component="a" href="#pricing" className="nav-link">
+              <Text 
+                component="a" 
+                href="#pricing" 
+                className="nav-link"
+                style={{ 
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  fontWeight: 500,
+                  color: 'white'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = 'var(--color-primary)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'white';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
                 Pricing
               </Text>
             </Group>
-
             <Group>
               <Button
                 onClick={() => handleNavigation("/login")}
@@ -188,10 +379,12 @@ export default function PrepalyzeLanding() {
           position="right"
           title={
             <Group align="center" gap="xs">
-              <IconRocket size={30} color="#3885ef" />
-              <Text style={{ color: "#3885ef" }} fw={700}>
-                Prepalyze
-              </Text>
+              <Image
+                src="/Prepalyze-logo.svg"
+                alt="Prepalyze Logo"
+                width={100}
+                height={100}
+              />
             </Group>
           }
           hiddenFrom="md"
@@ -247,7 +440,7 @@ export default function PrepalyzeLanding() {
       </header>
 
       {/* Hero Section */}
-      <section className="prepalyze-hero" id="home">
+      <section className="prepalyze-hero" id="home" ref={heroRef}>
         <Container size="xl">
           <Grid>
             <Grid.Col span={{ base: 12, md: 6 }}>
@@ -342,7 +535,7 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Features Section */}
-      <section className="features-section" id="features">
+      <section className="features-section" id="features" ref={featuresRef}>
         <Container size="xl">
           <Stack align="center" mb="xl">
             <Badge
@@ -454,8 +647,10 @@ export default function PrepalyzeLanding() {
         </Container>
       </section>
 
+      <SupportedExams />
+
       {/* App Showcase Section */}
-      <section className="showcase-section" id="app-showcase">
+      <section className="showcase-section" id="app-showcase" ref={showcaseRef}>
         <Container size="xl">
           <Stack align="center" mb="xl">
             <Badge
@@ -520,7 +715,7 @@ export default function PrepalyzeLanding() {
                         {section.features.map((feature, featureIndex) => (
                           <Group key={featureIndex} gap="xs">
                             <ThemeIcon size="sm" color="green" variant="light">
-                              <IconCheck  size={14} />
+                              <IconCheck size={14} />
                             </ThemeIcon>
                             <Text size="sm" c="var(--color-muted-foreground)">
                               {feature}
@@ -533,7 +728,11 @@ export default function PrepalyzeLanding() {
                     <Box style={{ flex: 1 }} ta="center">
                       <Box className="feature-preview">
                         <Stack align="center" gap="md">
-                          <img src={section.image} alt={section.title} className="feature-image" />
+                          <img
+                            src={section.image}
+                            alt={section.title}
+                            className="feature-image"
+                          />
                           <Text c="#64748b" fw={500}>
                             {section.title} Preview
                           </Text>
@@ -553,7 +752,14 @@ export default function PrepalyzeLanding() {
                 className={`slider-indicator ${
                   index === activeSlide ? "active" : ""
                 }`}
-                onClick={() => setActiveSlide(index)}
+                onClick={() => {
+                  setActiveSlide(index);
+                  gsap.to(".slider-content", {
+                    x: `-${index * 100}%`,
+                    duration: 0.8,
+                    ease: "power2.inOut",
+                  });
+                }}
               />
             ))}
           </Box>
@@ -561,7 +767,7 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Pricing Section */}
-      <section className="pricing-section" id="pricing">
+      <section className="pricing-section" id="pricing" ref={pricingRef}>
         <Container size="xl">
           <Stack align="center" mb="xl">
             <Badge
@@ -801,7 +1007,7 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Stats Section */}
-      <section className="stats-section" id="stats">
+      <section className="stats-section" id="stats" ref={statsRef}>
         <Container size="xl">
           <SimpleGrid cols={{ base: 3, md: 3 }} spacing="xl">
             <Stack align="center" gap="xs" className="stats-grid">
@@ -833,7 +1039,7 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section" id="contact">
+      <section className="cta-section" id="contact" ref={ctaRef}>
         <Container size="xl">
           <Stack align="center" gap="xl" ta="center">
             <Title className="section-title" c="white" fw={800}>
@@ -846,19 +1052,34 @@ export default function PrepalyzeLanding() {
               lh={1.6}
               ta="center"
             >
-              Join thousands of educators and students who trust Prepalyze for
-              their exam management needs.
+              Join us in revolutionizing the future of exam management and
+              assessment.
             </Text>
             <Group gap="md" className="mobile-stack">
+              {/* Email Button */}
               <Button
+                component="a"
+                href={`https://mail.google.com/mail/?view=cm&fs=1&to=indalyxosolutions@gmail.com&su=Sales Enquiry`} // <-- Replace with your company email
                 size="xl"
                 variant="white"
                 c="blue"
-                style={{ borderColor: "white" }}
                 className="responsive-button"
-                onClick={() => handleNavigation("/contact")}
+                leftSection={<IconMail size={24} />}
               >
                 Contact Sales
+              </Button>
+
+              {/* Phone Button */}
+              <Button
+                component="a"
+                href="tel:+919387415757"
+                size="xl"
+                variant="outline"
+                color="white"
+                className="responsive-button"
+                leftSection={<IconPhone size={24} />}
+              >
+                +91 9387415757
               </Button>
             </Group>
           </Stack>
@@ -910,7 +1131,6 @@ export default function PrepalyzeLanding() {
                   >
                     Pricing
                   </Text>
-                  
                 </Stack>
 
                 <Stack gap="sm">
@@ -985,7 +1205,15 @@ export default function PrepalyzeLanding() {
           <Divider my="xl" />
 
           <Group justify="space-between" align="center">
-            <Text size="sm" c="var(--color-muted-foreground)">
+            <Text
+              component="a"
+              href="https://indalyxo.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              c="var(--color-muted-foreground)"
+              style={{ textDecoration: "none", cursor: "pointer" }}
+            >
               © 2025 Indalyxo Solutions. All rights reserved.
             </Text>
             <Group gap="md">

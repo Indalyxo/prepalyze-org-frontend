@@ -1,0 +1,36 @@
+// SupportedExams.scss
+// NO CHANGES REQUIRED. THIS FILE REMAINS THE SAME.
+
+.supported-exams-section {
+  padding: 80px 0;
+  background-color: var(--mantine-color-gray-0);
+  overflow: hidden;
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+  }
+
+  .section-description {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .exam-card {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-color: var(--mantine-color-gray-2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--mantine-shadow-lg);
+    }
+  }
+
+  .exam-card-icon {
+    background: linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-cyan-6));
+    margin: 0 auto;
+  }
+}
