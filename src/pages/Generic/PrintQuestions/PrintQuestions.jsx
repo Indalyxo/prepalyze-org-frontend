@@ -17,7 +17,6 @@ import { renderWithLatexAndImages } from "../../../utils/render/render";
 import useAuthStore from "../../../context/auth-store";
 import "katex/dist/katex.min.css";
 
-
 function findCorrectLetter(q) {
   if (!q.correctOption) return undefined;
   const correct = normalizeForCompare(q.correctOption);
@@ -196,7 +195,7 @@ const PrintQuestions = () => {
             </Text>
           </Group>
           <Button variant="filled" color="blue" onClick={() => window.print()}>
-            🖨️ Print Worksheet
+            🖨️ Print
           </Button>
         </Group>
       </div>

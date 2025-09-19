@@ -48,7 +48,8 @@ const appSections = [
     title: "Organization Dashboard",
     description:
       "Comprehensive overview of all your exams, students, and performance metrics in one place",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255634/dasboard_cinofn.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255634/dasboard_cinofn.avif",
     icon: IconDeviceDesktop,
     features: ["Real-time analytics", "Quick actions", "Performance overview"],
   },
@@ -56,7 +57,8 @@ const appSections = [
     title: "Exam Page",
     description:
       "Create and manage your exams with ease using our intuitive repository interface",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255637/utk3d6fa5fzj9ppobuil_q7z8cr.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255637/utk3d6fa5fzj9ppobuil_q7z8cr.avif",
     icon: IconDatabase,
     features: ["Manage exams", "Schedule Exams", "Online/Offline modes"],
   },
@@ -64,7 +66,8 @@ const appSections = [
     title: "Exam Builder",
     description:
       "Intuitive interface to create professional exam papers in minutes",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255606/create-option_az50j2.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255606/create-option_az50j2.avif",
     icon: IconPalette,
     features: ["Single/Multi Subject", "Templates", "Preview mode"],
   },
@@ -72,7 +75,8 @@ const appSections = [
     title: "Online Exams",
     description:
       "Secure online testing environment with anti-cheating measures and real-time results",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/exam-interface_x01edq.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/exam-interface_x01edq.avif",
     icon: IconLock,
     features: ["Live testing", "Anti-Cheat", "Time management"],
   },
@@ -80,7 +84,8 @@ const appSections = [
     title: "Group Students",
     description:
       "Easily organize students into groups for targeted exams and performance tracking",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/group-page_zqqknf.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/group-page_zqqknf.avif",
     icon: IconUsers,
     features: ["Create groups", "Assign exams", "Track performance"],
   },
@@ -88,7 +93,8 @@ const appSections = [
     title: "Downloadable Questions Editor",
     description:
       "Easily create and edit downloadable question papers with worksheet support",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255635/downloa-page_tr9yhj.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255635/downloa-page_tr9yhj.avif",
     icon: IconClipboardCheck,
     features: ["Worksheet support", "Customization", "Multiple formats"],
   },
@@ -96,7 +102,8 @@ const appSections = [
     title: "Student Performance Dashboard",
     description:
       "Deep insights into student performance with detailed reports and recommendations",
-    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255607/student-dashboard_raqehq.avif",
+    image:
+      "https://res.cloudinary.com/diviaanea/image/upload/v1757255607/student-dashboard_raqehq.avif",
     icon: IconChartBar,
     features: ["Performance trends", "Comparative analysis", "Custom reports"],
   },
@@ -188,10 +195,12 @@ export default function PrepalyzeLanding() {
           position="right"
           title={
             <Group align="center" gap="xs">
-              <IconRocket size={30} color="#3885ef" />
-              <Text style={{ color: "#3885ef" }} fw={700}>
-                Prepalyze
-              </Text>
+              <Image
+                src="/Prepalyze-logo.svg"
+                alt="Prepalyze Logo"
+                width={100}
+                height={100}
+              />
             </Group>
           }
           hiddenFrom="md"
@@ -520,7 +529,7 @@ export default function PrepalyzeLanding() {
                         {section.features.map((feature, featureIndex) => (
                           <Group key={featureIndex} gap="xs">
                             <ThemeIcon size="sm" color="green" variant="light">
-                              <IconCheck  size={14} />
+                              <IconCheck size={14} />
                             </ThemeIcon>
                             <Text size="sm" c="var(--color-muted-foreground)">
                               {feature}
@@ -533,7 +542,11 @@ export default function PrepalyzeLanding() {
                     <Box style={{ flex: 1 }} ta="center">
                       <Box className="feature-preview">
                         <Stack align="center" gap="md">
-                          <img src={section.image} alt={section.title} className="feature-image" />
+                          <img
+                            src={section.image}
+                            alt={section.title}
+                            className="feature-image"
+                          />
                           <Text c="#64748b" fw={500}>
                             {section.title} Preview
                           </Text>
@@ -910,7 +923,6 @@ export default function PrepalyzeLanding() {
                   >
                     Pricing
                   </Text>
-                  
                 </Stack>
 
                 <Stack gap="sm">
