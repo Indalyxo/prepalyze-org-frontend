@@ -348,13 +348,13 @@ const ExamInterface = ({ examData, attendance }) => {
         instruction={settings?.exam?.instruction || ""}
         gradeSchema={{}}
       />
-      {/* <TabSwitchTracker
+      <TabSwitchTracker
         maxViolations={settings.detention.maxTabs}
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
         setReset={setReset}
-      /> */}
+      />
       <DetentionModal
         opened={disabled}
         ruleViolated="Switching Tabs"
