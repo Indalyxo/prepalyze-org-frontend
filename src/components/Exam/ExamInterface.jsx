@@ -345,7 +345,7 @@ const ExamInterface = ({ examData, attendance }) => {
       <InstructionModal
         opened={instructionModalOpened}
         onClose={() => setInstructionModalOpened(false)}
-        instruction={settings.exam.instruction}
+        instruction={settings?.exam?.instruction || ""}
         gradeSchema={{}}
       />
       {/* <TabSwitchTracker
