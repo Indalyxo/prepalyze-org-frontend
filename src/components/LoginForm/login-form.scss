@@ -31,7 +31,6 @@
       rgba(118, 75, 162, 0.1) 100%
     );
     animation: float 8s ease-in-out infinite;
-
   }
 
   .decoration-dots {
@@ -81,26 +80,23 @@
 }
 
 .logo-section {
-  margin-bottom: 48px;
+  margin-top: -20px;
+  margin-bottom: 5px;
 
   .logo {
+    margin-left: -40px;
     display: flex;
     align-items: center;
+    justify-content: start;
     gap: 12px;
 
     .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: #3b82f6;
-      border-radius: 12px;
+      width: 240px;
+      height: 60px;
+      object-fit: cover;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-      animation: logoGlow 3s ease-in-out infinite;
     }
 
     .logo-text {
@@ -117,7 +113,7 @@
 
 .form-content {
   .welcome-section {
-    margin-bottom: 32px;
+    margin-bottom: 5px;
 
     .welcome-title {
       font-size: 32px;
@@ -169,7 +165,7 @@
 
   .login-button {
     height: 48px;
-    background: linear-gradient(90deg, #dbeafe, #93c5fd, #60a5fa);
+    background: linear-gradient(90deg, #6dafff, #4297ff, #0073ff);
     color: white; /* deep blue text for contrast */
     border: none;
     padding: 0.75rem 1.5rem;

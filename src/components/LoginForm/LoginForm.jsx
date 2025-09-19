@@ -78,8 +78,7 @@ export default function LoginForm() {
       <div className="form-wrapper">
         <div className="logo-section">
           <div className="logo">
-            <div className="logo-icon">✦</div>
-            <Text className="logo-text">Prepalyze</Text>
+            <img className="logo-icon" src="/Prepalyze-logo.svg" alt="" />
           </div>
         </div>
 
