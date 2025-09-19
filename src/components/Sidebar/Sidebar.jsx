@@ -83,7 +83,7 @@ const Sidebar = ({
         onMobileToggle(false);
       }
     };
-    
+
     if (isMobile && mobileOpen) {
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
@@ -183,15 +183,7 @@ const Sidebar = ({
       return (
         <Menu shadow="md" width={200} position="right-start" offset={10}>
           <Menu.Target>
-            <UnstyledButton 
-              style={{ 
-                padding: '8px',
-                borderRadius: '8px',
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center'
-              }}
-            >
+            <UnstyledButton className="sidebar__user-profile sidebar__user-profile--collapsed">
               <Tooltip
                 label={
                   <Box>
@@ -219,16 +211,13 @@ const Sidebar = ({
                       src={userAvatar}
                       size="md"
                       radius="xl"
+                      className="sidebar__user-avatar"
                     >
                       {initials}
                     </Avatar>
                   </Indicator>
                 ) : (
-                  <Avatar
-                    src={userAvatar}
-                    size="md"
-                    radius="xl"
-                  >
+                  <Avatar src={userAvatar} size="md" radius="xl">
                     {initials}
                   </Avatar>
                 )}
@@ -266,15 +255,7 @@ const Sidebar = ({
     return (
       <Menu shadow="lg" width={280} zIndex={1000} position="bottom-start">
         <Menu.Target>
-          <UnstyledButton 
-            style={{
-              padding: '12px',
-              borderRadius: '8px',
-              width: '100%',
-              border: '1px solid var(--mantine-color-gray-3)',
-              backgroundColor: 'var(--mantine-color-gray-0)',
-            }}
-          >
+          <UnstyledButton className="sidebar__user-profile">
             <Group gap="md" wrap="nowrap" align="center" w="100%">
               {user?.role === "organizer" && notificationCount > 0 ? (
                 <Indicator
@@ -284,28 +265,20 @@ const Sidebar = ({
                   color="red"
                   label={notificationCount > 0 ? notificationCount : null}
                 >
-                  <Avatar
-                    src={userAvatar}
-                    size="md"
-                    radius="xl"
-                  >
+                  <Avatar src={userAvatar} className="sidebar__user-avatar" size="md" radius="xl">
                     {initials}
                   </Avatar>
                 </Indicator>
               ) : (
-                <Avatar
-                  src={userAvatar}
-                  size="md"
-                  radius="xl"
-                >
+                <Avatar src={userAvatar} size="md" radius="xl">
                   {initials}
                 </Avatar>
               )}
-              <Box style={{ flex: 1, minWidth: 0 }}>
+              <Box className="sidebar__user-info" style={{ flex: 1, minWidth: 0 }}>
                 <Text size="sm" fw={600} truncate>
                   {userName}
                 </Text>
-                <Text size="xs" c="dimmed" truncate>
+                <Text className="sidebar__user-info" size="xs" c="dimmed" truncate>
                   {userRole === "organizer" ? "Organization" : "Student"}
                 </Text>
               </Box>
@@ -357,15 +330,19 @@ const Sidebar = ({
         w="100%"
         disabled={loading}
         style={{
-          padding: '12px',
-          borderRadius: '8px',
-          backgroundColor: active ? 'var(--mantine-color-blue-0)' : 'transparent',
-          border: active ? '1px solid var(--mantine-color-blue-3)' : '1px solid transparent',
-          color: active ? 'var(--mantine-color-blue-7)' : 'inherit',
+          padding: "12px",
+          borderRadius: "8px",
+          backgroundColor: active
+            ? "var(--mantine-color-blue-0)"
+            : "transparent",
+          border: active
+            ? "1px solid var(--mantine-color-blue-3)"
+            : "1px solid transparent",
+          color: active ? "var(--mantine-color-blue-7)" : "inherit",
         }}
       >
         <Group gap="md" wrap="nowrap" align="center">
-          <Box style={{ color: 'inherit' }}>{item.icon}</Box>
+          <Box style={{ color: "inherit" }}>{item.icon}</Box>
           {!showCollapsed && (
             <Box style={{ flex: 1 }}>
               <Text size="sm" fw={active ? 600 : 400}>
@@ -448,8 +425,8 @@ const Sidebar = ({
               key={index}
               style={{
                 height: !isMobile && isCollapsed ? 48 : 60,
-                backgroundColor: 'var(--mantine-color-gray-1)',
-                borderRadius: '8px',
+                backgroundColor: "var(--mantine-color-gray-1)",
+                borderRadius: "8px",
                 opacity: 0.5,
               }}
             />
@@ -482,8 +459,11 @@ const Sidebar = ({
     }
 
     return (
-      <Box style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <IconSparkles size={48} style={{ opacity: 0.5, marginBottom: '16px' }} />
+      <Box style={{ textAlign: "center", padding: "40px 20px" }}>
+        <IconSparkles
+          size={48}
+          style={{ opacity: 0.5, marginBottom: "16px" }}
+        />
         <Text c="dimmed" size="sm">
           No navigation items
         </Text>
@@ -492,18 +472,24 @@ const Sidebar = ({
   };
 
   const sidebarStyles = {
-    width: isMobile ? 280 : (!isMobile && isCollapsed ? collapsedWidth : width),
-    height: '100vh',
-    backgroundColor: 'var(--mantine-color-white)',
-    borderRight: '1px solid var(--mantine-color-gray-3)',
-    display: 'flex',
-    flexDirection: 'column',
+    width: isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width,
+    height: "100vh",
+    backgroundColor: "var(--mantine-color-white)",
+    borderRight: "1px solid var(--mantine-color-gray-3)",
+    display: "flex",
+    flexDirection: "column",
   };
 
   const sidebarContent = (
     <Box style={sidebarStyles}>
       {/* Header */}
-      <Group bg="#0e1521" color="white" justify="space-between" p="lg" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+      <Group
+        bg="#0e1521"
+        color="white"
+        justify="space-between"
+        p="lg"
+        style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+      >
         {(!isCollapsed || isMobile) && (
           <Text fw={700} size="lg" c={"white"}>
             {title}
@@ -542,23 +528,24 @@ const Sidebar = ({
       </Group>
 
       {/* User Profile Section */}
-      <Box p="lg" pb="md">
+      <Box className="sidebar__user-section" p="lg" pb="md">
         {renderUserProfile()}
       </Box>
 
       {/* Content */}
-      <ScrollArea
-        style={{ flex: 1 }}
-        scrollbarSize={4}
-        scrollHideDelay={1000}
-      >
+      <ScrollArea style={{ flex: 1 }} scrollbarSize={4} scrollHideDelay={1000}>
         <Box p="lg" pt="md">
           {renderContent()}
         </Box>
       </ScrollArea>
 
       {/* Footer */}
-      <Box p="lg" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
+      <Box
+        className={`sidebar__footer ${
+          !isMobile && isCollapsed ? "sidebar__footer--collapsed" : ""
+        }`}
+        p="lg"
+      >
         {(isMobile || !isCollapsed) && (
           <Text size="xs" c="dimmed" ta="center" fw={500}>
             © 2025 Prepalyze
@@ -575,21 +562,8 @@ const Sidebar = ({
         {/* Mobile overlay */}
         {mobileOpen && (
           <Portal>
-            <div
-              onClick={handleOverlayClick}
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 999,
-                opacity: mobileOpen ? 1 : 0,
-                visibility: mobileOpen ? 'visible' : 'hidden',
-                transition: 'opacity 0.3s ease, visibility 0.3s ease'
-              }}
-            />
+            className=
+            {`sidebar-overlay ${mobileOpen ? "sidebar-overlay--visible" : ""}`}
           </Portal>
         )}
 
@@ -598,14 +572,15 @@ const Sidebar = ({
           <Portal>
             <div
               style={{
-                position: 'fixed',
+                position: "fixed",
                 top: 0,
                 left: 0,
-                height: '100vh',
+                height: "100vh",
                 zIndex: 1000,
-                transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-                transition: 'transform 0.3s ease'
+                transform: mobileOpen ? "translateX(0)" : "translateX(-100%)",
+                transition: "transform 0.3s ease",
               }}
+              className="sidebar-overlay "
             >
               {sidebarContent}
             </div>
@@ -630,7 +605,7 @@ export const MobileSidebarTrigger = ({ onToggle, className = "" }) => {
       variant="subtle"
       onClick={onToggle}
       size="lg"
-      className={className}
+      className={`mobile-sidebar-trigger ${className}`}
       aria-label="Open sidebar"
     >
       <IconMenu2 size={24} />

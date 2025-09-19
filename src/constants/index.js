@@ -1,12 +1,19 @@
 import {
   IconAlertTriangle,
   IconApple,
+  IconChartBar,
+  IconClipboardCheck,
+  IconDatabase,
+  IconDeviceDesktop,
   IconFlask2,
   IconInfoCircle,
+  IconLock,
   IconMathFunction,
+  IconPalette,
   IconPaw,
   IconPlant,
   IconShieldExclamation,
+  IconUsers,
 } from "@tabler/icons-react";
 
 // Sample exam data
@@ -89,6 +96,65 @@ export const examData = {
     },
   ],
 };
+
+export const appSections =  [
+  {
+    title: "Organization Dashboard",
+    description:
+      "Comprehensive overview of all your exams, students, and performance metrics in one place",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255634/dasboard_cinofn.avif",
+    icon: IconDeviceDesktop,
+    features: ["Real-time analytics", "Quick actions", "Performance overview"],
+  },
+  {
+    title: "Exam Page",
+    description:
+      "Create and manage your exams with ease using our intuitive repository interface",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255637/utk3d6fa5fzj9ppobuil_q7z8cr.avif",
+    icon: IconDatabase,
+    features: ["Manage exams", "Schedule Exams", "Online/Offline modes"],
+  },
+  {
+    title: "Exam Builder",
+    description:
+      "Intuitive interface to create professional exam papers in minutes",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255606/create-option_az50j2.avif",
+    icon: IconPalette,
+    features: ["Single/Multi Subject", "Templates", "Preview mode"],
+  },
+  {
+    title: "Online Exams",
+    description:
+      "Secure online testing environment with anti-cheating measures and real-time results",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/exam-interface_x01edq.avif",
+    icon: IconLock,
+    features: ["Live testing", "Anti-Cheat", "Time management"],
+  },
+  {
+    title: "Group Students",
+    description:
+      "Easily organize students into groups for targeted exams and performance tracking",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255636/group-page_zqqknf.avif",
+    icon: IconUsers,
+    features: ["Create groups", "Assign exams", "Track performance"],
+  },
+  {
+    title: "Downloadable Questions Editor",
+    description:
+      "Easily create and edit downloadable question papers with worksheet support",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255635/downloa-page_tr9yhj.avif",
+    icon: IconClipboardCheck,
+    features: ["Worksheet support", "Customization", "Multiple formats"],
+  },
+  {
+    title: "Student Performance Dashboard",
+    description:
+      "Deep insights into student performance with detailed reports and recommendations",
+    image: "https://res.cloudinary.com/diviaanea/image/upload/v1757255607/student-dashboard_raqehq.avif",
+    icon: IconChartBar,
+    features: ["Performance trends", "Comparative analysis", "Custom reports"],
+  },
+];
 
 export const SubjectIcons = {
   Botany: IconPlant,
