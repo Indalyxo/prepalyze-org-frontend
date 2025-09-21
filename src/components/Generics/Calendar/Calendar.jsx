@@ -14,34 +14,39 @@ import {
   Card,
   Badge,
   LoadingOverlay,
+  MultiSelect,
+  Paper,
+  Title,
+  ActionIcon,
+  Tooltip,
+  Box,
+  Flex,
+  ThemeIcon,
+  Container,
+  Drawer,
 } from "@mantine/core";
+import {
+  IconFilter,
+  IconFilterOff,
+  IconCalendarEvent,
+  IconTrendingUp,
+  IconSparkles,
+} from "@tabler/icons-react";
 import apiClient from "../../../utils/api";
 import "./Calendar.scss";
 import { createSearchParams, useNavigate } from "react-router-dom";
 
-const mockData = [
-  { id: "1", title: "Math Exam", date: "2025-09-15", type: "exam" },
-  { id: "2", title: "Science Workshop", date: "2025-09-18", type: "event" },
-  {
-    id: "3",
-    title: "Project Deadline",
-    start: "2025-09-20T10:00:00",
-    end: "2025-09-20T12:00:00",
-    type: "event",
-  },
-];
-
 export default function CalendarPage({ path = "student" }) {
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [filterDrawerOpened, setFilterDrawerOpened] = useState(false);
 
   const [opened, setOpened] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvents, setSelectedEvents] = useState([]);
-
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventType, setEventType] = useState("event");
-  const [eventTime, setEventTime] = useState("");
 
   const navigate = useNavigate();
 
@@ -49,10 +54,16 @@ export default function CalendarPage({ path = "student" }) {
     try {
       setIsLoading(true);
       const response = await apiClient.get("/event/calendar");
-      setEvents(response.data.events);
+      const eventsData = response.data.events;
+      setEvents(eventsData);
+      const subjects = response.data.subjects.map((subject) => ({
+        value: subject,
+        label: subject,
+      }));
+
+      setSubjects(subjects);
     } catch (error) {
       console.error(error);
-      setEvents(mockData);
     } finally {
       setIsLoading(false);
     }
@@ -62,31 +73,37 @@ export default function CalendarPage({ path = "student" }) {
     fetchEvents();
   }, []);
 
+  // Filter events based on selected subjects
+  useEffect(() => {
+    if (selectedSubjects.length === 0) {
+      setFilteredEvents(events);
+    } else {
+      const filtered = events.filter((event) =>
+        event.subjects?.some((subject) => selectedSubjects.includes(subject))
+      );
+      setFilteredEvents(filtered);
+    }
+  }, [events, selectedSubjects]);
+
+  const handleSubjectFilter = (subjects) => {
+    setSelectedSubjects(subjects);
+  };
+
+  const clearFilters = () => {
+    setSelectedSubjects([]);
+  };
+
   const handleDateClick = (info) => {
     const dateStr = info.dateStr;
     setSelectedDate(dateStr);
 
-    // filter events on that date
-    const dayEvents = events.filter(
+    // filter events on that date from filtered events
+    const dayEvents = filteredEvents.filter(
       (event) => event.date === dateStr || event.start?.startsWith(dateStr)
     );
 
     setSelectedEvents(dayEvents);
     setOpened(true);
-
-    setEventTitle("");
-    setEventType("event");
-    setEventTime("");
-  };
-
-  const handleNavigation = (id) => {
-    // Navigate to exam details - you can implement this based on your routing setup
-    console.log(`Navigate to exam details: ${id}`);
-  };
-
-  const handleCreateEvent = () => {
-    console.log(`Redirecting to create event page for date: ${selectedDate}`);
-    // You can implement navigation here based on your routing setup
   };
 
   const handleCreateExam = () => {
@@ -124,14 +141,201 @@ export default function CalendarPage({ path = "student" }) {
   }
 
   return (
-    <div className="calendar-page">
-      <h2 className="calendar-title">Exam & Event Calendar</h2>
+    <Container fluid className="calendar-page">
+      {/* Header */}
+      <Box className="calendar-hero">
+        <Container size="xl" mx={"auto"} className="hero-content">
+          <Group justify="space-between" align="center">
+            <Group align="center" gap="md">
+              <ThemeIcon size={60} radius="md" color="gray">
+                <IconCalendarEvent size={30} />
+              </ThemeIcon>
+
+              <Stack gap="xs">
+                <Title order={1} className="hero-title">
+                  Academic Calendar
+                </Title>
+                <Text size="md" c="dimmed" className="hero-subtitle">
+                  Track your exams, events, and important dates in one place
+                </Text>
+              </Stack>
+            </Group>
+
+            {/* Header Actions */}
+            <Group gap="sm">
+              <Tooltip label="Open Filters">
+                <ActionIcon
+                  variant="light"
+                  size="lg"
+                  onClick={() => setFilterDrawerOpened(true)}
+                  color="gray"
+                >
+                  <IconFilter size={20} />
+                </ActionIcon>
+              </Tooltip>
+
+              {selectedSubjects.length > 0 && (
+                <Badge variant="filled" color="blue" size="lg">
+                  {selectedSubjects.length} filter
+                  {selectedSubjects.length > 1 ? "s" : ""} active
+                </Badge>
+              )}
+            </Group>
+          </Group>
+
+          {/* Stats Cards
+          <Group gap="lg" className="stats-container" mt="xl">
+            <Paper className="stat-card" p="md">
+              <Group gap="sm">
+                <ThemeIcon size="lg" variant="light" color="blue">
+                  <IconBookmark size={20} />
+                </ThemeIcon>
+                <div>
+                  <Text size="xl" fw={700}>
+                    {events.length}
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    Total Events
+                  </Text>
+                </div>
+              </Group>
+            </Paper>
+
+            <Paper className="stat-card" p="md">
+              <Group gap="sm">
+                <ThemeIcon size="lg" variant="light" color="red">
+                  <IconClock size={20} />
+                </ThemeIcon>
+                <div>
+                  <Text size="xl" fw={700}>
+                    {events.filter((e) => e.type === "exam event").length}
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    Exams
+                  </Text>
+                </div>
+              </Group>
+            </Paper>
+
+            <Paper className="stat-card" p="md">
+              <Group gap="sm">
+                <ThemeIcon size="lg" variant="light" color="green">
+                  <IconUsers size={20} />
+                </ThemeIcon>
+                <div>
+                  <Text size="xl" fw={700}>
+                    {subjects.length}
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    Subjects
+                  </Text>
+                </div>
+              </Group>
+            </Paper>
+          </Group> */}
+        </Container>
+      </Box>
+
+      {/* Filter Drawer */}
+      <Drawer
+        opened={filterDrawerOpened}
+        onClose={() => setFilterDrawerOpened(false)}
+        title="Smart Filters"
+        position="right"
+        size="md"
+        styles={{
+          title: {
+            fontSize: "1.25rem",
+            fontWeight: 600,
+          },
+        }}
+      >
+        <Stack gap="lg">
+          <Group justify="space-between" align="center">
+            <Group align="center" gap="sm">
+              <ThemeIcon size="sm" variant="light" color="violet">
+                <IconSparkles size={16} />
+              </ThemeIcon>
+              <Text size="sm" fw={500} c="dimmed">
+                Filter by Subject
+              </Text>
+            </Group>
+
+            {selectedSubjects.length > 0 && (
+              <Tooltip label="Clear All Filters">
+                <ActionIcon
+                  variant="subtle"
+                  size="sm"
+                  onClick={clearFilters}
+                  color="red"
+                >
+                  <IconFilterOff size={16} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Group>
+
+          <MultiSelect
+            placeholder="🔍 Search and select subjects..."
+            data={subjects}
+            value={selectedSubjects}
+            onChange={handleSubjectFilter}
+            searchable
+            clearable
+            maxDropdownHeight={200}
+            leftSection={<IconTrendingUp size={16} />}
+          />
+
+          {selectedSubjects.length > 0 && (
+            <Box className="filter-summary">
+              <Group gap="xs" mb="sm">
+                <Text size="sm" fw={500}>
+                  Active Filters:
+                </Text>
+                <Badge variant="light" color="blue" size="sm">
+                  {filteredEvents.length} of {events.length} events
+                </Badge>
+              </Group>
+              <Group gap="xs">
+                {selectedSubjects.map((subject) => (
+                  <Badge
+                    key={subject}
+                    variant="dot"
+                    size="md"
+                    className="subject-badge"
+                  >
+                    {subject}
+                  </Badge>
+                ))}
+              </Group>
+            </Box>
+          )}
+
+          <Divider />
+
+          <Stack gap="sm">
+            <Text size="sm" fw={500} c="dimmed">
+              Quick Actions
+            </Text>
+            <Button
+              variant="light"
+              leftSection={<IconFilterOff size={16} />}
+              onClick={clearFilters}
+              disabled={selectedSubjects.length === 0}
+              fullWidth
+            >
+              Clear All Filters
+            </Button>
+          </Stack>
+        </Stack>
+      </Drawer>
 
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
         title={`Events on ${selectedDate ? formatDate(selectedDate) : ""}`}
         centered
+        className="invisible-scrollbar"
         size="md"
         styles={{
           content: {
@@ -149,7 +353,7 @@ export default function CalendarPage({ path = "student" }) {
           },
         }}
       >
-        <Stack spacing="md">
+        <Stack spacing="md" className="invisible-scrollbar">
           {/* Display existing events */}
           {selectedEvents.length > 0 && (
             <>
@@ -159,28 +363,49 @@ export default function CalendarPage({ path = "student" }) {
               {selectedEvents.map((event) => (
                 <Card
                   key={event.id}
-                  padding="sm"
+                  padding="md"
                   withBorder
                   onClick={() => handleEventClick(event.id, event.type)}
-                  style={{ cursor: "pointer" }}
+                  className="event-card invisible-scrollbar"
                 >
-                  <Group position="apart" align="center">
-                    <div>
-                      <Text weight={500}>{event.title}</Text>
+                  <Group justify="space-between" align="flex-start">
+                    <Stack gap="xs" style={{ flex: 1 }}>
+                      <Text fw={600} size="sm" className="event-title">
+                        {event.title}
+                      </Text>
+                      <Text size="xs" c="dimmed" className="event-id">
+                        ID: {event.id}
+                      </Text>
+                      {event.subjects && event.subjects.length > 0 && (
+                        <Group gap="xs">
+                          {event.subjects.map((subject, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="dot"
+                              size="xs"
+                              className="subject-tag"
+                            >
+                              {subject}
+                            </Badge>
+                          ))}
+                        </Group>
+                      )}
                       {event.start && (
-                        <Text size="xs" color="gray.6">
+                        <Text size="xs" c="dimmed">
                           {new Date(event.start).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </Text>
                       )}
-                    </div>
+                    </Stack>
                     <Badge
-                      color={event.type === "exam" ? "red" : "blue"}
-                      variant="light"
+                      color={event.type === "exam event" ? "red" : "blue"}
+                      variant="filled"
+                      size="sm"
+                      className="event-type-badge"
                     >
-                      {event.type}
+                      {event.type === "exam event" ? "EXAM" : "EVENT"}
                     </Badge>
                   </Group>
                 </Card>
@@ -209,25 +434,70 @@ export default function CalendarPage({ path = "student" }) {
         </Stack>
       </Modal>
 
-      {/* FullCalendar */}
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-        initialView="dayGridMonth"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-        }}
-        events={events}
-        dateClick={handleDateClick}
-        selectable={true}
-        height="auto"
-        eventClassNames={(arg) => {
-          return arg.event.extendedProps.type === "exam"
-            ? "fc-event-exam"
-            : "fc-event-regular";
-        }}
-      />
-    </div>
+      {/* Calendar Section */}
+      <Container size="xl">
+        <Paper className="calendar-container">
+          <div className="calendar-wrapper">
+            <FullCalendar
+              plugins={[
+                dayGridPlugin,
+                timeGridPlugin,
+                interactionPlugin,
+                listPlugin,
+              ]}
+              initialView="dayGridMonth"
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+              }}
+              events={filteredEvents}
+              dateClick={handleDateClick}
+              selectable={true}
+              height="auto"
+              dayMaxEvents={2} // Limit events per day
+              moreLinkClick="popover" // Show popover when clicking "more"
+              eventClassNames={(arg) => {
+                const type = arg.event.extendedProps.type;
+                const subjects = arg.event.extendedProps.subjects || [];
+                const primarySubject = subjects[0];
+                return [
+                  type === "exam event" ? "fc-event-exam" : "fc-event-regular",
+                  primarySubject
+                    ? `fc-event-${primarySubject
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+              }}
+              eventContent={(arg) => {
+                const subjects = arg.event.extendedProps.subjects || [];
+                return {
+                  html: `
+                    <div class="fc-event-content-compact">
+                      <div class="fc-event-main">
+                        <span class="fc-event-type-dot ${
+                          arg.event.extendedProps.type === "exam event"
+                            ? "exam"
+                            : "event"
+                        }"></span>
+                        <span class="fc-event-title">${arg.event.title}</span>
+                      </div>
+                      ${
+                        subjects.length > 0
+                          ? `<div class="fc-event-subject">${subjects[0]}</div>`
+                          : ""
+                      }
+                    </div>
+                  `,
+                };
+              }}
+            />
+          </div>
+        </Paper>
+      </Container>
+    </Container>
   );
 }

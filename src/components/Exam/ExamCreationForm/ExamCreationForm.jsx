@@ -301,7 +301,8 @@ const ExamCreationForm = ({ opened, onClose, date }) => {
           !formData.isOpenExam &&
           (formData.selectedGroups || []).length === 0
         ) {
-          errors.selectedGroups = "At least one group must be selected for non-open exams";
+          errors.selectedGroups =
+            "At least one group must be selected for non-open exams";
         }
         break;
 

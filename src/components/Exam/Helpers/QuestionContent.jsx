@@ -89,7 +89,10 @@ const QuestionContent = ({
                           gap: "12px", // space between radio and content
                           width: "100%",
                         },
-                        radio: { display: "none" },
+                        radio: {
+                          display: "block",
+                          flexShrink: 0, // Prevent radio from shrinking
+                        },
                       }}
                     />
                   </Radio.Card>

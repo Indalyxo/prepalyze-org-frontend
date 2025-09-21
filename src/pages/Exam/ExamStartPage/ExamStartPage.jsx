@@ -57,7 +57,7 @@ const motivationalContent = [
   },
   {
     image:
-      "https://res.cloudinary.com/diviaanea/image/upload/v1757573115/Transform_the_upload_njte5o.avif",
+      "https://res.cloudinary.com/diviaanea/image/upload/v1758477112/Generated_Image_September_21_2025_-_11_19PM_nryve6.avif",
     quote: "Have a dream, hold onto it, and shoot for the sky.",
     author: `"The American Dream" Dusty Rhodes`,
     category: "Ambition",

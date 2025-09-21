@@ -36,7 +36,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import NoData from "../../../components/Generics/NoData";
 import useAuthStore from "../../../context/auth-store";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import BackButton from "../../../components/Generics/BackButton";
+
+// Extend dayjs with UTC plugin
+dayjs.extend(utc);
 
 function formatDateTime(iso) {
   if (!iso) return "-";
@@ -80,27 +84,41 @@ export default function StudentsViewDetailsPage() {
   const [examData, setExamData] = useState(null);
   const [userScoreData, setUserScoreData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isResultLoading, setIsResultLoading] = useState(false);  
+  const [isResultLoading, setIsResultLoading] = useState(false);
 
   const { examId: routeExamId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const examEnd = dayjs(examData?.timing?.end);
   const [hasTimeEnded, setHasTimeEnded] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = dayjs();
-      if (now.isAfter(examEnd)) {
-        setHasTimeEnded(true);
-        clearInterval(interval);
-      }
-    }, 1000); // Check every second
+    if (!examData?.timing?.end) return;
 
-    // Cleanup function
-    return () => clearInterval(interval);
-  }, [examEnd]); // Re-run effect if endTime changes
+    const checkTimeEnded = () => {
+      const now = new Date(); // Current time in local timezone
+      const examEnd = new Date(examData.timing.end); // Parse the UTC time string
+      const timeEnded = now > examEnd;
+
+      setHasTimeEnded(timeEnded);
+      return timeEnded;
+    };
+
+    // Check immediately
+    const ended = checkTimeEnded();
+
+    // If not ended, set up interval to check every second
+    if (!ended) {
+      const interval = setInterval(() => {
+        const timeEnded = checkTimeEnded();
+        if (timeEnded) {
+          clearInterval(interval);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [examData?.timing?.end]);
 
   useEffect(() => {
     let mounted = true;
@@ -477,17 +495,6 @@ export default function StudentsViewDetailsPage() {
             size="md"
           >
             View Questions ({flattenedQuestions.length})
-          </Button>
-          <Button
-            leftSection={<IconFileTypePdf size={18} />}
-            className="ghost"
-            variant="outline"
-            color="brand"
-            onClick={() => navigate(`/print/${examData.examId}`)}
-            size="md"
-            disabled={!hasTimeEnded}
-          >
-            Download PDF
           </Button>
           {/* <Button
             leftSection={<IconFileTypeDoc size={18} />}

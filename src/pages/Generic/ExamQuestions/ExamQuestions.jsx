@@ -27,7 +27,6 @@ import { useParams } from "react-router-dom";
 import "katex/dist/katex.min.css";
 import BackButton from "../../../components/Generics/BackButton";
 
-
 function OptionRow({ label, content, isCorrect }) {
   return (
     <Group
@@ -67,6 +66,11 @@ function QuestionCard({ q, index }) {
     (o) => o.text.trim() === correctText.trim()
   );
 
+  const normalizeCorrect = (correct) => {
+    // remove "a)", "b)", "c)" style prefixes
+    return correct.replace(/^[a-d]\)\s*/, "").trim();
+  };
+
   return (
     <Card withBorder radius="md" className="qv-card">
       <Stack gap="sm">
@@ -102,7 +106,8 @@ function QuestionCard({ q, index }) {
               content={o.text}
               isCorrect={
                 i === correctIndex ||
-                (correctIndex === -1 && correctText.includes(o.text))
+                (correctIndex === -1 &&
+                  normalizeCorrect(correctText) === o.text.trim())
               }
             />
           ))}

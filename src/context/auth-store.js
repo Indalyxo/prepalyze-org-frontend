@@ -23,14 +23,13 @@ const useAuthStore = create(
             password,
           });
           const { user, accessToken, refreshToken, settings } = response.data.data;
-
-          set({ user, isAuthenticated: true, isLoading: false });
+          set({ user, isAuthenticated: true, isLoading: false, settings });
           localStorage.setItem("prepalyze-accessToken", accessToken);
 
           if (refreshToken) {
             localStorage.setItem("prepalyze-refreshToken", refreshToken);
           }
-
+          get().loadSettings();
           return { success: true, user };
         } catch (error) {
           console.error(error);

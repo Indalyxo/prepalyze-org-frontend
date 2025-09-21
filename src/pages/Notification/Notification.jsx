@@ -169,7 +169,7 @@ const Notification = () => {
         }
         return updated;
       });
-      queryClient.invalidateQueries(["attendance", examId]); // refresh attendance
+      queryClient.invalidateQueries(["notifications"]); // refresh attendance
     },
     onError: (err) => {
       console.error(err);
