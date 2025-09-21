@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Container,
   Title,
@@ -38,6 +40,19 @@ import {
   IconUser,
   IconBuilding,
   IconBuildingSkyscraper,
+  IconSchool,
+  IconCertificate,
+  IconMedicalCross,
+  IconScale,
+  IconCode,
+  IconLanguage,
+  IconMath,
+  IconAtom,
+  IconBusinessplan,
+  IconClock,
+  IconStar,
+  IconMail,
+  IconPhone,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
@@ -115,6 +130,9 @@ export default function PrepalyzeLanding() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
+
+  // GSAP refs
+  const availableExamsRef = useRef(null);
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
@@ -126,6 +144,62 @@ export default function PrepalyzeLanding() {
       setActiveSlide((prev) => (prev + 1) % appSections.length);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // GSAP Animations
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Available Exams section animation
+    gsap.fromTo(
+      ".exam-card",
+      { y: 30, opacity: 0, scale: 0.9 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: availableExamsRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Feature highlight cards animation
+    gsap.fromTo(
+      ".feature-highlight-card",
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".exam-features-grid",
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    // Floating animation for exam icons
+    gsap.to(".exam-card .mantine-ThemeIcon-root", {
+      y: -5,
+      duration: 2,
+      ease: "power2.inOut",
+      yoyo: true,
+      repeat: -1,
+      stagger: 0.1,
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
   }, []);
 
   const handleNavigation = (path) => {
@@ -155,6 +229,9 @@ export default function PrepalyzeLanding() {
               </Text>
               <Text component="a" href="#features" className="nav-link">
                 Features
+              </Text>
+              <Text component="a" href="#available-exams" className="nav-link">
+                Exams
               </Text>
               <Text component="a" href="#app-showcase" className="nav-link">
                 App Showcase
@@ -222,6 +299,14 @@ export default function PrepalyzeLanding() {
                 onClick={closeDrawer}
               >
                 Features
+              </Text>
+              <Text
+                component="a"
+                href="#available-exams"
+                className="mobile-menu-item"
+                onClick={closeDrawer}
+              >
+                Exams
               </Text>
               <Text
                 component="a"
@@ -460,6 +545,284 @@ export default function PrepalyzeLanding() {
               </Text>
             </Card>
           </SimpleGrid>
+        </Container>
+      </section>
+
+      {/* Available Exams Section */}
+      <section
+        className="available-exams-section"
+        id="available-exams"
+        ref={availableExamsRef}
+      >
+        <Container size="xl">
+          <Stack align="center" mb="xl">
+            <Badge
+              size="lg"
+              variant="light"
+              color="green"
+              className="badge-responsive"
+            >
+              Available Exams
+            </Badge>
+            <Title className="section-title" fw={800}>
+              Wide Range of{" "}
+              <Text
+                span
+                c="var(--color-primary)"
+                inherit
+                className="gradient-text"
+              >
+                Exam Categories
+              </Text>
+            </Title>
+            <Text
+              className="section-subtitle"
+              c="var(--color-muted-foreground)"
+            >
+              From competitive exams to academic assessments, we support all
+              major exam types with comprehensive question banks
+            </Text>
+          </Stack>
+
+          {/* Competitive Exams */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "center",
+              gap: "1rem",
+              width: "100%",
+              maxWidth: "600px", // optional, to control total width
+              margin: "0 auto",
+            }}
+          >
+            <Card className="exam-card" p="md" ta="center" style={{ flex: 1 }}>
+              <ThemeIcon
+                size="lg"
+                color="blue"
+                variant="light"
+                mx="auto"
+                mb="sm"
+              >
+                <IconSchool size={24} />
+              </ThemeIcon>
+              <Text fw={600} size="sm">
+                JEE
+              </Text>
+              <Text size="xs" c="dimmed">
+                Engineering
+              </Text>
+            </Card>
+
+            <Card className="exam-card" p="md" ta="center" style={{ flex: 1 }}>
+              <ThemeIcon
+                size="lg"
+                color="red"
+                variant="light"
+                mx="auto"
+                mb="sm"
+              >
+                <IconMedicalCross size={24} />
+              </ThemeIcon>
+              <Text fw={600} size="sm">
+                NEET
+              </Text>
+              <Text size="xs" c="dimmed">
+                Medical
+              </Text>
+            </Card>
+          </div>
+
+          {/* Academic Subjects */}
+          {/* <Box mb="xl">
+            <Title order={3} mb="lg" ta="center" c="var(--color-foreground)">
+              📚 Academic Subjects
+            </Title>
+            <SimpleGrid cols={{ base: 2, sm: 3, md: 4, lg: 5 }} spacing="lg">
+              <Card className="exam-card" p="md" ta="center">
+                <ThemeIcon
+                  size="lg"
+                  color="blue"
+                  variant="light"
+                  mx="auto"
+                  mb="sm"
+                >
+                  <IconMath size={24} />
+                </ThemeIcon>
+                <Text fw={600} size="sm">
+                  Mathematics
+                </Text>
+                <Text size="xs" c="dimmed">
+                  All Levels
+                </Text>
+              </Card>
+
+              <Card className="exam-card" p="md" ta="center">
+                <ThemeIcon
+                  size="lg"
+                  color="green"
+                  variant="light"
+                  mx="auto"
+                  mb="sm"
+                >
+                  <IconAtom size={24} />
+                </ThemeIcon>
+                <Text fw={600} size="sm">
+                  Physics
+                </Text>
+                <Text size="xs" c="dimmed">
+                  All Levels
+                </Text>
+              </Card>
+
+              <Card className="exam-card" p="md" ta="center">
+                <ThemeIcon
+                  size="lg"
+                  color="red"
+                  variant="light"
+                  mx="auto"
+                  mb="sm"
+                >
+                  <IconAtom size={24} />
+                </ThemeIcon>
+                <Text fw={600} size="sm">
+                  Chemistry
+                </Text>
+                <Text size="xs" c="dimmed">
+                  All Levels
+                </Text>
+              </Card>
+
+              <Card className="exam-card" p="md" ta="center">
+                <ThemeIcon
+                  size="lg"
+                  color="orange"
+                  variant="light"
+                  mx="auto"
+                  mb="sm"
+                >
+                  <IconLanguage size={24} />
+                </ThemeIcon>
+                <Text fw={600} size="sm">
+                  English
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Language & Literature
+                </Text>
+              </Card>
+
+              <Card className="exam-card" p="md" ta="center">
+                <ThemeIcon
+                  size="lg"
+                  color="purple"
+                  variant="light"
+                  mx="auto"
+                  mb="sm"
+                >
+                  <IconCode size={24} />
+                </ThemeIcon>
+                <Text fw={600} size="sm">
+                  Computer Science
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Programming & Theory
+                </Text>
+              </Card>
+            </SimpleGrid>
+          </Box> */}
+
+          {/* Exam Features */}
+          <Box className="exam-features-grid">
+            <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl">
+              <Card className="feature-highlight-card" p="xl">
+                <Group mb="md">
+                  <ThemeIcon size="xl" color="blue" variant="light">
+                    <IconClock size={32} />
+                  </ThemeIcon>
+                  <div>
+                    <Text fw={700} size="lg">
+                      50,000+
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      Practice Questions
+                    </Text>
+                  </div>
+                </Group>
+                <Text c="var(--color-muted-foreground)" size="sm">
+                  Extensive question bank covering all major exam patterns and
+                  difficulty levels
+                </Text>
+              </Card>
+
+              <Card className="feature-highlight-card" p="xl">
+                <Group mb="md">
+                  <ThemeIcon size="xl" color="green" variant="light">
+                    <IconStar size={32} />
+                  </ThemeIcon>
+                  <div>
+                    <Text fw={700} size="lg">
+                      Real-time
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      Performance Tracking
+                    </Text>
+                  </div>
+                </Group>
+                <Text c="var(--color-muted-foreground)" size="sm">
+                  Track your progress across different subjects and identify
+                  areas for improvement
+                </Text>
+              </Card>
+
+              <Card className="feature-highlight-card" p="xl">
+                <Group mb="md">
+                  <ThemeIcon size="xl" color="orange" variant="light">
+                    <IconTrophy size={32} />
+                  </ThemeIcon>
+                  <div>
+                    <Text fw={700} size="lg">
+                      Mock Tests
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      Exam Simulation
+                    </Text>
+                  </div>
+                </Group>
+                <Text c="var(--color-muted-foreground)" size="sm">
+                  Experience real exam conditions with timed tests and instant
+                  detailed analysis
+                </Text>
+              </Card>
+            </SimpleGrid>
+          </Box>
+
+          {/* CTA for Exams */}
+          <Stack align="center" mt="xl" pt="xl">
+            <Text
+              size="lg"
+              c="var(--color-muted-foreground)"
+              ta="center"
+              mb="md"
+            >
+              Don't see your exam? We're constantly adding new categories!
+            </Text>
+            <Group gap="md">
+              <Button
+                size="lg"
+                onClick={() => navigate("/login")}
+                leftSection={<IconRocket size={20} />}
+              >
+                Explore All Exams
+              </Button>
+              {/* <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/contact")}
+              >
+                Request New Exam
+              </Button> */}
+            </Group>
+          </Stack>
         </Container>
       </section>
 
@@ -846,12 +1209,23 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section" id="contact">
+      <section
+        id="contact"
+        style={{
+          background: "#3b82f6",
+          padding: "6rem 1rem",
+        }}
+      >
         <Container size="xl">
           <Stack align="center" gap="xl" ta="center">
-            <Title className="section-title" c="white" fw={800}>
+            <Title
+              c="white"
+              fw={800}
+              style={{ fontSize: "2.5rem", letterSpacing: "-0.5px" }}
+            >
               Ready to Transform Your Exam Process?
             </Title>
+
             <Text
               size="xl"
               c="rgba(255,255,255,0.9)"
@@ -862,18 +1236,137 @@ export default function PrepalyzeLanding() {
               Join thousands of educators and students who trust Prepalyze for
               their exam management needs.
             </Text>
-            <Group gap="md" className="mobile-stack">
-              <Button
-                size="xl"
-                variant="white"
-                c="blue"
-                style={{ borderColor: "white" }}
-                className="responsive-button"
-                onClick={() => handleNavigation("/contact")}
+
+            <SimpleGrid
+              cols={{ base: 1, md: 2 }}
+              spacing="xl"
+              w="100%"
+              maw={800}
+            >
+              {/* Email Card */}
+              <Card
+                p="xl"
+                ta="center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: "1rem",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 12px 28px rgba(0, 0, 0, 0.35)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 20px rgba(0, 0, 0, 0.25)";
+                }}
               >
-                Contact Sales
-              </Button>
-            </Group>
+                <ThemeIcon
+                  size="xl"
+                  color="white"
+                  variant="light"
+                  mx="auto"
+                  mb="md"
+                >
+                  <IconMail size={32} />
+                </ThemeIcon>
+                <Title order={3} mb="sm" c="white">
+                  Email Us
+                </Title>
+                <Text c="rgba(255,255,255,0.8)" mb="md">
+                  Get in touch with our team
+                </Text>
+                <Button
+                  component="a"
+                  href="mailto:indalyxosolutions@gmail.com"
+                  variant="white"
+                  c="blue"
+                  fullWidth
+                  size="md"
+                  style={{
+                    fontWeight: 600,
+                    borderRadius: "0.75rem",
+                    transition: "background 0.2s ease, color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#2563eb";
+                    e.currentTarget.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.color = "blue";
+                  }}
+                >
+                  indalyxosolutions@gmail.com
+                </Button>
+              </Card>
+
+              {/* Phone Card */}
+              <Card
+                p="xl"
+                ta="center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: "1rem",
+                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 12px 28px rgba(0, 0, 0, 0.35)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 20px rgba(0, 0, 0, 0.25)";
+                }}
+              >
+                <ThemeIcon
+                  size="xl"
+                  color="white"
+                  variant="light"
+                  mx="auto"
+                  mb="md"
+                >
+                  <IconPhone size={32} />
+                </ThemeIcon>
+                <Title order={3} mb="sm" c="white">
+                  Call Us
+                </Title>
+                <Text c="rgba(255,255,255,0.8)" mb="md">
+                  Speak directly with our experts
+                </Text>
+                <Button
+                  component="a"
+                  href="tel:+919876543210"
+                  variant="white"
+                  c="blue"
+                  fullWidth
+                  size="md"
+                  style={{
+                    fontWeight: 600,
+                    borderRadius: "0.75rem",
+                    transition: "background 0.2s ease, color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#2563eb";
+                    e.currentTarget.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.color = "blue";
+                  }}
+                >
+                  +91 96001 62710
+                </Button>
+              </Card>
+            </SimpleGrid>
           </Stack>
         </Container>
       </section>
@@ -940,15 +1433,6 @@ export default function PrepalyzeLanding() {
                   </Text>
                   <Text
                     component="a"
-                    href="#careers"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Careers
-                  </Text>
-                  <Text
-                    component="a"
                     href="#contact"
                     size="sm"
                     c="var(--color-muted-foreground)"
@@ -997,7 +1481,15 @@ export default function PrepalyzeLanding() {
           <Divider my="xl" />
 
           <Group justify="space-between" align="center">
-            <Text size="sm" c="var(--color-muted-foreground)">
+            <Text
+              component="a"
+              href="https://indalyxo.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              c="var(--color-muted-foreground)"
+              style={{ textDecoration: "none", cursor: "pointer" }}
+            >
               © 2025 Indalyxo Solutions. All rights reserved.
             </Text>
             <Group gap="md">

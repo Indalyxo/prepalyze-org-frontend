@@ -47,10 +47,12 @@ function QuestionCard({ q, index, exportRef }) {
     text: opt?.text ?? "",
   }));
 
-  const correctText = q?.correctOption ?? "";
-  const correctIndex = options.findIndex(
-    (o) => o.text.trim() === correctText.trim()
-  );
+  // normalize correctOption (remove a)/b)/c)/d) etc.)
+  const normalizeCorrect = (correct) =>
+    (correct ?? "").replace(/^[a-dA-D]\)\s*/, "").trim();
+
+  const correctText = normalizeCorrect(q?.correctOption ?? "");
+  const correctIndex = options.findIndex((o) => o.text.trim() === correctText);
 
   return (
     <Paper
@@ -80,30 +82,41 @@ function QuestionCard({ q, index, exportRef }) {
         </Text>
       </Box>
 
-      {/* Options in a more compact layout */}
-      <Stack
-        gap="xs"
-        className="qp-options-container qp-options-container--compact"
-      >
-        {options.map((o, i) => (
-          <OptionRow
-            key={i}
-            label={o.label}
-            content={o.text}
-            isCorrect={i === correctIndex}
-          />
-        ))}
-      </Stack>
+      {q.type === "Numerical type" ? (
+        <></>
+      ) : (
+        <Stack
+          gap="xs"
+          className="qp-options-container qp-options-container--compact"
+        >
+          {options.map((o, i) => (
+            <OptionRow
+              key={i}
+              label={o.label}
+              content={o.text}
+              isCorrect={i === correctIndex}
+            />
+          ))}
+        </Stack>
+      )}
 
-      {/* Answer Section - more compact */}
+      {/* Answer Section */}
       {correctText && (
         <>
           <Text size="xs" fw={600} c="green.7">
             Answer:
           </Text>
-          <Text size="xs" className="qp-correct-answer">
-            {letters[correctIndex] || "N/A"}
-          </Text>
+          {
+            q.type === "Numerical type" ? (
+              <Text size="sm" fw={500} className="qp-question-content">
+                {q.correctOption}
+              </Text>
+            ) : (
+              <Text size="sm" fw={500} className="qp-question-content">
+                {renderWithLatexAndImages(q.correctOption)}
+              </Text>
+            )
+          }
         </>
       )}
     </Paper>

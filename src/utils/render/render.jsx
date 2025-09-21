@@ -209,7 +209,6 @@ const renderWithLatexAndImages = (text, imageStyles) => {
   if (!text || typeof text !== "string") {
     return text || null;
   }
-  console.log(imageStyles, "<")
 
   const listData = parseListEnvironment(text);
   if (listData) {
@@ -274,7 +273,6 @@ const renderWithLatexAndImages = (text, imageStyles) => {
   let preprocessedText = text.replace(/\\_{1,}/g, (match) => {
     return `__`;
   });
-  {console.log(imageStyles, ",")}
 
   return renderContent(preprocessedText, imageStyles);
 
@@ -405,7 +403,6 @@ const renderWithLatexAndImages = (text, imageStyles) => {
       } else if (part.type === "image") {
         return (
           <div key={i} style={{ margin: "10px 0" }}>
-            {console.log(imageStyles)}
             <ImageWithError
               src={part.value}
               alt="Question content"

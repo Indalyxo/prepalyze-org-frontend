@@ -1,6 +1,21 @@
-import { useState, useEffect } from "react"
-import { Modal, Text, Button, Progress, Group, Stack, Center, Box, Alert } from "@mantine/core"
-import { IconClock, IconAlertTriangle, IconShieldCheck } from "@tabler/icons-react"
+import { useState, useEffect } from "react";
+import {
+  Modal,
+  Text,
+  Button,
+  Progress,
+  Group,
+  Stack,
+  Center,
+  Box,
+  Alert,
+} from "@mantine/core";
+import {
+  IconClock,
+  IconAlertTriangle,
+  IconShieldCheck,
+} from "@tabler/icons-react";
+import { useMutation } from "@tanstack/react-query";
 
 const DetentionModal = ({
   opened,
@@ -9,55 +24,110 @@ const DetentionModal = ({
   detentionMinutes = 5,
   onDetentionComplete,
   reset,
-  setReset
+  attendance,
+  setReset,
 }) => {
-  const [timeRemaining, setTimeRemaining] = useState(detentionMinutes * 60) // Convert to seconds
-  const [isActive, setIsActive] = useState(false)
+  const detentionInfo = attendance?.detention;
+  const now = new Date();
 
-  if (reset) {
-    setTimeRemaining(detentionMinutes * 60)
-    setIsActive(true)
-  }
+  // If detention exists and is active, calculate remaining time
+  const detentionActive =
+    detentionInfo?.isActive &&
+    new Date(detentionInfo.startedAt) <= now &&
+    new Date(detentionInfo.endedAt) > now;
 
+  const initialRemaining = detentionActive
+    ? Math.max(
+        Math.floor((new Date(detentionInfo.endedAt) - now) / 1000), // seconds left
+        0
+      )
+    : detentionMinutes * 60;
+
+  const [timeRemaining, setTimeRemaining] = useState(initialRemaining);
+  const [isActive, setIsActive] = useState(detentionActive);
+
+  // Handle reset trigger
   useEffect(() => {
-    if (opened) {
-      setTimeRemaining(detentionMinutes * 60)
-      setIsActive(true)
+    if (reset) {
+      setTimeRemaining(detentionMinutes * 60);
+      setIsActive(true);
+      setReset?.(false);
     }
-  }, [opened, detentionMinutes])
+  }, [reset, detentionMinutes, setReset]);
 
+  // If modal is opened manually
   useEffect(() => {
-    let interval = null
+    if (opened && !detentionActive) {
+      setTimeRemaining(detentionMinutes * 60);
+      setIsActive(true);
+    }
+  }, [opened, detentionMinutes, detentionActive]);
+
+  const clearDetention = async () => {
+    try {
+      const res = await apiClient.post(
+        `/api/exam/${attendance?.examId}/detention/complete`
+      );
+      return res.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const detentionMutation = useMutation({
+    mutationFn: clearDetention,
+    onSuccess: () => {
+      toast.success("Detention cleared successfully ✅");
+      queryClient.invalidateQueries(["attendance", attendance?.examId]);
+    },
+    onError: () => {
+      toast.error("Failed to clear detention ❌");
+    },
+  })
+
+  // Countdown effect
+  useEffect(() => {
+    let interval = null;
 
     if (isActive && timeRemaining > 0) {
       interval = setInterval(() => {
         setTimeRemaining((time) => {
           if (time <= 1) {
-            setIsActive(false)
-            onDetentionComplete?.()
-            return 0
+            clearInterval(interval);
+            setIsActive(false);
+            detentionMutation.mutate();
+            onDetentionComplete?.();
+            return 0;
           }
-          return time - 1
-        })
-      }, 1000)
+          return time - 1;
+        });
+      }, 1000);
     } else if (timeRemaining === 0) {
-      clearInterval(interval)
+      clearInterval(interval);
     }
 
-    return () => clearInterval(interval)
-  }, [isActive, timeRemaining, onDetentionComplete])
+    return () => clearInterval(interval);
+  }, [isActive, timeRemaining, onDetentionComplete]);
 
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
-  const progressValue = ((detentionMinutes * 60 - timeRemaining) / (detentionMinutes * 60)) * 100
+  const progressValue = detentionInfo.isActive
+    ? ((detentionInfo.duration * 60 - timeRemaining) /
+        (detentionInfo.duration * 60)) *
+      100
+    : ((detentionMinutes * 60 - timeRemaining) / (detentionMinutes * 60)) * 100;
+
+  const reason = detentionInfo?.reason || ruleViolated;
+  const duration = detentionInfo?.duration || detentionMinutes;
 
   return (
     <Modal
-      opened={opened}
+      opened={detentionActive || opened}
       onClose={() => {}} // Prevent closing during detention
       title={null}
       centered
@@ -70,7 +140,8 @@ const DetentionModal = ({
       styles={{
         modal: {
           borderRadius: "12px",
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          boxShadow:
+            "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
         },
         body: {
           padding: "2rem",
@@ -97,7 +168,7 @@ const DetentionModal = ({
           <Text size="sm" c="dimmed">
             You have violated:{" "}
             <Text span fw={500} c="dark">
-              {ruleViolated}
+              {reason}
             </Text>
           </Text>
         </Alert>
@@ -139,7 +210,7 @@ const DetentionModal = ({
           <Text size="sm" ta="center" c="#92400e" mb="lg">
             You are detained for{" "}
             <Text span fw={600}>
-              {detentionMinutes} minutes
+              {duration} minutes
             </Text>
           </Text>
 
@@ -208,7 +279,8 @@ const DetentionModal = ({
 
       <style jsx>{`
         @keyframes bounce {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0px);
           }
           50% {
@@ -217,7 +289,7 @@ const DetentionModal = ({
         }
       `}</style>
     </Modal>
-  )
-}
+  );
+};
 
-export default DetentionModal
+export default DetentionModal;

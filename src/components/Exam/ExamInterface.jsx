@@ -206,6 +206,8 @@ const ExamInterface = ({ examData, attendance }) => {
       exam: examData.examTitle,
     };
 
+    setDisabled(true);
+
     await apiClient.post(`/api/exam/${examId}/detention`, {
       student: user,
       duration: settings.detention.durationInMinutes,
@@ -214,7 +216,6 @@ const ExamInterface = ({ examData, attendance }) => {
       notificationInformation,
     });
 
-    setDisabled(true);
     setReset(true);
   };
 
@@ -359,6 +360,7 @@ const ExamInterface = ({ examData, attendance }) => {
         opened={disabled}
         ruleViolated="Switching Tabs"
         detentionMinutes={settings.detention.durationInMinutes}
+        attendance={attendance}
         onClose={() => setDisabled(false)}
       />
 

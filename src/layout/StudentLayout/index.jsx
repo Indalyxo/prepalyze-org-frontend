@@ -26,8 +26,6 @@ const StudentLayout = () => {
     return null;
   }
 
-  console.log(isAuthenticated, user?.role);
-
   const navItems = [
     {
       name: "Intellihub",

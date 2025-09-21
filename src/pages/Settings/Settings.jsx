@@ -30,8 +30,8 @@ const DEFAULTS = {
 };
 
 export function SettingsPage() {
-  const { user, loadSettings } = useAuthStore();
-  const orgId = user?.organization?._id || user?.organizationId;
+  const { user, loadSettings, settings } = useAuthStore();
+  const orgId = user?.organization?._id || user?.organizationId || user?.organization.id;
 
   const [detention, setDetention] = useState(DEFAULTS.detention);
   const [exam, setExam] = useState(DEFAULTS.exam);
