@@ -18,6 +18,16 @@
   line-height: 1.6;
   color: var(--color-foreground);
 }
+.logo {
+  width: 220px;
+  height: 80px;
+  object-fit: cover;
+  transition: transform 0.5s ease-in-out;
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+  }
+}
 
 // Header styles
 .prepalyze-header {
@@ -35,10 +45,12 @@
     color: white;
     font-weight: 500;
     padding: 8px 16px;
+    border: 1px solid rgba(30, 143, 255, 0);
     border-radius: 6px;
 
     &:hover {
       transform: translateY(-2px);
+      border: 1px solid rgb(255, 255, 255);
       background: rgba(255, 255, 255, 0.1);
       color: var(--color-primary-foreground);
     }
