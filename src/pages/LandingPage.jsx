@@ -215,10 +215,9 @@ export default function PrepalyzeLanding() {
           <Group justify="space-between" align="center">
             <Group align="center" gap="xs">
               <Image
+                className="logo"
                 src="/Prepalyze-logo.svg"
                 alt="Prepalyze Logo"
-                width={100}
-                height={100}
               />
             </Group>
 
@@ -273,10 +272,10 @@ export default function PrepalyzeLanding() {
           title={
             <Group align="center" gap="xs">
               <Image
-                src="/Prepalyze-logo.svg"
-                alt="Prepalyze Logo"
                 width={100}
                 height={100}
+                src="/Prepalyze-logo.svg"
+                alt="Prepalyze Logo"
               />
             </Group>
           }
