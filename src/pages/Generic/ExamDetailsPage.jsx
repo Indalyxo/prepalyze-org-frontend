@@ -449,7 +449,7 @@ export default function ExamDetails() {
             className="section-card kpi-card"
           >
             <Text fw={700} size="xl" className="kpi-value">
-              {metrics?.averageScore}%
+              {metrics?.averageScore?.toFixed(2)}%
             </Text>
             <Text size="sm" c="dimmed" className="kpi-label">
               Avg. Score
