@@ -79,7 +79,7 @@ export default function StudentDetails() {
                 <LabelList
                   dataKey="score"
                   position="top"
-                  formatter={(v) => `${v}%`}
+                  formatter={(v) => `${v?.toFixed(2)}%`}
                 />
               </Bar>
             </BarChart>
