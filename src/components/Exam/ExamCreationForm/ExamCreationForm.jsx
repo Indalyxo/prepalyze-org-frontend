@@ -363,12 +363,32 @@ const ExamCreationForm = ({ opened, onClose, date }) => {
 
   const handleInputChange = useCallback(
     (field, value) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) => {
+        let next = { ...prev, [field]: value };
+
+        // Enforce examMode rules immediately when mode changes
+        if (field === "examMode") {
+          if (value === "Online") {
+            next.isOpenExam = true;
+            next.selectedGroups = []; // no participants for online
+          } else if (value === "Offline") {
+            next.isOpenExam = false; // offline must be closed (requires groups)
+          }
+        }
+
+        return next;
+      });
+
       validateField(field, value);
+
+      // re-validate dependent fields when mode changes
+      if (field === "examMode") {
+        validateField("isOpenExam", true);
+        validateField("selectedGroups", []);
+      }
     },
     [currentStep]
   );
-
   // Optimized topic question counts update function
   const updateTopicQuestionCounts = useCallback((topicId, newCounts) => {
     setFormData((prev) => ({
