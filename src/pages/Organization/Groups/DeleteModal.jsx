@@ -1,28 +1,59 @@
-import { Modal, Title, Text, Button, Group, Alert, Stack } from "@mantine/core"
-import { IconTrash, IconAlertTriangle } from "@tabler/icons-react"
-import { useState } from "react"
+import { Modal, Title, Text, Button, Group, Alert, Stack } from "@mantine/core";
+import { IconTrash, IconAlertTriangle } from "@tabler/icons-react";
+import { useState } from "react";
 
-export default function DeleteModal({ opened, onClose, onConfirm, itemName, itemType, error }) {
-  const [loading, setLoading] = useState(false)
+export default function DeleteModal({
+  opened,
+  onClose,
+  onConfirm,
+  itemName,
+  itemType,
+  error,
+}) {
+  const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await onConfirm()
+      await onConfirm();
     } catch (err) {
       // Error is handled by parent component
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <Modal opened={opened} onClose={onClose} title={<Title order={3}>Delete {itemType}</Title>} size="sm">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={<Title order={3}>Delete {itemType}</Title>}
+      styles={{
+        content: {
+          borderRadius: "12px",
+          padding: "24px",
+        },
+        header: {
+          borderBottom: "1px solid #e9ecef",
+          marginBottom: "16px",
+          paddingBottom: "12px",
+        },
+        title: {
+          fontWeight: 600,
+          fontSize: "18px",
+        },
+      }}
+      size="lg"
+    >
       <Stack gap="md">
-        <Group gap="sm">
-          <IconAlertTriangle size={20} color="red" />
+        <Group gap="sm" aria-flowto="error">
+          <IconAlertTriangle
+            size={20}
+            color="red"
+          />
           <Text>
-            Are you sure you want to delete the {itemType} "{itemName}"? This action cannot be undone.
+            Are you sure you want to delete the {itemType} "{itemName}"? This
+            action cannot be undone.
           </Text>
         </Group>
 
@@ -36,11 +67,16 @@ export default function DeleteModal({ opened, onClose, onConfirm, itemName, item
           <Button variant="subtle" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button color="red" onClick={handleConfirm} loading={loading} leftSection={<IconTrash size={16} />}>
+          <Button
+            color="red"
+            onClick={handleConfirm}
+            loading={loading}
+            leftSection={<IconTrash size={16} />}
+          >
             Delete {itemType}
           </Button>
         </Group>
       </Stack>
     </Modal>
-  )
+  );
 }
