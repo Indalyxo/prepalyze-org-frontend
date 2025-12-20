@@ -1,4 +1,5 @@
 import { Card, Text, Radio, Stack, TextInput } from "@mantine/core";
+import { useRef } from "react";
 import WatermarkWrapper from "../../../utils/AntiCheat/WatermarkWrapper";
 import { renderWithLatexAndImages } from "../../../utils/render/render";
 
@@ -57,46 +58,71 @@ const QuestionContent = ({
               size="lg"
             >
               <Stack gap="md">
-                {questionData.options?.map((option, index) => (
-                  <Radio.Card
-                    key={option._id}
-                    className={`option-card ${
-                      currentAnswer === option._id ? "selected" : ""
-                    }`}
-                    p="lg"
-                    radius="lg"
-                    withBorder
-                  >
-                    <Radio
-                      value={option._id.toString()}
-                      label={
-                        <div className="option-content">
-                          <div className="option-letter">
-                            {String.fromCharCode(65 + index)}
-                          </div>
-                          <Text className="option-text">
-                            {renderWithLatexAndImages(
-                              option.text,
-                              questionData.type === "Assertion & Reason"
-                            )}
-                          </Text>
-                        </div>
-                      }
-                      styles={{
-                        label: {
-                          display: "flex",
-                          alignItems: "center", // ✅ aligns radio, letter, and text vertically
-                          gap: "12px", // space between radio and content
-                          width: "100%",
-                        },
-                        radio: {
-                          display: "block",
-                          flexShrink: 0, // Prevent radio from shrinking
-                        },
+                {questionData.options?.map((option, index) => {
+                  const radioRef = useRef(null);
+                  
+                  const handleCardClick = (e) => {
+                    // Don't trigger if clicking the radio button itself
+                    if (e.target.closest('[type="radio"]')) {
+                      return;
+                    }
+                    // Trigger the radio button
+                    if (radioRef.current) {
+                      radioRef.current.click();
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={option._id}
+                      className={`option-card ${
+                        currentAnswer === option._id ? "selected" : ""
+                      }`}
+                      onClick={handleCardClick}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          if (radioRef.current) {
+                            radioRef.current.click();
+                          }
+                        }
                       }}
-                    />
-                  </Radio.Card>
-                ))}
+                    >
+                      <Radio
+                        ref={radioRef}
+                        value={option._id.toString()}
+                        label={
+                          <div className="option-content">
+                            <div className="option-letter">
+                              {String.fromCharCode(65 + index)}
+                            </div>
+                            <Text className="option-text">
+                              {renderWithLatexAndImages(
+                                option.text,
+                                questionData.type === "Assertion & Reason"
+                              )}
+                            </Text>
+                          </div>
+                        }
+                        styles={{
+                          label: {
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            width: "100%",
+                            cursor: "pointer",
+                          },
+                          radio: {
+                            display: "block",
+                            flexShrink: 0,
+                            cursor: "pointer",
+                          },
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </Stack>
             </Radio.Group>
           </div>
