@@ -57,6 +57,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import "./landing-page.scss";
+import N8nChat from "./N8nChat";
 
 const appSections = [
   {
@@ -432,6 +433,7 @@ export default function PrepalyzeLanding() {
             </Grid.Col>
           </Grid>
         </Container>
+        <N8nChat/>
       </section>
 
       {/* Features Section */}
