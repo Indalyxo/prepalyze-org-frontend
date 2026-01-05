@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { TextInput, Textarea } from "@mantine/core";
+import { useForm } from "@mantine/form";
+
 import {
   Container,
   Title,
@@ -207,6 +210,30 @@ export default function PrepalyzeLanding() {
     navigate(path);
     closeDrawer();
   };
+
+  // ================= FOOTER CONTACT FORM =================
+const contactForm = useForm({
+  initialValues: {
+    name: "",
+    phone: "",
+    email: "",
+    message: "",
+  },
+  validate: {
+    name: (v) => (v.length < 2 ? "Enter your name" : null),
+    phone: (v) =>
+      /^\d{10}$/.test(v) ? null : "Enter valid 10-digit phone number",
+    email: (v) => (/^\S+@\S+$/.test(v) ? null : "Invalid email"),
+    message: (v) =>
+      v.length < 10 ? "Message should be at least 10 characters" : null,
+  },
+});
+
+const handleContactSubmit = (values) => {
+  console.log("Contact Form Data:", values);
+  contactForm.reset();
+};
+
 
   return (
     <Box className="prepalyze-landing">
@@ -1373,149 +1400,106 @@ export default function PrepalyzeLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <Container size="xl">
-          <Grid>
-            <Grid.Col span={{ base: 12, md: 6 }}>
-              <Stack gap="md">
-                <Group>
-                  <img
-                    src="/Prepalyze-logo.svg"
-                    alt="Prepalyze Logo"
-                    width={200}
-                    height={100}
-                  />
-                </Group>
-              </Stack>
-            </Grid.Col>
+      {/* Footer */}
+<footer className="footer">
+  <Container size="xl">
+    <Grid gutter="xl">
+      {/* LEFT – BRAND */}
+      <Grid.Col span={{ base: 12, md: 4 }}>
+        <Stack gap="md">
+          <Image
+            src="/Prepalyze-logo.svg"
+            alt="Prepalyze Logo"
+            width={220}
+          />
+          <Text size="sm" c="var(--color-muted-foreground)">
+            Prepalyze helps institutions create, conduct, and analyze exams
+            using AI-powered tools.
+          </Text>
+        </Stack>
+      </Grid.Col>
 
-            <Grid.Col span={{ base: 12, md: 6 }}>
-              <SimpleGrid
-                cols={{ base: 2, sm: 3 }}
-                spacing="xl"
-                className="footer-links"
-              >
-                <Stack gap="sm">
-                  <Text fw={600} c="var(--color-foreground)">
-                    Product
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#features"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Features
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#pricing"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Pricing
-                  </Text>
-                </Stack>
+      {/* CENTER – LINKS */}
+      <Grid.Col span={{ base: 12, md: 3 }}>
+        <Stack gap="sm">
+          <Text fw={600}>Quick Links</Text>
+          <Text component="a" href="#features" size="sm">
+            Features
+          </Text>
+          <Text component="a" href="#pricing" size="sm">
+            Pricing
+          </Text>
+          <Text component="a" href="#contact" size="sm">
+            Contact
+          </Text>
+        </Stack>
+      </Grid.Col>
 
-                <Stack gap="sm">
-                  <Text fw={600} c="var(--color-foreground)">
-                    Company
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#about"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    About
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#contact"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Contact
-                  </Text>
-                </Stack>
+      {/* RIGHT – CONTACT FORM */}
+      <Grid.Col span={{ base: 12, md: 5 }}>
+        <Title order={4} mb="sm">
+          Contact Us
+        </Title>
 
-                <Stack gap="sm">
-                  <Text fw={600} c="var(--color-foreground)">
-                    Support
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#help"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Help Center
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#docs"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Documentation
-                  </Text>
-                  <Text
-                    component="a"
-                    href="#status"
-                    size="sm"
-                    c="var(--color-muted-foreground)"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Status
-                  </Text>
-                </Stack>
-              </SimpleGrid>
-            </Grid.Col>
-          </Grid>
+        <form onSubmit={contactForm.onSubmit(handleContactSubmit)}>
+          <SimpleGrid cols={{ base: 1, sm: 2 }}>
+            <TextInput
+              label="Name"
+              placeholder="Your name"
+              {...contactForm.getInputProps("name")}
+            />
+            <TextInput
+              label="Phone"
+              placeholder="10-digit number"
+              {...contactForm.getInputProps("phone")}
+            />
+          </SimpleGrid>
 
-          <Divider my="xl" />
+          <TextInput
+            mt="sm"
+            label="Email"
+            placeholder="your@email.com"
+            {...contactForm.getInputProps("email")}
+          />
 
-          <Group justify="space-between" align="center">
-            <Text
-              component="a"
-              href="https://indalyxo.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              size="sm"
-              c="var(--color-muted-foreground)"
-              style={{ textDecoration: "none", cursor: "pointer" }}
-            >
-              © 2025 Indalyxo Solutions. All rights reserved.
-            </Text>
-            <Group gap="md">
-              <Text
-                component="a"
-                href="#privacy"
-                size="sm"
-                c="var(--color-muted-foreground)"
-                style={{ textDecoration: "none" }}
-              >
-                Privacy Policy
-              </Text>
-              <Text
-                component="a"
-                href="#terms"
-                size="sm"
-                c="var(--color-muted-foreground)"
-                style={{ textDecoration: "none" }}
-              >
-                Terms of Service
-              </Text>
-            </Group>
-          </Group>
-        </Container>
-      </footer>
+          <Textarea
+            mt="sm"
+            label="Description"
+            placeholder="Tell us about your requirement..."
+            minRows={3}
+            {...contactForm.getInputProps("message")}
+          />
+
+          <Button
+            type="submit"
+            fullWidth
+            mt="md"
+            leftSection={<IconCheck size={16} />}
+          >
+            Submit
+          </Button>
+        </form>
+      </Grid.Col>
+    </Grid>
+
+    <Divider my="xl" />
+
+    <Group justify="space-between">
+      <Text size="sm" c="var(--color-muted-foreground)">
+        © 2025 Indalyxo Solutions. All rights reserved.
+      </Text>
+      <Group gap="md">
+        <Text component="a" href="#privacy" size="sm">
+          Privacy Policy
+        </Text>
+        <Text component="a" href="#terms" size="sm">
+          Terms of Service
+        </Text>
+      </Group>
+    </Group>
+  </Container>
+</footer>
+
     </Box>
   );
 }

@@ -21,7 +21,7 @@ const N8nChat = () => {
 
       createChat({
         webhookUrl:
-          "https://muthudev.app.n8n.cloud/webhook/784e599b-98d2-4722-9dc3-12459f3b8be8/chat",
+          "https://n8n.srv1240502.hstgr.cloud/webhook/01c9e33b-0381-432c-87b9-a4f16ae07e02/chat",
       });
     };
 
