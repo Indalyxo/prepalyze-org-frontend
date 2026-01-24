@@ -60,7 +60,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import "./landing-page.scss";
-import N8nChat from "./N8nChat";
+import N8nChat from "./N8n/N8nChat";
 
 const appSections = [
   {
@@ -229,10 +229,31 @@ const contactForm = useForm({
   },
 });
 
-const handleContactSubmit = (values) => {
-  console.log("Contact Form Data:", values);
-  contactForm.reset();
+const handleContactSubmit = async (values) => {
+  try {
+    const res = await fetch("http://localhost:5000/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Message sent successfully!");
+      contactForm.reset();
+    } else {
+      alert("Failed to send message");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Server error. Try again later.");
+  }
 };
+
+
 
 
   return (
