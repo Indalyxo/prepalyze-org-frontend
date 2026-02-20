@@ -1039,9 +1039,9 @@ const handleContactSubmit = async (values) => {
                 Best for schools and institutions
               </Text>
               <Box ta="center" mb="md" className="pricing-price">
-                ₹8000
-                <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
-                  /month
+                4 Lakhs
+                                <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
+                  /Year
                 </Text>
               </Box>
               <Stack gap="sm" mb="xl" className="feature-list">
@@ -1096,9 +1096,9 @@ const handleContactSubmit = async (values) => {
                 Best for personal use
               </Text>
               <Box ta="center" mb="md" className="pricing-price">
-                ₹5000
+                ₹80,000
                 <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
-                  /month
+                  /Year
                 </Text>
               </Box>
               <Stack gap="sm" mb="xl" className="feature-list">
