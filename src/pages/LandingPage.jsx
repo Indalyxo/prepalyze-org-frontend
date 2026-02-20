@@ -1040,7 +1040,7 @@ const handleContactSubmit = async (values) => {
               </Text>
               <Box ta="center" mb="md" className="pricing-price">
                 4 Lakhs
-                                <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
+             <Text size="lg" span c="var(--color-muted-foreground)" fw={400}>
                   /Year
                 </Text>
               </Box>
@@ -1127,7 +1127,9 @@ const handleContactSubmit = async (values) => {
                 className="pricing-price"
                 style={{ marginTop: "auto" }}
               >
-                Coming Soon...
+               <Button color="blue" fullWidth size="md">
+                Most Popular
+              </Button>
               </Box>
             </Card>
 
