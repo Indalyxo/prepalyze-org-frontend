@@ -6,6 +6,8 @@ import "./login-form.scss";
 import { useForm } from "@mantine/form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Anchor } from "@mantine/core";
+import { Link } from "react-router-dom";
 
 export default function LoginForm() {
   const { login } = useAuthStore();
@@ -114,6 +116,18 @@ export default function LoginForm() {
                 className="password-input"
                 required
               />
+
+              <div style={{ textAlign: "right" }}>
+                <Anchor
+                  component={Link}
+                  to="/forget-password"
+                  size="sm"
+                  className="forgot-password-link"
+                >
+                  Forgot password?
+                </Anchor>
+              </div>
+
 
               <Button
                 type="submit"

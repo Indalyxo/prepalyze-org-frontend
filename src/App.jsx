@@ -29,8 +29,17 @@ const ExamDetailsPage = lazy(() => import("./pages/Generic/ExamDetailsPage"));
 const UserDetailsPage = lazy(() => import("./pages/Generic/UserDetailsPage"));
 const NotFoundPage = lazy(() => import("./pages/Generic/NotFoundPage"));
 const ViewExamsPage = lazy(() => import("./pages/Exam/ViewExamsPage"));
+const AIPoweredExam = lazy(() => import("./pages/Exam/AIPoweredExam"));
 const Notification = lazy(() => import("./pages/Notification/Notification"));
 const SettingsPage = lazy(() => import("./pages/Settings/Settings"));
+const ForgetPassword = lazy(() =>
+  import("./pages/ForgetPassword/ForgetPassword")
+);
+
+const ResetPassword = lazy(() =>
+  import("./pages/ResetPassword/ResetPassword")
+);
+
 const ExamQuestionsPage = lazy(() =>
   import("./pages/Generic/ExamQuestions/ExamQuestions")
 );
@@ -71,6 +80,10 @@ const App = () => {
       <OfflineAlert />
       <Suspense fallback={<LoadingPage />}>
         <Routes>
+          {/* Public Auth Routes */}
+          <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
           {/* Login Route */}
           {!isAuthenticated ? (
             <Route path="/login" element={<LoginPage />} />
@@ -107,6 +120,7 @@ const App = () => {
             <Route path="/student" element={<StudentLayout />}>
               <Route index element={<StudentIntellihub />} />
               <Route path="exams" element={<ViewStudentsExamsPage />} />
+              <Route path="exams/start/:examId" element={<ExamStartPage />} />
               <Route
                 path="exams/details/:examId"
                 element={<StudentsViewDetailsPage />}
@@ -133,6 +147,7 @@ const App = () => {
               <Route path="exams" element={<ViewExamsPage />} />
               <Route path="notification" element={<Notification />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="exams/ai" element={<AIPoweredExam />} /> 
               <Route
                 path="exams/details/:examId"
                 element={<ExamDetailsPage />}
@@ -165,9 +180,9 @@ const App = () => {
             </>
           )}
 
-          {isAuthenticated && user?.role === "student" && (
-            <Route path="exams/start/:examId" element={<ExamStartPage />} />
-          )}
+          {/* {isAuthenticated && user?.role === "student" && (
+            // <Route path="exams/start/:examId" element={<ExamStartPage />} />
+          )} */}
 
           {/* 404 */}
           <Route path="*" element={<NotFoundPage />} />
