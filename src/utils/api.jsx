@@ -167,3 +167,15 @@ export const userAPI = {
   // Get all users for an organization
   getUsers: (organizationId) => apiClient.get(`/api/user/${organizationId}`)
 };
+
+// Event / meeting APIs
+export const eventAPI = {
+  // fetch calendar events (exams + meetings)
+  calendar: () => apiClient.get("/event/calendar"),
+  // create new meeting (organizer only)
+  create: (payload) => apiClient.post("/event", payload),
+  // mark attendance
+  attend: (eventId) => apiClient.post(`/event/${eventId}/attend`),
+  // get single event details
+  get: (eventId) => apiClient.get(`/event/${eventId}`),
+};

@@ -24,7 +24,10 @@ import {
   ThemeIcon,
   Container,
   Drawer,
+  TextInput,
+  Textarea,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import {
   IconFilter,
   IconFilterOff,
@@ -32,7 +35,7 @@ import {
   IconTrendingUp,
   IconSparkles,
 } from "@tabler/icons-react";
-import apiClient from "../../../utils/api";
+import apiClient, { eventAPI } from "../../../utils/api";
 import "./Calendar.scss";
 import { createSearchParams, useNavigate } from "react-router-dom";
 
@@ -48,12 +51,38 @@ export default function CalendarPage({ path = "student" }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvents, setSelectedEvents] = useState([]);
 
+  // meeting creation state
+  const [meetingModalOpened, setMeetingModalOpened] = useState(false);
+
+  const meetingForm = useForm({
+    initialValues: {
+      title: "",
+      date: "",
+      description: "",
+      link: "",
+      image: "",
+    },
+
+    validate: {
+      title: (val) => (val.trim() ? null : "Required"),
+      date: (val) => (val ? null : "Required"),
+      link: (val) =>
+        /^https?:\/\//.test(val) ? null : "Must be a valid URL (http:// or https://)",
+    },
+  });
+
+  useEffect(() => {
+    if (selectedDate) {
+      meetingForm.setFieldValue("date", selectedDate);
+    }
+  }, [selectedDate]);
+
   const navigate = useNavigate();
 
   const fetchEvents = async () => {
     try {
       setIsLoading(true);
-      const response = await apiClient.get("/event/calendar");
+      const response = await eventAPI.calendar();
       const eventsData = response.data.events;
       setEvents(eventsData);
       const subjects = response.data.subjects.map((subject) => ({
@@ -116,8 +145,36 @@ export default function CalendarPage({ path = "student" }) {
     });
   };
 
+  // open meeting creation modal
+  const handleCreateMeeting = () => {
+    if (selectedDate) {
+      meetingForm.setFieldValue("date", selectedDate);
+    }
+    setMeetingModalOpened(true);
+  };
+
+  // join event (record attendance then open link)
+  const handleJoin = async (event) => {
+    if (!event.link) return;
+    try {
+      await eventAPI.attend(event.id);
+      // optimistic update of count locally
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === event.id
+            ? { ...e, attendeeCount: (e.attendeeCount || 0) + 1 }
+            : e
+        )
+      );
+    } catch (err) {
+      console.error("attendance error", err);
+    }
+    window.open(event.link, "_blank");
+  };
+
   const handleEventClick = (eventId, type) => {
     if (type === "exam event") navigate(`/${path}/exams/details/${eventId}`);
+    // pure events don't navigate; join button handles link
   };
 
   const formatDate = (dateStr) => {
@@ -365,7 +422,10 @@ export default function CalendarPage({ path = "student" }) {
                   key={event.id}
                   padding="md"
                   withBorder
-                  onClick={() => handleEventClick(event.id, event.type)}
+                  onClick={() =>
+                    event.type === "exam event" &&
+                    handleEventClick(event.id, event.type)
+                  }
                   className="event-card invisible-scrollbar"
                 >
                   <Group justify="space-between" align="flex-start">
@@ -376,6 +436,11 @@ export default function CalendarPage({ path = "student" }) {
                       <Text size="xs" c="dimmed" className="event-id">
                         ID: {event.id}
                       </Text>
+                      {event.attendeeCount != null && (
+                        <Text size="xs" c="dimmed">
+                          Attendees: {event.attendeeCount}
+                        </Text>
+                      )}
                       {event.subjects && event.subjects.length > 0 && (
                         <Group gap="xs">
                           {event.subjects.map((subject, idx) => (
@@ -408,6 +473,18 @@ export default function CalendarPage({ path = "student" }) {
                       {event.type === "exam event" ? "EXAM" : "EVENT"}
                     </Badge>
                   </Group>
+                  {event.type === "pure event" && (
+                    <Button
+                      size="xs"
+                      mt="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJoin(event);
+                      }}
+                    >
+                      Join
+                    </Button>
+                  )}
                 </Card>
               ))}
               <Divider />
@@ -422,16 +499,74 @@ export default function CalendarPage({ path = "student" }) {
 
           {path !== "student" && (
             <Group position="center" justify="flex-end" spacing="sm" mt="md">
-              {/* <Button onClick={handleCreateEvent} variant="filled">
-              Create Event
-            </Button> */}
-
+              <Button onClick={handleCreateMeeting} variant="light">
+                Create Meeting
+              </Button>
               <Button onClick={handleCreateExam} color="red" variant="filled">
                 Create Exam
               </Button>
             </Group>
           )}
         </Stack>
+      </Modal>
+
+      {/* Meeting creation modal (organizer only) */}
+      <Modal
+        opened={meetingModalOpened}
+        onClose={() => setMeetingModalOpened(false)}
+        title="Create Meeting"
+        centered
+        size="md"
+      >
+        <form
+          onSubmit={meetingForm.onSubmit(async (values) => {
+            try {
+              const payload = {
+                name: values.title,
+                date: values.date,
+                description: values.description,
+                link: values.link,
+                image: values.image,
+                visibleTo: ["student"],
+              };
+              await apiClient.post("/event", payload);
+              await fetchEvents();
+              setMeetingModalOpened(false);
+              meetingForm.reset();
+            } catch (err) {
+              console.error("failed to create meeting", err);
+            }
+          })}
+        >
+          <TextInput
+            label="Title"
+            {...meetingForm.getInputProps("title")}
+            required
+          />
+          <TextInput
+            label="Date & time"
+            type="datetime-local"
+            {...meetingForm.getInputProps("date")}
+            required
+          />
+          <TextInput
+            label="Link (zoom / meet / etc)"
+            {...meetingForm.getInputProps("link")}
+            required
+          />
+          <TextInput
+            label="Image URL (optional)"
+            {...meetingForm.getInputProps("image")}
+          />
+          <Textarea
+            label="Description"
+            {...meetingForm.getInputProps("description")}
+            required
+          />
+          <Group position="right" mt="md">
+            <Button type="submit">Create</Button>
+          </Group>
+        </form>
       </Modal>
 
       {/* Calendar Section */}

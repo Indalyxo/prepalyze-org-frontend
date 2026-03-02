@@ -10,6 +10,7 @@ import {
   LoadingOverlay,
   Paper,
   Box,
+  Modal,
   Center,
   Loader,
 } from "@mantine/core";
@@ -20,10 +21,11 @@ import {
   IconX,
   IconCalendar,
   IconBook,
+  IconRobot,
   IconTrendingUp,
 } from "@tabler/icons-react";
 import styles from "./ViewExamsPage.module.scss";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import ExamCreationForm from "../../../components/Exam/ExamCreationForm/ExamCreationForm";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,6 +49,7 @@ const examTypes = ["All Types", "NEET-UG", "JEE-Main"];
 const difficulties = ["All Levels", "Easy", "Medium", "Hard"];
 
 export default function ViewExamsPage() {
+  const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [selectedSubject, setSelectedSubject] = useState("All Subjects");
   const [selectedExamType, setSelectedExamType] = useState("All Types");
@@ -58,8 +61,8 @@ export default function ViewExamsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const create = searchParams.get("create");
   const date = searchParams.get("date");
-
-  const [openCreateModal, setOpenCreateModal] = useState(create || false);
+  const [openChoiceModal, setOpenChoiceModal] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
   const itemsPerPage = 6;
 
   const fetchExams = async ({ pageParam = 0 }) => {
@@ -165,11 +168,12 @@ export default function ViewExamsPage() {
             <Button
               leftSection={<IconPlus size={18} />}
               className={styles.addButton}
-              onClick={() => setOpenCreateModal(true)}
+              onClick={() => setOpenChoiceModal(true)}
               size="md"
             >
               Add Exam
             </Button>
+
           </Group>
         </div>
         <Paper className={styles.searchFilterCard} p="md" mb="xl" shadow="xs">
@@ -240,6 +244,38 @@ export default function ViewExamsPage() {
             </Group>
           </Stack>
         </Paper>
+        <Modal
+          opened={openChoiceModal}
+          onClose={() => setOpenChoiceModal(false)}
+          title="Choose Exam Type"
+          centered
+        >
+          <Stack gap="md">
+            <Button
+              fullWidth
+              leftSection={<IconBook size={18} />}
+              onClick={() => {
+                setOpenChoiceModal(false);
+                setOpenCreateModal(true); // open normal exam form
+              }}
+            >
+              Manual Exam
+            </Button>
+
+            <Button
+              fullWidth
+              variant="outline"
+              leftSection={<IconRobot size={18} />}
+              onClick={() => {
+                setOpenChoiceModal(false);
+                navigate("/organization/exams/ai"); // blank AI page
+              }}
+            >
+              AI Powered Exam
+            </Button>
+          </Stack>
+        </Modal>
+
         <ExamCreationForm
           opened={openCreateModal}
           date={date || null}
