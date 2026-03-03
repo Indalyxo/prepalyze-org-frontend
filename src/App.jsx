@@ -63,6 +63,7 @@ const ExamStartPage = lazy(() =>
 );
 
 const CalendarPage = lazy(() => import("./components/Generics/Calendar/Calendar"));
+const Fees = lazy(() => import("./pages/FeesAmountBill/Fees"));
 
 const App = () => {
   const { isAuthenticated, isInitializing, initializeAuth, user } =
@@ -166,6 +167,7 @@ const App = () => {
               />
               <Route path="calendar" element={<CalendarPage path="organization" />} />
               <Route path="print/:examId" element={<PrintQuestionAnswersheet />} />
+              <Route path="fees" element={<Fees />} />
             </Route>
           )}
 

@@ -5,6 +5,7 @@ import {
   IconCalendarBolt,
   IconContract,
   IconDashboard,
+  IconMoneybag,
   IconUsers,
 } from "@tabler/icons-react";
 
@@ -46,6 +47,12 @@ const OrganizerLayout = () => {
       icon: <IconContract />,
       redirectTo: "/organization/exams",
       description: "Your Assessment Zone",
+    },
+    {
+      name: "Fees",
+      icon: <IconMoneybag />, // Reusing contract icon, change if you want a different one
+      redirectTo: "/organization/fees",
+      description: "Your Fees Zone",
     },
   ];
   return (
