@@ -69,6 +69,7 @@ const Sidebar = ({
     refetchOnWindowFocus: true,
   });
 
+
   // Close mobile sidebar when route changes
   useEffect(() => {
     if (isMobile && mobileOpen && onMobileToggle) {
@@ -172,6 +173,7 @@ const Sidebar = ({
     const userRole = user?.role || "Member";
     const userAvatar =
       user?.organization?.logo || user?.organization?.logoUrl || null;
+
     const initials = userName
       .split(" ")
       .map((n) => n[0])
@@ -557,7 +559,7 @@ const Sidebar = ({
       >
         {(isMobile || !isCollapsed) && (
           <Text size="xs" c="dimmed" ta="center" fw={500}>
-            © 2025 Prepalyze
+            © 2026 Prepalyze
           </Text>
         )}
       </Box>

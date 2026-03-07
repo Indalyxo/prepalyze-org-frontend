@@ -1507,7 +1507,7 @@ const handleContactSubmit = async (values) => {
 
     <Group justify="space-between">
       <Text size="sm" c="var(--color-muted-foreground)">
-        © 2025 Indalyxo Solutions. All rights reserved.
+        © 2026 Indalyxo Solutions. All rights reserved.
       </Text>
       <Group gap="md">
         <Text component="a" href="#privacy" size="sm">
