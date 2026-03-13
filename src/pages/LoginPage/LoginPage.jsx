@@ -4,6 +4,7 @@ import './login-page.scss'
 
 export default function LoginPage() {
   return (
+    <div>
     <div className="login-page">
       <div className="login-container">
         <div className="form-section">
@@ -13,6 +14,9 @@ export default function LoginPage() {
           <LoginImageSection />
         </div>
       </div>
+
+    </div>
+  
     </div>
   )
 }
