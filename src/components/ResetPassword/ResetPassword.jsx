@@ -3,6 +3,9 @@ import { IconLock } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import apiClient from "../../utils/api";
+import "../LoginForm/login-form.scss";
 
 export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
@@ -20,15 +23,28 @@ export default function ResetPassword() {
     },
   });
 
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const navigate = useNavigate();
+
   const handleSubmit = async () => {
+    if (!token) {
+      toast.error("Invalid or missing reset token");
+      return;
+    }
+
     const isValid = form.validate();
     if (!isValid.hasErrors) {
       try {
         setLoading(true);
-        // Call API here later
+        await apiClient.post("/auth/reset-password", {
+          token,
+          password: form.values.password,
+        });
         toast.success("Password reset successful!");
+        navigate("/login");
       } catch (err) {
-        toast.error("Reset failed!");
+        toast.error(err.response?.data?.message || "Reset failed!");
       } finally {
         setLoading(false);
       }
@@ -37,7 +53,30 @@ export default function ResetPassword() {
 
   return (
     <div className="login-form-container">
+      {/* Decorative background elements */}
+      <div className="background-decoration">
+        <div className="decoration-circle decoration-circle-1"></div>
+        <div className="decoration-circle decoration-circle-2"></div>
+        <div className="decoration-circle decoration-circle-3"></div>
+        <div className="decoration-circle decoration-circle-4"></div>
+        <div className="decoration-circle decoration-circle-5"></div>
+        <div className="decoration-dots">
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+          <div className="dot"></div>
+        </div>
+      </div>
+
       <div className="form-wrapper">
+        <div className="logo-section">
+          <div className="logo">
+            <img className="logo-icon" src="/Prepalyze-logo.svg" alt="" />
+          </div>
+        </div>
+
         <form onSubmit={(e) => e.preventDefault()} className="form-content">
           <Stack gap="lg">
             <div className="welcome-section">
