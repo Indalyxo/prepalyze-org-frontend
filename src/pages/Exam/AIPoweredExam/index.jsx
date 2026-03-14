@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Component } from "react";
 import { Container } from "@mantine/core";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,6 +15,36 @@ import {
   AlertCircle
 } from "lucide-react";
 import { toast } from "react-toastify";
+import TeX from "react-katex";
+import "katex/dist/katex.min.css";
+
+// ErrorBoundary to catch KaTeX rendering crashes
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-red-950/40 border border-red-900 rounded-lg text-white mb-4">
+          <h2 className="text-lg font-bold mb-1 text-red-400">Math Rendering Error</h2>
+          <pre className="whitespace-pre-wrap text-xs text-red-300 overflow-auto">{this.state.error?.toString()}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Reusable animated input component - Updated to handle disabled state
 const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "text", options = [], disabled = false, required = false }) => {
@@ -78,6 +108,51 @@ const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "
   );
 };
 
+// Safe Math Renderer to prevent React crashes on invalid KaTeX strings
+const SafeMathRenderer = ({ text }) => {
+  if (!text) return null;
+
+  try {
+    // Basic regex parser to find $$...$$ or $...$
+    // Split text into array of segments: plain text, block math, inline math
+    const parts = [];
+    let currentText = String(text);
+
+    // Super simple fallback for safely rendering everything if it's too complex
+    if (!currentText.includes('$') && !currentText.includes('\\(') && !currentText.includes('\\[')) {
+      return <span>{currentText}</span>;
+    }
+
+    // A more robust rendering: We split by $$, $, \[, \], \(, \)
+    // Regex matches $$...$$ or $...$ or \[...\] or \(...\)
+    const mathRegex = /(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
+    const segments = currentText.split(mathRegex);
+
+    return (
+      <span>
+        {segments.map((segment, index) => {
+          if (segment.startsWith('$$') && segment.endsWith('$$')) {
+            const math = segment.slice(2, -2);
+            return <TeX key={index} math={math} block={true} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
+          } else if (segment.startsWith('\\[') && segment.endsWith('\\]')) {
+            const math = segment.slice(2, -2);
+            return <TeX key={index} math={math} block={true} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
+          } else if (segment.startsWith('$') && segment.endsWith('$')) {
+            const math = segment.slice(1, -1);
+            return <TeX key={index} math={math} block={false} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
+          } else if (segment.startsWith('\\(') && segment.endsWith('\\)')) {
+            const math = segment.slice(2, -2);
+            return <TeX key={index} math={math} block={false} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
+          }
+          return <span key={index}>{segment}</span>;
+        })}
+      </span>
+    );
+  } catch (error) {
+    return <span>{text}</span>;
+  }
+};
+
 // Expandable Question Card
 const QuestionCard = ({ q, index }) => {
   const [expanded, setExpanded] = useState(false);
@@ -96,7 +171,9 @@ const QuestionCard = ({ q, index }) => {
             {index + 1}
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-slate-100 leading-snug">{q.question}</h3>
+            <h3 className="text-lg font-medium text-slate-100 leading-snug">
+              <SafeMathRenderer text={q.question} />
+            </h3>
           </div>
           <button className="flex-shrink-0 mt-1 text-slate-400 hover:text-emerald-400 transition-colors">
             <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.3 }}>
@@ -116,14 +193,16 @@ const QuestionCard = ({ q, index }) => {
               <div className="px-6 pb-6 pt-2 border-t border-slate-800/50 bg-slate-900/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 mt-4">
                   {q.options.map((option, idx) => {
-                    const optText = typeof option === 'string' ? option : option.text;
+                    const optText = typeof option === 'string' ? option : option?.text || JSON.stringify(option);
                     const isCorrect = optText === q.correctAnswer;
                     return (
                       <div key={idx} className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${isCorrect ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-slate-950 border-slate-800"}`}>
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
                           {String.fromCharCode(65 + idx)}
                         </div>
-                        <span className={isCorrect ? "text-emerald-300 font-medium" : "text-slate-300"}>{optText}</span>
+                        <span className={isCorrect ? "text-emerald-300 font-medium" : "text-slate-300"}>
+                          <SafeMathRenderer text={optText} />
+                        </span>
                         {isCorrect && <CheckCircle2 size={18} className="text-emerald-500 ml-auto" />}
                       </div>
                     );
@@ -135,7 +214,9 @@ const QuestionCard = ({ q, index }) => {
                     <BrainCircuit size={20} className="text-cyan-400 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="text-cyan-400 font-semibold mb-1">AI Explanation</h4>
-                      <p className="text-slate-300 text-sm leading-relaxed">{q.explanation}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed">
+                        <SafeMathRenderer text={q.explanation} />
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -464,7 +545,9 @@ export default function AIPoweredExam() {
 
                 <div className="space-y-2">
                   {questions.map((q, i) => (
-                    <QuestionCard key={i} q={q} index={i} />
+                    <ErrorBoundary key={i}>
+                      <QuestionCard q={q} index={i} />
+                    </ErrorBoundary>
                   ))}
                 </div>
 
