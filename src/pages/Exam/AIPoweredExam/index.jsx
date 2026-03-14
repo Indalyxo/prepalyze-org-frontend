@@ -1,4 +1,4 @@
-import { useState, useEffect, Component } from "react";
+import { useState, useEffect, Component, useRef } from "react";
 import { Container } from "@mantine/core";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,11 +12,16 @@ import {
   ChevronRight,
   ChevronDown,
   BrainCircuit,
-  AlertCircle
+  AlertCircle,
+  Download
 } from "lucide-react";
 import { toast } from "react-toastify";
-import TeX from "react-katex";
+import { InlineMath, BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
+import { jsPDF } from "jspdf";
+import { toPng } from "html-to-image";
+
+import { renderWithLatexAndImages } from "../../../utils/render/render";
 
 // ErrorBoundary to catch KaTeX rendering crashes
 class ErrorBoundary extends Component {
@@ -108,51 +113,6 @@ const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "
   );
 };
 
-// Safe Math Renderer to prevent React crashes on invalid KaTeX strings
-const SafeMathRenderer = ({ text }) => {
-  if (!text) return null;
-
-  try {
-    // Basic regex parser to find $$...$$ or $...$
-    // Split text into array of segments: plain text, block math, inline math
-    const parts = [];
-    let currentText = String(text);
-
-    // Super simple fallback for safely rendering everything if it's too complex
-    if (!currentText.includes('$') && !currentText.includes('\\(') && !currentText.includes('\\[')) {
-      return <span>{currentText}</span>;
-    }
-
-    // A more robust rendering: We split by $$, $, \[, \], \(, \)
-    // Regex matches $$...$$ or $...$ or \[...\] or \(...\)
-    const mathRegex = /(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
-    const segments = currentText.split(mathRegex);
-
-    return (
-      <span>
-        {segments.map((segment, index) => {
-          if (segment.startsWith('$$') && segment.endsWith('$$')) {
-            const math = segment.slice(2, -2);
-            return <TeX key={index} math={math} block={true} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
-          } else if (segment.startsWith('\\[') && segment.endsWith('\\]')) {
-            const math = segment.slice(2, -2);
-            return <TeX key={index} math={math} block={true} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
-          } else if (segment.startsWith('$') && segment.endsWith('$')) {
-            const math = segment.slice(1, -1);
-            return <TeX key={index} math={math} block={false} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
-          } else if (segment.startsWith('\\(') && segment.endsWith('\\)')) {
-            const math = segment.slice(2, -2);
-            return <TeX key={index} math={math} block={false} renderError={(err) => <span className="text-red-400">{segment}</span>} />;
-          }
-          return <span key={index}>{segment}</span>;
-        })}
-      </span>
-    );
-  } catch (error) {
-    return <span>{text}</span>;
-  }
-};
-
 // Expandable Question Card
 const QuestionCard = ({ q, index }) => {
   const [expanded, setExpanded] = useState(false);
@@ -172,7 +132,7 @@ const QuestionCard = ({ q, index }) => {
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-medium text-slate-100 leading-snug">
-              <SafeMathRenderer text={q.question} />
+              {renderWithLatexAndImages(q.question)}
             </h3>
           </div>
           <button className="flex-shrink-0 mt-1 text-slate-400 hover:text-emerald-400 transition-colors">
@@ -201,7 +161,7 @@ const QuestionCard = ({ q, index }) => {
                           {String.fromCharCode(65 + idx)}
                         </div>
                         <span className={isCorrect ? "text-emerald-300 font-medium" : "text-slate-300"}>
-                          <SafeMathRenderer text={optText} />
+                          {renderWithLatexAndImages(optText)}
                         </span>
                         {isCorrect && <CheckCircle2 size={18} className="text-emerald-500 ml-auto" />}
                       </div>
@@ -215,7 +175,7 @@ const QuestionCard = ({ q, index }) => {
                     <div>
                       <h4 className="text-cyan-400 font-semibold mb-1">AI Explanation</h4>
                       <p className="text-slate-300 text-sm leading-relaxed">
-                        <SafeMathRenderer text={q.explanation} />
+                        {renderWithLatexAndImages(q.explanation)}
                       </p>
                     </div>
                   </div>
@@ -230,6 +190,54 @@ const QuestionCard = ({ q, index }) => {
 };
 
 
+// Printable Layout for PDF Export
+const PrintableArsenal = ({ questions, subject, chapter }) => {
+  return (
+    <div className="p-10 bg-white text-black font-serif">
+      <div className="border-b-2 border-black pb-4 mb-8 text-center">
+        <h1 className="text-3xl font-bold uppercase mb-2">Exam Arsenal</h1>
+        <p className="text-lg italic">{subject} - {chapter}</p>
+        <p className="text-sm mt-2 font-sans text-gray-600">Generated by Prepalyze AI</p>
+      </div>
+
+      <div className="space-y-10">
+        {questions.map((q, i) => (
+          <div key={i} className="break-inside-avoid">
+            <h3 className="text-xl font-bold mb-4 flex gap-2">
+              <span>{i + 1}.</span>
+              {renderWithLatexAndImages(q.question)}
+            </h3>
+            
+            <div className="grid grid-cols-1 gap-3 ml-6">
+              {q.options.map((option, idx) => {
+                const optText = typeof option === 'string' ? option : option?.text || JSON.stringify(option);
+                return (
+                  <div key={idx} className="flex gap-3">
+                    <span className="font-bold">{String.fromCharCode(65 + idx)})</span>
+                    {renderWithLatexAndImages(optText)}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 p-4 bg-gray-50 border-l-4 border-gray-300">
+              <p className="font-bold text-sm mb-1 uppercase tracking-wider text-gray-700 underline">Official Explanation</p>
+              <div className="text-gray-800 text-sm leading-relaxed">
+                {renderWithLatexAndImages(q.explanation)}
+              </div>
+              <p className="mt-2 text-sm font-bold">Correct Answer: {q.correctAnswer}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-400 font-sans">
+        © 2026 Prepalyze. All rights reserved. Professional AI-Generated Content.
+      </div>
+    </div>
+  );
+};
+
 export default function AIPoweredExam() {
   // Cascading Selection State
   const [exam, setExam] = useState("");
@@ -237,6 +245,68 @@ export default function AIPoweredExam() {
   const [chapter, setChapter] = useState("");
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(5);
+
+  const questionsRef = useRef(null);
+  const printableRef = useRef(null);
+
+  const handleDownloadPDF = async () => {
+    if (!printableRef.current) return;
+    
+    const id = toast.loading("Generating your professional PDF...");
+    try {
+      // Small delay to ensure any layout shifts are settled
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const dataUrl = await toPng(printableRef.current, {
+        backgroundColor: '#ffffff',
+        quality: 1.0,
+        pixelRatio: 2,
+      });
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const contentHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      let heightLeft = contentHeight;
+      let position = 0;
+
+      // Add the first page
+      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, contentHeight);
+      heightLeft -= pdfHeight;
+
+      // Add subsequent pages if content overflows
+      while (heightLeft > 0) {
+        position = heightLeft - contentHeight;
+        pdf.addPage();
+        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, contentHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      pdf.save(`Prepalyze_${subject}_${chapter}_Questions.pdf`);
+      
+      toast.update(id, { 
+        render: "Document Downloaded!", 
+        type: "success", 
+        isLoading: false, 
+        autoClose: 3000 
+      });
+    } catch (err) {
+      console.error("PDF Generation failed:", err);
+      toast.update(id, { 
+        render: "Download failed. Please try again.", 
+        type: "error", 
+        isLoading: false, 
+        autoClose: 3000 
+      });
+    }
+  };
 
   // Available Data State
   const [availableExams, setAvailableExams] = useState([]);
@@ -541,9 +611,17 @@ export default function AIPoweredExam() {
                       {questions.length} Items Saved to DB
                     </span>
                   </h2>
+
+                  <button 
+                    onClick={handleDownloadPDF}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl border border-slate-700 transition-all text-sm font-medium shadow-lg hover:shadow-emerald-500/10"
+                  >
+                    <Download size={18} />
+                    Download PDF
+                  </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={questionsRef}>
                   {questions.map((q, i) => (
                     <ErrorBoundary key={i}>
                       <QuestionCard q={q} index={i} />
@@ -570,6 +648,17 @@ export default function AIPoweredExam() {
           </motion.div>
         </div>
       </Container>
+
+      {/* Hidden Printable Layout */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+        <div ref={printableRef} style={{ width: '800px' }}>
+          <PrintableArsenal 
+            questions={questions} 
+            subject={subject || "All Subjects"} 
+            chapter={chapter || "All Chapters"} 
+          />
+        </div>
+      </div>
     </div>
   );
 }
