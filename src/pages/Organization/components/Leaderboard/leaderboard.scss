@@ -12,7 +12,7 @@
 .leaderboard-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #2c3e50;
+  color: var(--mantine-color-text);
   letter-spacing: 2px;
   margin-bottom: 0.5rem;
 }
@@ -38,8 +38,8 @@
 }
 
 .featured-card {
-  background: white;
-  border: none;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
   padding: 2rem;
   position: relative;
   overflow: hidden;
@@ -76,7 +76,7 @@
 
 .featured-name {
   font-size: 1.5rem;
-  color: #2c3e50;
+  color: var(--mantine-color-text);
   text-align: center;
 }
 
@@ -100,8 +100,8 @@
 }
 
 .leaderboard-item {
-  background: white;
-  border: 1px solid #e9ecef;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
   padding: 1rem;
   transition: all 0.3s ease;
 
@@ -133,11 +133,11 @@
 }
 
 .entry-name {
-  color: #2c3e50;
+  color: var(--mantine-color-text);
 }
 
 .entry-title {
-  color: #7f8c8d;
+  color: var(--mantine-color-dimmed);
 }
 
 .duration {

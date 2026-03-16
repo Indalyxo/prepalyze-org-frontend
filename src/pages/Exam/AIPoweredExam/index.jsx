@@ -20,6 +20,7 @@ import { InlineMath, BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
+import s from "./AIPoweredExam.module.scss";
 
 import { renderWithLatexAndImages } from "../../../utils/render/render";
 
@@ -41,9 +42,9 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-red-950/40 border border-red-900 rounded-lg text-white mb-4">
-          <h2 className="text-lg font-bold mb-1 text-red-400">Math Rendering Error</h2>
-          <pre className="whitespace-pre-wrap text-xs text-red-300 overflow-auto">{this.state.error?.toString()}</pre>
+        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-red-900 dark:text-white mb-4">
+          <h2 className="text-lg font-bold mb-1 text-red-600 dark:text-red-400">Math Rendering Error</h2>
+          <pre className="whitespace-pre-wrap text-xs text-red-700 dark:text-red-300 overflow-auto">{this.state.error?.toString()}</pre>
         </div>
       );
     }
@@ -51,28 +52,27 @@ class ErrorBoundary extends Component {
   }
 }
 
-// Reusable animated input component - Updated to handle disabled state
+// Reusable animated input component - Updated to handle disabled state and theme
 const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "text", options = [], disabled = false, required = false }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className={`relative mb-6 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div className={`${s.modernInputContainer} ${disabled ? s.disabled : ''}`}>
       <motion.label
         initial={false}
         animate={{
           y: isFocused || value ? -24 : 12,
           x: isFocused || value ? 0 : 36,
           scale: isFocused || value ? 0.85 : 1,
-          color: isFocused ? "#10B981" : disabled ? "#475569" : "#94A3B8"
         }}
-        className="absolute left-0 z-10 origin-left font-medium pointer-events-none transition-colors"
+        className={`${s.inputLabel} ${isFocused ? s.focused : ''}`}
       >
-        {label} {!required && <span className="text-slate-500 text-xs font-normal">(Optional)</span>}
+        {label} {!required && <span className={s.optionalText}>(Optional)</span>}
       </motion.label>
-      <div className="relative flex items-center">
+      <div className={s.inputWrapper}>
         <Icon 
           size={18} 
-          className={`absolute left-3 transition-colors duration-300 ${isFocused ? 'text-emerald-500' : 'text-slate-500'}`} 
+          className={`${s.inputIcon} ${isFocused ? s.focused : ''}`} 
         />
         {type === "select" ? (
           <select
@@ -81,11 +81,11 @@ const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "
             disabled={disabled}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className="w-full bg-slate-900/50 border-b-2 border-slate-700/50 pt-3 pb-2 pl-10 pr-4 text-white hover:bg-slate-800/50 focus:bg-slate-800/80 focus:border-emerald-500 focus:outline-none transition-all cursor-pointer rounded-t-lg appearance-none"
+            className={s.inputBase}
           >
             <option value="" disabled hidden></option>
             {options.map((opt, i) => (
-              <option key={i} value={opt.value || opt}>{opt.label || opt}</option>
+              <option key={i} value={opt.value || opt} className="bg-white dark:bg-slate-900 text-black dark:text-white">{opt.label || opt}</option>
             ))}
           </select>
         ) : (
@@ -97,13 +97,13 @@ const ModernInput = ({ icon: Icon, label, value, onChange, placeholder, type = "
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder={isFocused ? placeholder : ""}
-            className="w-full bg-slate-900/50 border-b-2 border-slate-700/50 pt-3 pb-2 pl-10 pr-4 text-white hover:bg-slate-800/50 focus:bg-slate-800/80 focus:border-emerald-500 focus:outline-none transition-all placeholder:text-slate-600 rounded-t-lg"
+            className={s.inputBase}
           />
         )}
         
         {/* Animated border bottom line */}
         <motion.div
-          className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-emerald-500 to-cyan-500"
+          className={s.animatedBorder}
           initial={{ width: "0%" }}
           animate={{ width: isFocused ? "100%" : "0%" }}
           transition={{ duration: 0.3 }}
@@ -122,16 +122,16 @@ const QuestionCard = ({ q, index }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="mb-6 overflow-hidden relative group"
+      className={`mb-6 overflow-hidden relative group`}
     >
       <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-      <div className="relative bg-[#0B1120] border border-slate-800 rounded-2xl shadow-xl overflow-hidden backdrop-blur-xl">
-        <div onClick={() => setExpanded(!expanded)} className="p-6 cursor-pointer hover:bg-slate-900/50 transition-colors flex items-start gap-4">
+      <div className={s.questionCard}>
+        <div onClick={() => setExpanded(!expanded)} className="p-6 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors flex items-start gap-4">
           <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             {index + 1}
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-slate-100 leading-snug">
+            <h3 className="text-lg font-medium text-slate-800 dark:text-slate-100 leading-snug">
               {renderWithLatexAndImages(q.question)}
             </h3>
           </div>
@@ -150,17 +150,17 @@ const QuestionCard = ({ q, index }) => {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="px-6 pb-6 pt-2 border-t border-slate-800/50 bg-slate-900/30">
+              <div className={s.cardExpanded}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 mt-4">
                   {q.options.map((option, idx) => {
                     const optText = typeof option === 'string' ? option : option?.text || JSON.stringify(option);
                     const isCorrect = optText === q.correctAnswer;
                     return (
-                      <div key={idx} className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${isCorrect ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-slate-950 border-slate-800"}`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
+                      <div key={idx} className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${isCorrect ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800"}`}>
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isCorrect ? "bg-emerald-500 text-slate-950" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"}`}>
                           {String.fromCharCode(65 + idx)}
                         </div>
-                        <span className={isCorrect ? "text-emerald-300 font-medium" : "text-slate-300"}>
+                        <span className={isCorrect ? "text-emerald-600 dark:text-emerald-300 font-medium" : "text-slate-600 dark:text-slate-300"}>
                           {renderWithLatexAndImages(optText)}
                         </span>
                         {isCorrect && <CheckCircle2 size={18} className="text-emerald-500 ml-auto" />}
@@ -168,13 +168,13 @@ const QuestionCard = ({ q, index }) => {
                     );
                   })}
                 </div>
-                <div className="bg-cyan-950/20 border border-cyan-900/30 rounded-xl p-5 relative overflow-hidden">
+                <div className={s.explanationBox}>
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-400 to-blue-500" />
                   <div className="flex items-start gap-3">
-                    <BrainCircuit size={20} className="text-cyan-400 mt-1 flex-shrink-0" />
+                    <BrainCircuit size={20} className="text-cyan-600 dark:text-cyan-400 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="text-cyan-400 font-semibold mb-1">AI Explanation</h4>
-                      <p className="text-slate-300 text-sm leading-relaxed">
+                      <h4 className="text-cyan-600 dark:text-cyan-400 font-semibold mb-1">AI Explanation</h4>
+                      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                         {renderWithLatexAndImages(q.explanation)}
                       </p>
                     </div>
@@ -245,6 +245,11 @@ export default function AIPoweredExam() {
   const [chapter, setChapter] = useState("");
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(5);
+
+  // Document Generation State
+  const [generationMode, setGenerationMode] = useState("database"); // "database" | "document"
+  const [documentFile, setDocumentFile] = useState(null);
+  const [documentText, setDocumentText] = useState("");
 
   const questionsRef = useRef(null);
   const printableRef = useRef(null);
@@ -368,12 +373,20 @@ export default function AIPoweredExam() {
 
 
   const generate = async () => {
-    if (!exam || !subject || !chapter) {
-      toast.error("Please select an Exam, Subject, and Chapter at minimum.", {
-        position: "top-right",
-        theme: "dark"
-      });
-      return;
+    if (generationMode === "database" || generationMode === "pyq") {
+      if (!exam || !subject || !chapter || (generationMode === "pyq" && !topic)) {
+        toast.error(`Please select ${generationMode === "pyq" ? "Exam, Subject, Chapter, and Topic" : "Exam, Subject, and Chapter at minimum"}.`, {
+          position: "top-right",
+        });
+        return;
+      }
+    } else {
+      if (!documentFile && !documentText.trim()) {
+        toast.error("Please upload a document or paste some text.", {
+          position: "top-right",
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -382,17 +395,50 @@ export default function AIPoweredExam() {
     setError("");
 
     try {
-      const res = await fetch("/api/exam/ai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exam,
-          subject,
-          chapter,
-          topic: topic || undefined, // Send undefined if empty so the backend query handles it as 'any' topic within chapter
-          count,
-        }),
-      });
+      let res;
+      if (generationMode === "database") {
+        res = await fetch("/api/exam/ai/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exam,
+            subject,
+            chapter,
+            topic: topic || undefined, 
+            count,
+          }),
+        });
+      } else if (generationMode === "pyq") {
+        res = await fetch("/api/exam/ai/generate-pyq", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exam,
+            subject,
+            chapter,
+            topic,
+            count,
+          }),
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("exam", exam || "Document Upload");
+        formData.append("subject", subject || "General");
+        formData.append("chapter", chapter || "Various");
+        formData.append("topic", topic || "Document Content");
+        formData.append("count", count);
+
+        if (documentFile) {
+          formData.append("document", documentFile);
+        } else if (documentText.trim()) {
+          formData.append("text", documentText);
+        }
+
+        res = await fetch("/api/exam/ai/generate-from-document", {
+          method: "POST",
+          body: formData,
+        });
+      }
 
       const data = await res.json();
 
@@ -402,25 +448,23 @@ export default function AIPoweredExam() {
 
       setQuestions(data.questions);
       setRawJSON(JSON.stringify(data.questions, null, 2));
-      toast.success(`Successfully generated ${data.questions.length} questions!`, {
-        theme: "dark"
-      });
+      toast.success(`Successfully generated ${data.questions.length} questions!`);
 
     } catch (err) {
       setError(String(err));
-      toast.error("An error occurred during generation", { theme: "dark" });
+      toast.error("An error occurred during generation");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 py-12 px-4 sm:px-6 relative overflow-hidden font-sans">
+    <div className={s.pageContainer}>
       
       {/* Background ambient light effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/4 -left-64 w-[400px] h-[400px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className={s.ambientEmerald} />
+      <div className={s.ambientCyan} />
+      <div className={s.ambientPurple} />
 
       <Container size="lg" className="relative z-10">
         
@@ -430,17 +474,41 @@ export default function AIPoweredExam() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center justify-center p-3 bg-slate-900 border border-slate-700/50 rounded-2xl mb-6 shadow-2xl relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500" />
-            <Sparkles className="w-8 h-8 text-emerald-400 relative z-10" />
+          <div className={s.iconWrapper}>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-10 dark:opacity-25 group-hover:opacity-30 dark:group-hover:opacity-50 transition duration-500" />
+            <Sparkles className="w-8 h-8 text-emerald-500 dark:text-emerald-400 relative z-10" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500">
+          <h1 className={s.mainTitle}>
             AI Exam Generator
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Harness the power of GPT-4o to instantly create high-quality, varied MCQ questions based on your existing database templates.
+          <p className={s.mainSubtitle}>
+            Harness the power of GPT-4o to instantly create high-quality, varied MCQ questions based on your existing database templates or uploaded documents.
           </p>
         </motion.div>
+
+        {/* Mode Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className={s.modeToggleContainer}>
+            <button
+              onClick={() => setGenerationMode("database")}
+              className={`${s.modeToggleBtn} ${generationMode === "database" ? `${s.active} ${s.database}` : ''}`}
+            >
+              Generate from Database
+            </button>
+            <button
+              onClick={() => setGenerationMode("document")}
+              className={`${s.modeToggleBtn} ${generationMode === "document" ? `${s.active} ${s.document}` : ''}`}
+            >
+              Generate from Document
+            </button>
+            <button
+              onClick={() => setGenerationMode("pyq")}
+              className={`${s.modeToggleBtn} ${generationMode === "pyq" ? `${s.active} ${s.pyq}` : ''}`}
+            >
+              Generate PYQs
+            </button>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
@@ -451,54 +519,138 @@ export default function AIPoweredExam() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-4 sticky top-6"
           >
-            <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className={s.configCard}>
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[50px]" />
-              <h2 className="text-2xl font-semibold text-white mb-8 flex items-center gap-3">
-                <Layers className="text-emerald-400" />
+              <h2 className={s.cardTitle}>
+                <Layers className="text-emerald-500 dark:text-emerald-400" />
                 Configuration
               </h2>
 
-              <ModernInput 
-                type="select"
-                icon={BookOpen} 
-                label="Exam Category" 
-                required
-                value={exam} 
-                options={availableExams}
-                onChange={(e) => setExam(e.target.value)} 
-              />
-              
-              <ModernInput 
-                type="select"
-                icon={BookOpen} 
-                label="Subject" 
-                required
-                value={subject} 
-                options={availableSubjects}
-                onChange={(e) => setSubject(e.target.value)} 
-                disabled={!exam}
-              />
+              {generationMode === "document" && (
+                <div className={s.docUploadBox}>
+                  <label className={s.docLabel}>
+                    Upload PDF Document
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.txt"
+                    onChange={(e) => setDocumentFile(e.target.files[0])}
+                    className={s.fileInputCustom}
+                  />
+                  
+                  <div className={s.docDivider}>
+                    <div className={s.dividerLine}></div>
+                    <span className={s.dividerText}>OR</span>
+                    <div className={s.dividerLine}></div>
+                  </div>
 
-              <ModernInput 
-                type="select"
-                icon={Hash} 
-                label="Chapter" 
-                required
-                value={chapter} 
-                options={availableChapters}
-                onChange={(e) => setChapter(e.target.value)} 
-                disabled={!subject}
-              />
+                  <label className={s.docLabel}>
+                    Paste Raw Text
+                  </label>
+                  <textarea
+                    value={documentText}
+                    onChange={(e) => setDocumentText(e.target.value)}
+                    placeholder="Paste context here..."
+                    className={s.docTextarea}
+                  />
+                </div>
+              )}
 
-              <ModernInput 
-                type="select"
-                icon={FileQuestion} 
-                label="Topic" 
-                value={topic} 
-                options={availableTopics}
-                onChange={(e) => setTopic(e.target.value)} 
-                disabled={!chapter}
-              />
+              {generationMode === "database" && (
+                <>
+                  <ModernInput 
+                    type="select"
+                    icon={BookOpen} 
+                    label="Exam Category" 
+                    required
+                    value={exam} 
+                    options={availableExams}
+                    onChange={(e) => setExam(e.target.value)} 
+                  />
+                  
+                  <ModernInput 
+                    type="select"
+                    icon={BookOpen} 
+                    label="Subject" 
+                    required
+                    value={subject} 
+                    options={availableSubjects}
+                    onChange={(e) => setSubject(e.target.value)} 
+                    disabled={!exam}
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={Hash} 
+                    label="Chapter" 
+                    required
+                    value={chapter} 
+                    options={availableChapters}
+                    onChange={(e) => setChapter(e.target.value)} 
+                    disabled={!subject}
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={FileQuestion} 
+                    label="Topic" 
+                    value={topic} 
+                    options={availableTopics}
+                    onChange={(e) => setTopic(e.target.value)} 
+                    disabled={!chapter}
+                  />
+                </>
+              )}
+
+              {generationMode === "pyq" && (
+                <>
+                  <p className={s.configDescription}>
+                    AI will generate Previous Year Questions or high-fidelity mimics for the selected topic.
+                  </p>
+                  <ModernInput 
+                    type="select"
+                    icon={BookOpen} 
+                    label="Exam Category" 
+                    required
+                    value={exam} 
+                    options={availableExams}
+                    onChange={(e) => setExam(e.target.value)} 
+                  />
+                  
+                  <ModernInput 
+                    type="select"
+                    icon={BookOpen} 
+                    label="Subject" 
+                    required
+                    value={subject} 
+                    options={availableSubjects}
+                    onChange={(e) => setSubject(e.target.value)} 
+                    disabled={!exam}
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={Hash} 
+                    label="Chapter" 
+                    required
+                    value={chapter} 
+                    options={availableChapters}
+                    onChange={(e) => setChapter(e.target.value)} 
+                    disabled={!subject}
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={FileQuestion} 
+                    label="Topic" 
+                    required
+                    value={topic} 
+                    options={availableTopics}
+                    onChange={(e) => setTopic(e.target.value)} 
+                    disabled={!chapter}
+                  />
+                </>
+              )}
 
               <ModernInput 
                 type="select"
@@ -513,21 +665,19 @@ export default function AIPoweredExam() {
               <button
                 onClick={generate}
                 disabled={loading}
-                className={`w-full mt-4 group relative overflow-hidden rounded-xl font-bold text-lg p-[2px] transition-all hover:scale-[1.02] active:scale-95 ${
-                  loading ? "cursor-not-allowed opacity-80" : ""
-                }`}
+                className={s.generateButton}
               >
-                {!loading && <span className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 animate-pulse" />}
-                <div className={`relative flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-slate-950/80 backdrop-blur-sm transition-all ${!loading && "group-hover:bg-transparent"}`}>
+                {!loading && <div className={s.buttonGlow} />}
+                <div className={`${s.buttonInner} ${loading ? s.loading : ''}`}>
                   {loading ? (
                     <>
-                      <Loader2 className="animate-spin text-emerald-400" />
-                      <span className="text-emerald-400">Synthesizing...</span>
+                      <Loader2 className={s.loadingSpinner} />
+                      <span className={s.buttonText}>Synthesizing...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 group-hover:text-slate-900 transition-colors" />
-                      <span className="group-hover:text-slate-900 transition-colors">Generate via AI</span>
+                      <Sparkles className={`w-5 h-5 ${s.btnIcon}`} />
+                      <span className={s.buttonText}>Generate via AI</span>
                     </>
                   )}
                 </div>
@@ -537,9 +687,9 @@ export default function AIPoweredExam() {
               <AnimatePresence>
                 {error && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-6">
-                    <div className="bg-red-950/40 border border-red-900/50 rounded-xl p-4 flex items-start gap-3">
-                      <AlertCircle className="text-red-400 mt-0.5 flex-shrink-0" size={20} />
-                      <p className="text-red-300 text-sm whitespace-pre-wrap font-mono">{error}</p>
+                    <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl p-4 flex items-start gap-3">
+                      <AlertCircle className="text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" size={20} />
+                      <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap font-mono">{error}</p>
                     </div>
                   </motion.div>
                 )}
@@ -556,10 +706,10 @@ export default function AIPoweredExam() {
           >
             {/* Empty State */}
             {!loading && questions.length === 0 && !error && (
-              <div className="absolute inset-0 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center text-slate-500 gap-4 p-8 text-center bg-slate-900/20 backdrop-blur-sm">
-                <BrainCircuit size={64} className="text-slate-700 opacity-50" />
+              <div className={s.emptyState}>
+                <BrainCircuit size={64} className="text-slate-300 dark:text-slate-700 opacity-50" />
                 <div>
-                  <h3 className="text-xl font-medium text-slate-400 mb-2">Awaiting Parameters</h3>
+                  <h3 className="text-xl font-medium text-slate-600 dark:text-slate-400 mb-2">Awaiting Parameters</h3>
                   <p className="text-slate-500 max-w-sm">
                     Fill in the configuration panel on the left and click Generate to see the AI agent craft unique questions instantly.
                   </p>
@@ -574,25 +724,25 @@ export default function AIPoweredExam() {
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 flex flex-col items-center justify-center py-20 bg-slate-900/40 backdrop-blur-sm border border-slate-800/50 rounded-3xl z-10"
+                    className={s.loadingOverlay}
                   >
-                    <div className="relative w-32 h-32 mb-8">
-                      <div className="absolute inset-0 border-4 border-slate-800 rounded-full" />
-                      <div className="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin" />
-                      <div className="absolute inset-4 border-4 border-cyan-500 rounded-full border-b-transparent animate-spin-reverse" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
-                      <div className="absolute inset-8 border-4 border-purple-500 rounded-full border-l-transparent animate-spin" style={{ animationDuration: "2s" }} />
+                    <div className={s.spinnerContainer}>
+                      <div className={`${s.spinnerCircle} ${s.circleOuter}`} />
+                      <div className={`${s.spinnerCircle} ${s.circleEmerald}`} />
+                      <div className={`${s.spinnerCircle} ${s.circleCyan}`} />
+                      <div className={`${s.spinnerCircle} ${s.circlePurple}`} />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Sparkles className="w-8 h-8 text-emerald-400 animate-pulse" />
+                        <Sparkles className="w-8 h-8 text-emerald-600 dark:text-emerald-400 animate-pulse" />
                       </div>
                     </div>
                     <motion.h3 
                       animate={{ opacity: [0.5, 1, 0.5] }} 
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 mb-2"
+                      className={s.loadingText}
                     >
                       AI is formulating questions...
                     </motion.h3>
-                    <p className="text-slate-400 text-center max-w-md">
+                    <p className={s.loadingSubtext}>
                       Fetching database templates and engaging neural network to synthesize completely new, highly relevant questions.
                     </p>
                   </motion.div>
@@ -602,19 +752,19 @@ export default function AIPoweredExam() {
             {/* Results Display */}
             {!loading && questions.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-bold flex items-center gap-3">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                <div className={s.resultsHeader}>
+                  <h2 className={s.resultsTitle}>
+                    <span className={s.gradientText}>
                       Generated Arsenal
                     </span>
-                    <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-full font-mono">
+                    <span className={s.resultsBadge}>
                       {questions.length} Items Saved to DB
                     </span>
                   </h2>
 
                   <button 
                     onClick={handleDownloadPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl border border-slate-700 transition-all text-sm font-medium shadow-lg hover:shadow-emerald-500/10"
+                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-emerald-600 dark:text-emerald-400 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-sm font-medium shadow-md dark:shadow-lg hover:shadow-emerald-500/10"
                   >
                     <Download size={18} />
                     Download PDF
@@ -630,14 +780,14 @@ export default function AIPoweredExam() {
                 </div>
 
                 {/* Raw JSON Accordion */}
-                <div className="mt-12 bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden">
+                <div className="mt-12 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
                   <details className="group">
-                    <summary className="p-4 cursor-pointer font-medium text-slate-400 flex items-center gap-2 hover:bg-slate-800/50 transition-colors list-none">
+                    <summary className="p-4 cursor-pointer font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors list-none select-none">
                       <ChevronRight className="w-5 h-5 group-open:rotate-90 transition-transform" />
                       View Raw Database Dump
                     </summary>
-                    <div className="p-4 border-t border-slate-800 bg-slate-950">
-                      <pre className="text-xs text-emerald-400/80 font-mono overflow-auto max-h-96 custom-scrollbar">
+                    <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+                      <pre className="text-xs text-emerald-600 dark:text-emerald-400/80 font-mono overflow-auto max-h-96 custom-scrollbar">
                         {rawJSON}
                       </pre>
                     </div>

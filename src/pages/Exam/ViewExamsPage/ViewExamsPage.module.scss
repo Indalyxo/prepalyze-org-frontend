@@ -5,7 +5,7 @@
 
 .availableExams {
   min-height: 100vh;
-  background: var(--color-background);
+  background: var(--mantine-color-body);
   padding: 1.5rem 0;
 }
 
@@ -16,7 +16,7 @@
 .pageTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-foreground);
+  color: var(--mantine-color-text);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
@@ -37,8 +37,8 @@
 }
 
 .searchFilterCard {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -46,12 +46,12 @@
 .searchInput {
   .mantine-TextInput-input {
     border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--mantine-color-default-border);
     font-weight: 500;
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
     transition: all 0.2s ease;
-    background: var(--color-background);
+    background: var(--mantine-color-body);
 
     &:focus {
       border-color: var(--color-primary);
@@ -59,14 +59,14 @@
     }
 
     &::placeholder {
-      color: var(--color-muted-foreground);
+      color: var(--mantine-color-dimmed);
     }
   }
 }
 
 .filterRow {
   padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--mantine-color-default-border);
   flex-wrap: wrap;
 }
 
@@ -76,11 +76,11 @@
 
   .mantine-Select-input {
     border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--mantine-color-default-border);
     font-weight: 500;
     font-size: 0.875rem;
     transition: all 0.2s ease;
-    background: var(--color-background);
+    background: var(--mantine-color-body);
     padding: 0.5rem 0.75rem;
 
     &:focus {
@@ -91,8 +91,8 @@
 }
 
 .clearButton {
-  background: var(--color-secondary);
-  color: var(--color-secondary-foreground);
+  background: var(--mantine-color-default);
+  color: var(--mantine-color-text);
   border: none;
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -100,7 +100,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--color-secondary);
+    background: var(--mantine-color-default-hover);
     opacity: 0.8;
   }
 }
@@ -119,13 +119,13 @@
 .pagination {
   .mantine-Pagination-control {
     border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--mantine-color-default-border);
     font-weight: 500;
     transition: all 0.2s ease;
-    background: var(--color-background);
+    background: var(--mantine-color-body);
 
     &:hover {
-      background: var(--color-muted);
+      background: var(--mantine-color-default-hover);
       border-color: var(--color-primary);
     }
 

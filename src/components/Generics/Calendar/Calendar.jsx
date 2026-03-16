@@ -20,12 +20,12 @@ import {
   ActionIcon,
   Tooltip,
   Box,
-  Flex,
   ThemeIcon,
   Container,
   Drawer,
   TextInput,
   Textarea,
+  Avatar
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
@@ -34,6 +34,8 @@ import {
   IconCalendarEvent,
   IconTrendingUp,
   IconSparkles,
+  IconVideo,
+  IconCheck
 } from "@tabler/icons-react";
 import apiClient, { eventAPI } from "../../../utils/api";
 import "./Calendar.scss";
@@ -191,105 +193,58 @@ export default function CalendarPage({ path = "student" }) {
       <LoadingOverlay
         visible
         zIndex={1000}
-        loaderProps={{ color: "blue", type: "dots" }}
+        loaderProps={{ color: "violet", type: "bars" }}
         overlayProps={{ radius: "sm", blur: 2 }}
       />
     );
   }
 
   return (
-    <Container fluid className="calendar-page">
-      {/* Header */}
-      <Box className="calendar-hero">
-        <Container size="xl" mx={"auto"} className="hero-content">
-          <Group justify="space-between" align="center">
-            <Group align="center" gap="md">
-              <ThemeIcon size={60} radius="md" color="gray">
-                <IconCalendarEvent size={30} />
-              </ThemeIcon>
+    <Box className="calendar-page">
+      {/* Premium Header Container */}
+      <Box className="calendar-hero-wrapper" mb={30}>
+        <Container size="xl">
+          <Paper shadow="sm" radius="xl" p="xl" className="calendar-hero-content">
+            <Group justify="space-between" align="center">
+              <Group align="center" gap="lg">
+                <ThemeIcon size={64} radius="xl" variant="gradient" gradient={{ from: 'indigo', to: 'cyan' }}>
+                  <IconCalendarEvent size={32} />
+                </ThemeIcon>
 
-              <Stack gap="xs">
-                <Title order={1} className="hero-title">
-                  Academic Calendar
-                </Title>
-                <Text size="md" c="dimmed" className="hero-subtitle">
-                  Track your exams, events, and important dates in one place
-                </Text>
-              </Stack>
+                <Stack gap={2}>
+                  <Title order={1} className="hero-title" fw={800}>
+                    Academic Calendar
+                  </Title>
+                  <Text size="md" c="dimmed" className="hero-subtitle">
+                    Schedule, manage, and track all major events effortlessly
+                  </Text>
+                </Stack>
+              </Group>
+
+              {/* Header Actions */}
+              <Group gap="sm">
+                <Tooltip label="Advanced Filtering" withArrow position="bottom">
+                  <ActionIcon
+                    variant="light"
+                    size="xl"
+                    radius="md"
+                    onClick={() => setFilterDrawerOpened(true)}
+                    color={selectedSubjects.length > 0 ? "indigo" : "gray"}
+                    className="filter-btn"
+                  >
+                    <IconFilter size={22} />
+                    {selectedSubjects.length > 0 && <div className="filter-dot" />}
+                  </ActionIcon>
+                </Tooltip>
+
+                {selectedSubjects.length > 0 && (
+                  <Badge variant="gradient" gradient={{ from: 'indigo', to: 'cyan' }} size="lg" radius="sm">
+                    {selectedSubjects.length} Active
+                  </Badge>
+                )}
+              </Group>
             </Group>
-
-            {/* Header Actions */}
-            <Group gap="sm">
-              <Tooltip label="Open Filters">
-                <ActionIcon
-                  variant="light"
-                  size="lg"
-                  onClick={() => setFilterDrawerOpened(true)}
-                  color="gray"
-                >
-                  <IconFilter size={20} />
-                </ActionIcon>
-              </Tooltip>
-
-              {selectedSubjects.length > 0 && (
-                <Badge variant="filled" color="blue" size="lg">
-                  {selectedSubjects.length} filter
-                  {selectedSubjects.length > 1 ? "s" : ""} active
-                </Badge>
-              )}
-            </Group>
-          </Group>
-
-          {/* Stats Cards
-          <Group gap="lg" className="stats-container" mt="xl">
-            <Paper className="stat-card" p="md">
-              <Group gap="sm">
-                <ThemeIcon size="lg" variant="light" color="blue">
-                  <IconBookmark size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text size="xl" fw={700}>
-                    {events.length}
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    Total Events
-                  </Text>
-                </div>
-              </Group>
-            </Paper>
-
-            <Paper className="stat-card" p="md">
-              <Group gap="sm">
-                <ThemeIcon size="lg" variant="light" color="red">
-                  <IconClock size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text size="xl" fw={700}>
-                    {events.filter((e) => e.type === "exam event").length}
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    Exams
-                  </Text>
-                </div>
-              </Group>
-            </Paper>
-
-            <Paper className="stat-card" p="md">
-              <Group gap="sm">
-                <ThemeIcon size="lg" variant="light" color="green">
-                  <IconUsers size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text size="xl" fw={700}>
-                    {subjects.length}
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    Subjects
-                  </Text>
-                </div>
-              </Group>
-            </Paper>
-          </Group> */}
+          </Paper>
         </Container>
       </Box>
 
@@ -297,29 +252,33 @@ export default function CalendarPage({ path = "student" }) {
       <Drawer
         opened={filterDrawerOpened}
         onClose={() => setFilterDrawerOpened(false)}
-        title="Smart Filters"
+        title={
+          <Group gap="sm">
+            <IconFilter size={20} color="#5c7cfa" />
+            <Text fw={600} size="lg">Event Filters</Text>
+          </Group>
+        }
         position="right"
         size="md"
+        overlayProps={{ blur: 3, opacity: 0.2 }}
         styles={{
-          title: {
-            fontSize: "1.25rem",
-            fontWeight: 600,
-          },
+          header: { padding: '1.5rem', borderBottom: '1px solid #f1f3f5' },
+          body: { padding: '1.5rem' }
         }}
       >
-        <Stack gap="lg">
+        <Stack gap="xl">
           <Group justify="space-between" align="center">
-            <Group align="center" gap="sm">
-              <ThemeIcon size="sm" variant="light" color="violet">
+            <Group align="center" gap="xs">
+              <ThemeIcon size="sm" variant="light" color="indigo" radius="md">
                 <IconSparkles size={16} />
               </ThemeIcon>
-              <Text size="sm" fw={500} c="dimmed">
-                Filter by Subject
+              <Text size="sm" fw={600} color="dimmed" tt="uppercase" letterSpacing={1}>
+                By Subject Focus
               </Text>
             </Group>
 
             {selectedSubjects.length > 0 && (
-              <Tooltip label="Clear All Filters">
+              <Tooltip label="Clear All Filters" withArrow>
                 <ActionIcon
                   variant="subtle"
                   size="sm"
@@ -333,23 +292,25 @@ export default function CalendarPage({ path = "student" }) {
           </Group>
 
           <MultiSelect
-            placeholder="🔍 Search and select subjects..."
+            placeholder="🔍 Select subjects..."
             data={subjects}
             value={selectedSubjects}
             onChange={handleSubjectFilter}
             searchable
             clearable
-            maxDropdownHeight={200}
-            leftSection={<IconTrendingUp size={16} />}
+            size="md"
+            radius="md"
+            maxDropdownHeight={250}
+            leftSection={<IconTrendingUp size={18} />}
           />
 
           {selectedSubjects.length > 0 && (
-            <Box className="filter-summary">
-              <Group gap="xs" mb="sm">
-                <Text size="sm" fw={500}>
-                  Active Filters:
+            <Paper withBorder radius="md" p="md" className="filter-summary-box">
+              <Group gap="xs" mb="sm" justify="space-between">
+                <Text size="sm" fw={600} color="dimmed">
+                  Filtering Results
                 </Text>
-                <Badge variant="light" color="blue" size="sm">
+                <Badge variant="light" color="indigo" size="md">
                   {filteredEvents.length} of {events.length} events
                 </Badge>
               </Group>
@@ -359,29 +320,30 @@ export default function CalendarPage({ path = "student" }) {
                     key={subject}
                     variant="dot"
                     size="md"
-                    className="subject-badge"
+                    className="subject-badge-drawer"
+                    color="indigo"
                   >
                     {subject}
                   </Badge>
                 ))}
               </Group>
-            </Box>
+            </Paper>
           )}
 
           <Divider />
 
           <Stack gap="sm">
-            <Text size="sm" fw={500} c="dimmed">
-              Quick Actions
-            </Text>
             <Button
               variant="light"
-              leftSection={<IconFilterOff size={16} />}
+              color="red"
+              leftSection={<IconFilterOff size={18} />}
               onClick={clearFilters}
               disabled={selectedSubjects.length === 0}
               fullWidth
+              size="md"
+              radius="md"
             >
-              Clear All Filters
+              Reset All Filters
             </Button>
           </Stack>
         </Stack>
@@ -390,120 +352,153 @@ export default function CalendarPage({ path = "student" }) {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={`Events on ${selectedDate ? formatDate(selectedDate) : ""}`}
+        title={
+          <Group gap="sm" align="center">
+            <IconCalendarEvent size={22} color="#3b5bdb" />
+            <Text fw={700} size="xl">{selectedDate ? formatDate(selectedDate) : ""}</Text>
+          </Group>
+        }
         centered
         className="invisible-scrollbar"
-        size="md"
+        size="lg"
+        radius="lg"
+        overlayProps={{ blur: 4, opacity: 0.3 }}
         styles={{
-          content: {
-            borderRadius: "12px",
-            padding: "24px",
-          },
           header: {
-            borderBottom: "1px solid #e9ecef",
-            marginBottom: "16px",
-            paddingBottom: "12px",
+            padding: "24px 24px 16px",
+            borderBottom: "1px solid #f1f3f5",
           },
-          title: {
-            fontWeight: 600,
-            fontSize: "18px",
-          },
+          body: {
+            padding: "24px",
+            backgroundColor: "#f8f9fa"
+          }
         }}
       >
-        <Stack spacing="md" className="invisible-scrollbar">
+        <Stack spacing="xl" className="invisible-scrollbar">
           {/* Display existing events */}
-          {selectedEvents.length > 0 && (
-            <>
-              <Text size="sm" weight={600} color="gray.7">
-                Scheduled Events:
+          {selectedEvents.length > 0 ? (
+            <Stack gap="md">
+              <Text size="sm" fw={700} tt="uppercase" c="dimmed" letterSpacing={1}>
+                Scheduled Events ({selectedEvents.length})
               </Text>
               {selectedEvents.map((event) => (
-                <Card
+                <Paper
                   key={event.id}
-                  padding="md"
+                  shadow="sm"
+                  radius="md"
+                  p="lg"
                   withBorder
                   onClick={() =>
                     event.type === "exam event" &&
                     handleEventClick(event.id, event.type)
                   }
-                  className="event-card invisible-scrollbar"
+                  className={`modal-event-card ${event.type === "exam event" ? 'exam-type' : 'regular-type'}`}
                 >
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap="xs" style={{ flex: 1 }}>
-                      <Text fw={600} size="sm" className="event-title">
-                        {event.title}
-                      </Text>
-                      <Text size="xs" c="dimmed" className="event-id">
-                        ID: {event.id}
-                      </Text>
-                      {event.attendeeCount != null && (
-                        <Text size="xs" c="dimmed">
-                          Attendees: {event.attendeeCount}
-                        </Text>
-                      )}
-                      {event.subjects && event.subjects.length > 0 && (
-                        <Group gap="xs">
-                          {event.subjects.map((subject, idx) => (
-                            <Badge
-                              key={idx}
-                              variant="dot"
-                              size="xs"
-                              className="subject-tag"
-                            >
-                              {subject}
-                            </Badge>
-                          ))}
-                        </Group>
-                      )}
-                      {event.start && (
-                        <Text size="xs" c="dimmed">
-                          {new Date(event.start).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </Text>
-                      )}
-                    </Stack>
-                    <Badge
-                      color={event.type === "exam event" ? "red" : "blue"}
-                      variant="filled"
-                      size="sm"
-                      className="event-type-badge"
-                    >
-                      {event.type === "exam event" ? "EXAM" : "EVENT"}
-                    </Badge>
-                  </Group>
-                  {event.type === "pure event" && (
-                    <Button
-                      size="xs"
-                      mt="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleJoin(event);
-                      }}
-                    >
-                      Join
-                    </Button>
-                  )}
-                </Card>
-              ))}
-              <Divider />
-            </>
-          )}
+                  <Group justify="space-between" align="flex-start" wrap="nowrap">
+                    <Group align="flex-start" gap="md" wrap="nowrap" style={{ flex: 1 }}>
+                       <ThemeIcon 
+                        size="xl" 
+                        radius="md" 
+                        variant="light" 
+                        color={event.type === "exam event" ? "red" : "indigo"}
+                      >
+                         {event.type === "exam event" ? <IconCheck size={24} /> : <IconVideo size={24} />}
+                      </ThemeIcon>
 
-          {selectedEvents.length === 0 && (
-            <Text color="dimmed" size="sm" align="center">
-              No events scheduled for this date
-            </Text>
+                      <Stack gap={4} style={{ flex: 1 }}>
+                        <Group justify="space-between" align="center" mb={4}>
+                            <Text fw={700} size="lg" className="event-title">
+                                {event.title}
+                            </Text>
+                            <Badge
+                                color={event.type === "exam event" ? "red" : "indigo"}
+                                variant="light"
+                                size="sm"
+                                radius="sm"
+                            >
+                                {event.type === "exam event" ? "ASSESSMENT" : "MEETING"}
+                            </Badge>
+                        </Group>
+
+                        <Group gap="md">
+                             <Text size="sm" c="dimmed" ff="monospace" bg="gray.1" px={6} py={2} style={{ borderRadius: '4px' }}>
+                                #{event.id?.substring(0,8)}...
+                            </Text>
+
+                            {event.start && (
+                                <Text size="sm" fw={600} c="dark.3">
+                                    {new Date(event.start).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </Text>
+                            )}
+
+                             {event.attendeeCount != null && (
+                                <Group gap={4}>
+                                    <Avatar size="sm" radius="xl" color="blue" />
+                                    <Text size="sm" fw={500} c="dimmed">{event.attendeeCount} joining</Text>
+                                </Group>
+                            )}
+                        </Group>
+                       
+                        {event.subjects && event.subjects.length > 0 && (
+                          <Group gap="xs" mt="xs">
+                            {event.subjects.map((subject, idx) => (
+                              <Badge
+                                key={idx}
+                                variant="outline"
+                                color="gray"
+                                size="sm"
+                                radius="xl"
+                              >
+                                {subject}
+                              </Badge>
+                            ))}
+                          </Group>
+                        )}
+                      </Stack>
+                    </Group>
+                  </Group>
+
+                  {event.type === "pure event" && (
+                    <Box mt="md" pt="md" style={{ borderTop: '1px dashed #dee2e6' }}>
+                        <Button
+                            fullWidth
+                            variant="light"
+                            color="indigo"
+                            leftSection={<IconVideo size={18} />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleJoin(event);
+                            }}
+                        >
+                            Join Video Meeting
+                        </Button>
+                    </Box>
+                  )}
+                </Paper>
+              ))}
+            </Stack>
+          ) : (
+            <Paper p="xl" radius="md" style={{ backgroundColor: 'white', textAlign: 'center', borderStyle: 'dashed', borderWidth: '2px', borderColor: '#e9ecef' }}>
+                <ThemeIcon size={64} radius="xl" variant="light" color="gray" mx="auto" mb="md">
+                    <IconCalendarEvent size={32} />
+                </ThemeIcon>
+                <Text fw={600} size="lg" color="dark.4">Free Day!</Text>
+                <Text color="dimmed" size="sm" mt="xs">
+                   There are no exams or sessions scheduled for this date.
+                </Text>
+            </Paper>
           )}
 
           {path !== "student" && (
-            <Group position="center" justify="flex-end" spacing="sm" mt="md">
-              <Button onClick={handleCreateMeeting} variant="light">
-                Create Meeting
+            <Group position="center" justify="center" spacing="md" mt="xl" grow>
+              <Button onClick={handleCreateMeeting} variant="light" size="md" radius="md" color="indigo" leftSection={<IconVideo size={18} />}>
+                Schedule Meet
               </Button>
-              <Button onClick={handleCreateExam} color="red" variant="filled">
-                Create Exam
+              <Button onClick={handleCreateExam} color="red" variant="filled" size="md" radius="md" leftSection={<IconCheck size={18}/>}>
+                Assign Exam
               </Button>
             </Group>
           )}
@@ -514,9 +509,10 @@ export default function CalendarPage({ path = "student" }) {
       <Modal
         opened={meetingModalOpened}
         onClose={() => setMeetingModalOpened(false)}
-        title="Create Meeting"
+        title={<Text fw={700} size="xl">Schedule a Session</Text>}
         centered
-        size="md"
+        size="lg"
+        radius="md"
       >
         <form
           onSubmit={meetingForm.onSubmit(async (values) => {
@@ -538,40 +534,54 @@ export default function CalendarPage({ path = "student" }) {
             }
           })}
         >
-          <TextInput
-            label="Title"
-            {...meetingForm.getInputProps("title")}
-            required
-          />
-          <TextInput
-            label="Date & time"
-            type="datetime-local"
-            {...meetingForm.getInputProps("date")}
-            required
-          />
-          <TextInput
-            label="Link (zoom / meet / etc)"
-            {...meetingForm.getInputProps("link")}
-            required
-          />
-          <TextInput
-            label="Image URL (optional)"
-            {...meetingForm.getInputProps("image")}
-          />
-          <Textarea
-            label="Description"
-            {...meetingForm.getInputProps("description")}
-            required
-          />
-          <Group position="right" mt="md">
-            <Button type="submit">Create</Button>
-          </Group>
+          <Stack gap="md">
+            <TextInput
+                label="Session Title"
+                placeholder="E.g., Special Integration Class"
+                size="md"
+                {...meetingForm.getInputProps("title")}
+                required
+            />
+            <TextInput
+                label="Date & Time"
+                type="datetime-local"
+                size="md"
+                {...meetingForm.getInputProps("date")}
+                required
+            />
+            <TextInput
+                label="Meeting Link"
+                placeholder="https://zoom.us/j/..."
+                size="md"
+                {...meetingForm.getInputProps("link")}
+                required
+            />
+            <TextInput
+                label="Thumbnail URL (Optional)"
+                placeholder="https://example.com/image.png"
+                size="md"
+                {...meetingForm.getInputProps("image")}
+            />
+            <Textarea
+                label="Agenda & Description"
+                placeholder="What will be discussed?"
+                autosize
+                minRows={3}
+                size="md"
+                {...meetingForm.getInputProps("description")}
+                required
+            />
+            <Group justify="flex-end" mt="xl">
+                <Button variant="subtle" color="gray" onClick={() => setMeetingModalOpened(false)}>Cancel</Button>
+                <Button type="submit" size="md" radius="md" color="indigo">Create Session</Button>
+            </Group>
+          </Stack>
         </form>
       </Modal>
 
       {/* Calendar Section */}
       <Container size="xl">
-        <Paper className="calendar-container">
+        <Paper className="calendar-main-container" shadow="sm" radius="xl" withBorder={false}>
           <div className="calendar-wrapper">
             <FullCalendar
               plugins={[
@@ -584,7 +594,7 @@ export default function CalendarPage({ path = "student" }) {
               headerToolbar={{
                 left: "prev,next today",
                 center: "title",
-                right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+                right: "dayGridMonth,timeGridWeek,listWeek",
               }}
               events={filteredEvents}
               dateClick={handleDateClick}
@@ -597,7 +607,7 @@ export default function CalendarPage({ path = "student" }) {
                 const subjects = arg.event.extendedProps.subjects || [];
                 const primarySubject = subjects[0];
                 return [
-                  type === "exam event" ? "fc-event-exam" : "fc-event-regular",
+                  type === "exam event" ? "fc-event-exam-type" : "fc-event-regular-type",
                   primarySubject
                     ? `fc-event-${primarySubject
                         .toLowerCase()
@@ -609,15 +619,16 @@ export default function CalendarPage({ path = "student" }) {
               }}
               eventContent={(arg) => {
                 const subjects = arg.event.extendedProps.subjects || [];
+                // format time
+                const timeStr = arg.event.start ? new Date(arg.event.start).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit'}) : '';
                 return {
                   html: `
-                    <div class="fc-event-content-compact">
+                    <div class="fc-event-content-modern">
                       <div class="fc-event-main">
-                        <span class="fc-event-type-dot ${
-                          arg.event.extendedProps.type === "exam event"
-                            ? "exam"
-                            : "event"
-                        }"></span>
+                        <div class="fc-event-dot ${
+                          arg.event.extendedProps.type === "exam event" ? "exam" : "event"
+                        }"></div>
+                        <span class="fc-event-time">${timeStr}</span>
                         <span class="fc-event-title">${arg.event.title}</span>
                       </div>
                       ${
@@ -633,6 +644,6 @@ export default function CalendarPage({ path = "student" }) {
           </div>
         </Paper>
       </Container>
-    </Container>
+    </Box>
   );
 }

@@ -76,7 +76,7 @@ const App = () => {
   if (isInitializing) return <LoadingPage />;
 
   return (
-    <main style={{ backgroundColor: "#f7f9fc" }}>
+    <main style={{ backgroundColor: "var(--mantine-color-body)" }}>
       <Toaster position="top-center" richColors />
       <OfflineAlert />
       <Suspense fallback={<LoadingPage />}>

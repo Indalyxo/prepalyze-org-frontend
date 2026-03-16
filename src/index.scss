@@ -79,8 +79,8 @@
 
 body {
     font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-    background: #f4f1f1;
-    color: #222;
+    background: var(--mantine-color-body);
+    color: var(--mantine-color-text);
     line-height: 1.6;
 }
 

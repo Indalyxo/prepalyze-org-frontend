@@ -9,8 +9,8 @@ import IntellihubHeader from "../components/IntellihubHeader";
 
 const OrganizationIntellihub = () => {
   return (
-    <div className="dashboard invisible-scrollbar" style={{ backgroundColor: "#f7f9fc", overflow: "scroll" }}>
-      <Container size="xl" py="xl" style={{ backgroundColor: "#f7f9fc" }}>
+    <div className="dashboard invisible-scrollbar" style={{ backgroundColor: "var(--mantine-color-body)", overflow: "scroll" }}>
+      <Container size="xl" py="xl" style={{ backgroundColor: "var(--mantine-color-body)" }}>
         <IntellihubHeader />
 
         <Grid gutter="lg">

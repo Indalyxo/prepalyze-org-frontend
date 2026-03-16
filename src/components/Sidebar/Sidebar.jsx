@@ -30,9 +30,10 @@ import {
   IconChevronDown,
   IconBell,
 } from "@tabler/icons-react";
-import "./sidebar.scss";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/api";
+import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
+import "./sidebar.scss";
 
 const Sidebar = ({
   data = [],
@@ -487,8 +488,8 @@ const Sidebar = ({
   const sidebarStyles = {
     width: isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width,
     height: "100vh",
-    backgroundColor: "var(--mantine-color-white)",
-    borderRight: "1px solid var(--mantine-color-gray-3)",
+    backgroundColor: "var(--mantine-color-body)",
+    borderRight: "1px solid var(--mantine-color-default-border)",
     display: "flex",
     flexDirection: "column",
   };
@@ -501,7 +502,7 @@ const Sidebar = ({
         color="white"
         justify="space-between"
         p="lg"
-        style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+        style={{ borderBottom: "1px solid var(--mantine-color-default-border)" }}
       >
         {(!isCollapsed || isMobile) && (
           <Text fw={700} size="lg" c={"white"}>
@@ -555,13 +556,16 @@ const Sidebar = ({
       {/* Footer */}
       <Box
         p="lg"
-        style={{ borderTop: "1px solid var(--mantine-color-gray-3)" }}
+        style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}
       >
-        {(isMobile || !isCollapsed) && (
-          <Text size="xs" c="dimmed" ta="center" fw={500}>
-            © 2026 Prepalyze
-          </Text>
-        )}
+        <Group justify={isCollapsed ? "center" : "space-between"} align="center">
+          {(isMobile || !isCollapsed) && (
+             <Text size="xs" c="dimmed" ta="center" fw={500}>
+               © 2026 Prepalyze
+             </Text>
+          )}
+          <ThemeToggle />
+        </Group>
       </Box>
     </Box>
   );

@@ -1,19 +1,19 @@
 .dashboard-header-section {
   margin-bottom: 2.5rem;
   padding: 1.5rem;
-  background-color: #ffffff;
+  background-color: var(--mantine-color-body);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   h1 {
-    color: #212529;
+    color: var(--mantine-color-text);
     font-weight: 700;
     font-size: 2.2rem;
   }
 
   .stat-card {
     transition: all 0.2s ease;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--mantine-color-default-border);
 
     &:hover {
       transform: translateY(-3px);
