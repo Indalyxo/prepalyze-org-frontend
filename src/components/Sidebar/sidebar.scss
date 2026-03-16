@@ -1,12 +1,63 @@
-// Remove custom properties since component uses Mantine CSS variables directly
+.sidebar-component {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.horizontal-nav {
+    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(var(--mantine-color-body-rgb), 0.7) !important;
+    border-bottom: 1px solid rgba(var(--mantine-color-default-border-rgb), 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 64px !important;
+  }
 
-// Dark theme handled by Mantine
+  .nav-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    padding: 8px 16px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    
+    &.active {
+      color: var(--mantine-color-blue-filled);
+      background: rgba(var(--mantine-color-blue-light-color-rgb), 0.1);
 
-// Mobile overlay handled inline in JSX component
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 20%;
+        right: 20%;
+        height: 2px;
+        background: var(--mantine-color-blue-filled);
+        border-radius: 2px;
+        box-shadow: 0 0 10px var(--mantine-color-blue-filled);
+      }
+    }
 
-// Sidebar styles handled inline in JSX component
+    &:hover:not(.active) {
+      background: rgba(var(--mantine-color-gray-light-color-rgb), 0.1);
+      transform: translateY(-1px);
+    }
+  }
 
-// Loading animation for skeleton items
+  .user-profile-btn {
+    transition: all 0.2s ease;
+    border: 1px solid rgba(var(--mantine-color-default-border-rgb), 0.5);
+    background: rgba(var(--mantine-color-gray-light-color-rgb), 0.05);
+    backdrop-filter: blur(8px);
+    
+    &:hover {
+      border-color: var(--mantine-color-blue-4);
+      background: rgba(var(--mantine-color-blue-light-color-rgb), 0.1);
+    }
+  }
+}
+
+// ... existing shimmer and other styles ...
 .sidebar-loading-item {
   background: linear-gradient(
     90deg,
@@ -19,17 +70,6 @@
   border-radius: 8px;
 }
 
-// Header styles handled inline in JSX component
-
-// User profile styles handled inline in JSX component
-
-// Content and section styles handled inline in JSX component
-
-// Navigation item styles handled inline in JSX component
-
-// Footer and empty state styles handled inline in JSX component
-
-// Custom scrollbar styling
 .mantine-ScrollArea-scrollbar {
   &[data-orientation="vertical"] {
     width: 4px;
@@ -48,7 +88,6 @@
   }
 }
 
-// Animations
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -58,7 +97,6 @@
   }
 }
 
-// Accessibility and print support
 @media (prefers-reduced-motion: reduce) {
   .sidebar-loading-item {
     animation: none;

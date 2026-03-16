@@ -1,26 +1,63 @@
 .dashboard-header-section {
   margin-bottom: 2.5rem;
   padding: 1.5rem;
-  background-color: var(--mantine-color-body);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  h1 {
-    color: var(--mantine-color-text);
-    font-weight: 700;
-    font-size: 2.2rem;
+  border-radius: 16px;
+  
+  &.vertical-stats {
+    padding: 16px;
+    margin-bottom: 0;
+    background: transparent;
   }
 
   .stat-card {
-    transition: all 0.2s ease;
-    border: 1px solid var(--mantine-color-default-border);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: rgba(var(--mantine-color-body-rgb), 0.5);
+    border: 1px solid rgba(var(--mantine-color-default-border-rgb), 0.4);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top left, var(--stat-glow, transparent), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
 
     &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--stat-color, var(--mantine-color-blue-4));
+      
+      &::before {
+        opacity: 0.15;
+      }
+
+      .icon-container {
+        transform: scale(1.1) rotate(8deg);
+        box-shadow: 0 0 20px var(--stat-color);
+      }
+    }
+
+    .icon-container {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(var(--stat-color-rgb), 0.1);
+      color: var(--stat-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
+
 
 @media (max-width: 768px) {
   .dashboard-header-section {

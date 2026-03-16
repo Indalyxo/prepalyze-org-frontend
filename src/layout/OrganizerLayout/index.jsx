@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { AppShell, Group, Title } from "@mantine/core";
+import { AppShell, Box, Group, ScrollArea, Title } from "@mantine/core";
 import {
   IconCalendarBolt,
   IconContract,
@@ -17,11 +17,13 @@ import "./oragnizer-layout.scss";
 import { useMediaQuery } from "@mantine/hooks";
 import useAuthStore from "../../context/auth-store";
 
+import IntellihubHeader from "../../pages/Organization/components/IntellihubHeader";
+
 const OrganizerLayout = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const { settings } = useAuthStore();
+  const isMobileMatch = useMediaQuery("(max-width: 768px)");
+  const isMobile = isMobileMatch === true;
+  const { user } = useAuthStore();
 
   const navItems = [
     {
@@ -50,43 +52,68 @@ const OrganizerLayout = () => {
     },
     {
       name: "Fees",
-      icon: <IconMoneybag />, // Reusing contract icon, change if you want a different one
+      icon: <IconMoneybag />,
       redirectTo: "/organization/fees",
       description: "Your Fees Zone",
     },
   ];
+
   return (
     <AppShell
+      header={{ height: isMobile ? 60 : 64 }}
       navbar={{
-        width: isMobile ? 0 : sidebarCollapsed ? 80 : 300,
-        breakpoint: 0,
+        width: isMobile ? 0 : 280,
+        breakpoint: "sm",
+        collapsed: { mobile: !mobileSidebarOpen }
       }}
-      header={{ height: isMobile ? 60 : 0 }}
+      padding="0"
     >
-      {isMobile && (
-        <AppShell.Header>
+      <AppShell.Header h={isMobile ? 60 : 64} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', background: 'transparent' }}>
+        {isMobile ? (
           <Group h="100%" px="md" justify="space-between">
             <MobileSidebarTrigger onToggle={() => setMobileSidebarOpen(true)} />
             <Title order={4}>Prepalyze</Title>
-            <div /> {/* Spacer */}
+            <div />
           </Group>
-        </AppShell.Header>
+        ) : (
+          <Sidebar
+            data={navItems}
+            title="Prepalyze"
+            layout="horizontal"
+          />
+        )}
+      </AppShell.Header>
+
+      {!isMobile && (
+        <AppShell.Navbar p={0} style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}>
+          <ScrollArea h="calc(100vh - 64px)">
+             <IntellihubHeader layout="vertical" />
+          </ScrollArea>
+        </AppShell.Navbar>
       )}
-      <AppShell.Navbar p={0}>
+
+      {isMobile && (
         <Sidebar
           data={navItems}
           title="Organizer Zone"
-          collapsed={sidebarCollapsed}
-          onToggle={setSidebarCollapsed}
           mobileOpen={mobileSidebarOpen}
           onMobileToggle={(prop) => setMobileSidebarOpen(prop)}
-          width={300}
-          collapsedWidth={80}
+          layout="vertical"
         />
-      </AppShell.Navbar>
+      )}
 
       <AppShell.Main>
-        <Outlet />
+        <Box 
+          p="xl" 
+          style={{ 
+            minHeight: 'calc(100vh - 64px)', 
+            backgroundColor: 'var(--mantine-color-body)',
+            backgroundImage: 'radial-gradient(circle at top right, rgba(var(--mantine-color-blue-6), 0.03), transparent 600px)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <Outlet />
+        </Box>
       </AppShell.Main>
     </AppShell>
   );

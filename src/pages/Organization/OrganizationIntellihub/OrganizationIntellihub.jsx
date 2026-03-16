@@ -11,8 +11,6 @@ const OrganizationIntellihub = () => {
   return (
     <div className="dashboard invisible-scrollbar" style={{ backgroundColor: "var(--mantine-color-body)", overflow: "scroll" }}>
       <Container size="xl" py="xl" style={{ backgroundColor: "var(--mantine-color-body)" }}>
-        <IntellihubHeader />
-
         <Grid gutter="lg">
           {/* First row: Leaderboard on left, Average Marks Chart on right */}
           <Grid.Col md={6}>

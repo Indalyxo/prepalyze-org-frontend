@@ -7,6 +7,8 @@ import {
   SimpleGrid,
   ThemeIcon,
   Skeleton,
+  Stack,
+  Box,
 } from "@mantine/core";
 import {
   IconClipboardList,
@@ -47,7 +49,9 @@ const examStatusIcons = [
   },
 ];
 
-const IntellihubHeader = () => {
+import { motion } from "framer-motion";
+
+const IntellihubHeader = ({ layout = "horizontal" }) => {
   const [headerData, setHeaderData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuthStore();
@@ -77,76 +81,132 @@ const IntellihubHeader = () => {
     }
   }, [user?.id]);
 
+  const isVertical = layout === "vertical";
+
   if (isLoading) {
     return (
-      <div className="dashboard-header-section">
-        <SimpleGrid
-          cols={4}
-          spacing="lg"
-          breakpoints={[{ maxWidth: "md", cols: 1 }]}
-        >
-          {[...Array(4)].map((_, index) => (
-            <Paper key={index} shadow="sm" p="md" className="stat-card">
-              <Group position="apart" noWrap>
-                <div style={{ flex: 1 }}>
-                  <Skeleton height={14} width="60%" mb="xs" />
-                  <Skeleton height={20} width="40%" mb="xs" />
-                  <Skeleton height={12} width="80%" />
-                </div>
-                <Skeleton height={40} width={40} radius="md" />
-              </Group>
-            </Paper>
-          ))}
-        </SimpleGrid>
+      <div className={`${isVertical ? "vertical-stats" : "dashboard-header-section"}`}>
+        {isVertical ? (
+          <Stack gap="md" p="md">
+            {[...Array(4)].map((_, index) => (
+              <Paper key={index} shadow="sm" p="md" className="stat-card" radius="lg">
+                <Group justify="space-between" wrap="nowrap">
+                  <div style={{ flex: 1 }}>
+                    <Skeleton height={14} width="60%" mb="xs" />
+                    <Skeleton height={20} width="40%" />
+                  </div>
+                  <Skeleton height={44} width={44} radius="md" />
+                </Group>
+              </Paper>
+            ))}
+          </Stack>
+        ) : (
+          <SimpleGrid
+            cols={4}
+            spacing="lg"
+            breakpoints={[{ maxWidth: "md", cols: 1 }]}
+          >
+            {[...Array(4)].map((_, index) => (
+              <Paper key={index} shadow="sm" p="md" className="stat-card" radius="lg">
+                <Group justify="space-between" wrap="nowrap">
+                  <div style={{ flex: 1 }}>
+                    <Skeleton height={14} width="60%" mb="xs" />
+                    <Skeleton height={20} width="40%" mb="xs" />
+                    <Skeleton height={12} width="80%" />
+                  </div>
+                  <Skeleton height={44} width={44} radius="md" />
+                </Group>
+              </Paper>
+            ))}
+          </SimpleGrid>
+        )}
       </div>
     );
   }
 
-  return (
-    <div className="dashboard-header-section">
-      <SimpleGrid
-        cols={{ base: 2, sm: 2, md: 3, lg: 4 }}
-        spacing={{ base: "xs", sm: "sm", md: "md", lg: "lg" }}
-        breakpoints={[{ maxWidth: "md", cols: 1 }]}
-      >
-        {headerData.map((stat) => {
-          const matchedIcon = examStatusIcons.find(
-            (icon) => icon.key === stat.title.toLowerCase()
-          );
-          const IconComponent = matchedIcon?.icon;
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-          return (
-            <Paper key={stat.title} shadow="sm" p="md" className="stat-card">
-              <Group position="apart" noWrap>
-                <div>
-                  <Text
-                    color="dimmed"
-                    size="xs"
-                    transform="uppercase"
-                    weight={700}
-                  >
-                    {stat.title}
-                  </Text>
-                  <Text size="xl" weight={700} mt="xs">
-                    {stat.count}
-                  </Text>
-                  <Text color="dimmed" size="sm" mt="xs">
-                    {stat.description}
-                  </Text>
-                </div>
-                <ThemeIcon
-                  color={matchedIcon?.color}
-                  variant="light"
-                  size="xl"
-                  radius="md"
-                >
-                  {IconComponent ? <IconComponent size={24} /> : null}
-                </ThemeIcon>
-              </Group>
-            </Paper>
-          );
-        })}
-      </SimpleGrid>
+  const item = {
+    hidden: { opacity: 0, x: isVertical ? -20 : 0, y: isVertical ? 0 : 20 },
+    show: { opacity: 1, x: 0, y: 0 }
+  };
+
+  const content = headerData.map((stat) => {
+    const matchedIcon = examStatusIcons.find(
+      (icon) => icon.key === stat?.title?.toLowerCase()
+    );
+    const IconComponent = matchedIcon?.icon;
+    const color = `var(--mantine-color-${matchedIcon?.color || 'blue'}-filled)`;
+    const glow = `var(--mantine-color-${matchedIcon?.color || 'blue'}-filled-hover)`;
+    
+    // Map Mantine colors to RGB for custom transparency in SCSS
+    const colorRGB = matchedIcon?.color === 'green' ? '64, 192, 87' : 
+                     matchedIcon?.color === 'blue' ? '34, 139, 230' :
+                     matchedIcon?.color === 'orange' ? '253, 126, 20' : '34, 139, 230';
+
+    return (
+      <motion.div key={stat.title} variants={item}>
+        <Paper 
+          p="md" 
+          className="stat-card" 
+          style={{ 
+            '--stat-color': color,
+            '--stat-glow': glow,
+            '--stat-color-rgb': colorRGB
+          }}
+        >
+          <Group justify="space-between" wrap="nowrap">
+            <Box>
+              <Text
+                c="dimmed"
+                size="xs"
+                tt="uppercase"
+                fw={800}
+                lts={1.5}
+                style={{ opacity: 0.8 }}
+              >
+                {stat.title}
+              </Text>
+              <Text size="28px" fw={900} mt={2} style={{ letterSpacing: -1, fontFamily: 'Outfit, sans-serif' }}>
+                {stat.count}
+              </Text>
+            </Box>
+            <Box className="icon-container" style={{ width: 48, height: 48, borderRadius: 12 }}>
+              {IconComponent ? <IconComponent size={24} stroke={2.5} /> : null}
+            </Box>
+          </Group>
+        </Paper>
+      </motion.div>
+    );
+  });
+
+  return (
+    <div className={`${isVertical ? "vertical-stats" : "dashboard-header-section"}`}>
+      {isVertical ? (
+        <motion.div variants={container} initial="hidden" animate="show">
+          <Stack gap="lg" p="md">
+            <Text fw={900} size="xs" c="dimmed" tt="uppercase" px="xs" mb={-10} lts={2.5}>Analytics</Text>
+            {content}
+          </Stack>
+        </motion.div>
+      ) : (
+        <motion.div variants={container} initial="hidden" animate="show">
+          <SimpleGrid
+            cols={{ base: 2, sm: 2, md: 3, lg: 4 }}
+            spacing="xl"
+          >
+            {content}
+          </SimpleGrid>
+        </motion.div>
+      )}
     </div>
   );
 };

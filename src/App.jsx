@@ -61,6 +61,7 @@ const PrepalyzeLanding = lazy(() => import("./pages/LandingPage"));
 const ExamStartPage = lazy(() =>
   import("./pages/Exam/ExamStartPage/ExamStartPage")
 );
+const Profile = lazy(() => import("./pages/Generic/Profile"));
 
 const CalendarPage = lazy(() => import("./components/Generics/Calendar/Calendar"));
 const Fees = lazy(() => import("./pages/FeesAmountBill/Fees"));
@@ -178,6 +179,7 @@ const App = () => {
               <Route path="/print/:examId" element={<PrintQuestions />} />
               <Route path="/check" element={<CheckingPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/profile" element={<Profile />} />
 
             </>
           )}
