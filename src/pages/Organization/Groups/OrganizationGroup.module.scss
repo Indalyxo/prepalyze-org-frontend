@@ -1,12 +1,7 @@
 // Variables
-$color-bg: #fafafa;
-$color-border: #e8eaed;
-$color-border-hover: #dadce0;
-$color-text-primary: #3b82f6;
-$color-text-secondary: #5f6368;
-$color-text-muted: #6c757d;
-$radius-md: 8px;
-$transition-fast: all 0.2s ease;
+$color-text-primary: var(--mantine-color-blue-filled);
+$radius-md: 12px;
+$transition-fast: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 .container {
   min-height: 100vh;
@@ -35,13 +30,16 @@ $transition-fast: all 0.2s ease;
 }
 
 .createButton {
-  background-color: $color-text-primary;
+  background-color: var(--mantine-color-blue-filled);
   color: #fff;
   border: none;
   transition: $transition-fast;
+  border-radius: 12px;
 
   &:hover {
-    background-color: #e8eaed;
+    background-color: var(--mantine-color-blue-filled-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 139, 230, 0.3);
   }
 
   @media (max-width: 768px) {
@@ -77,7 +75,7 @@ $transition-fast: all 0.2s ease;
 }
 
 .groupIcon {
-  color: $color-text-secondary;
+  color: var(--mantine-color-blue-4);
   flex-shrink: 0;
 }
 
@@ -91,7 +89,7 @@ $transition-fast: all 0.2s ease;
 
 .memberCount {
   font-size: 0.75rem;
-  color: $color-text-secondary;
+  color: var(--mantine-color-dimmed);
   margin: 0;
 }
 
@@ -115,6 +113,6 @@ $transition-fast: all 0.2s ease;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
-    color: $color-text-muted;
+    color: var(--mantine-color-dimmed);
   }
 }

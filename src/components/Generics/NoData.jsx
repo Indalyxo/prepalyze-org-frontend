@@ -23,13 +23,13 @@ const NoData = ({message}) => {
         style={{
           marginTop: "16px",
           fontSize: "20px",
-          fontWeight: "600",
-          color: "#374151",
+          fontWeight: "700",
+          color: "var(--mantine-color-text)",
         }}
       >
         No Data Found
       </h2>
-      <p style={{ marginTop: "8px", color: "#6B7280", maxWidth: "400px" }}>
+      <p style={{ marginTop: "8px", color: "var(--mantine-color-dimmed)", maxWidth: "400px" }}>
         {message}
       </p>
     </Center>

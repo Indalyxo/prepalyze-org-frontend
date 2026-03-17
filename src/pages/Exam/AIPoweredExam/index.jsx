@@ -13,7 +13,8 @@ import {
   ChevronDown,
   BrainCircuit,
   AlertCircle,
-  Download
+  Download,
+  PlusCircle
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { InlineMath, BlockMath } from "react-katex";
@@ -23,6 +24,7 @@ import { toPng } from "html-to-image";
 import s from "./AIPoweredExam.module.scss";
 
 import { renderWithLatexAndImages } from "../../../utils/render/render";
+import AICreateExamModal from "../../../components/Exam/AICreateExamModal/AICreateExamModal";
 
 // ErrorBoundary to catch KaTeX rendering crashes
 class ErrorBoundary extends Component {
@@ -324,6 +326,7 @@ export default function AIPoweredExam() {
   const [rawJSON, setRawJSON] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [createModalOpened, setCreateModalOpened] = useState(false);
 
   // Helper to fetch distinct core metadata fields from backend
   const fetchUniqueFilter = async (field, queryObj = {}) => {
@@ -762,13 +765,23 @@ export default function AIPoweredExam() {
                     </span>
                   </h2>
 
-                  <button 
-                    onClick={handleDownloadPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-emerald-600 dark:text-emerald-400 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-sm font-medium shadow-md dark:shadow-lg hover:shadow-emerald-500/10"
-                  >
-                    <Download size={18} />
-                    Download PDF
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => setCreateModalOpened(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all text-sm font-medium shadow-md shadow-emerald-500/20"
+                    >
+                      <PlusCircle size={18} />
+                      Create Exam
+                    </button>
+                    
+                    <button 
+                      onClick={handleDownloadPDF}
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-emerald-600 dark:text-emerald-400 rounded-xl border border-slate-200 dark:border-slate-700 transition-all text-sm font-medium shadow-md dark:shadow-lg hover:shadow-emerald-500/10"
+                    >
+                      <Download size={18} />
+                      Download PDF
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2" ref={questionsRef}>
@@ -798,6 +811,12 @@ export default function AIPoweredExam() {
           </motion.div>
         </div>
       </Container>
+      
+      <AICreateExamModal 
+        opened={createModalOpened} 
+        onClose={() => setCreateModalOpened(false)} 
+        aiQuestions={questions} 
+      />
 
       {/* Hidden Printable Layout */}
       <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>

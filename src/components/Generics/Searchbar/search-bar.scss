@@ -7,36 +7,35 @@
   max-width: 400px;
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #ffffff;
-  border: 1.5px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(8px);
+  background: var(--mantine-glass-bg);
+  border: 1px solid var(--mantine-glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(var(--mantine-glass-blur));
 
   &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border-color: rgba(34, 139, 230, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     transform: translateY(-1px);
   }
 
   &--focused {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 8px 25px rgba(59, 130, 246, 0.15);
+    border-color: var(--mantine-color-blue-5);
+    box-shadow: 0 0 0 3px rgba(34, 139, 230, 0.1), 0 12px 30px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
-    background: #ffffff;
+    background: var(--mantine-glass-bg);
   }
 
   &--disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
     
     .search-bar__input {
       cursor: not-allowed;
     }
   }
 
-  // Size variants with improved proportions
+  // Size variants
   &--sm {
     height: 36px;
     padding: 0 12px;
@@ -44,13 +43,6 @@
     
     .search-bar__input {
       font-size: 14px;
-      font-weight: 400;
-    }
-    
-    .search-bar__search-icon,
-    .search-bar__clear-icon {
-      width: 16px;
-      height: 16px;
     }
   }
 
@@ -60,13 +52,6 @@
     
     .search-bar__input {
       font-size: 15px;
-      font-weight: 400;
-    }
-    
-    .search-bar__search-icon,
-    .search-bar__clear-icon {
-      width: 18px;
-      height: 18px;
     }
   }
 
@@ -77,50 +62,40 @@
     
     .search-bar__input {
       font-size: 16px;
-      font-weight: 400;
-    }
-    
-    .search-bar__search-icon,
-    .search-bar__clear-icon {
-      width: 20px;
-      height: 20px;
     }
   }
 
   // Enhanced style variants
   &--filled {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1.5px solid transparent;
+    background: rgba(var(--mantine-color-body-rgb), 0.2);
+    border: 1px solid var(--mantine-glass-border);
     
     &:hover {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-      border-color: #3b82f6;
+      background: rgba(0, 0, 0, 0.3);
+      border-color: rgba(34, 139, 230, 0.3);
     }
     
     &.search-bar--focused {
-      background: #ffffff;
-      border-color: #3b82f6;
+      background: rgba(var(--mantine-color-body-rgb), 0.3);
+      border-color: var(--mantine-color-blue-5);
     }
   }
 
   &--outlined {
     background: transparent;
-    border: 2px solid #e5e7eb;
-    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
     
     &:hover {
-      border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(34, 139, 230, 0.4);
+      background: rgba(255, 255, 255, 0.05);
     }
     
     &.search-bar--focused {
-      border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: var(--mantine-color-blue-5);
+      background: rgba(255, 255, 255, 0.08);
     }
   }
 
-  // Icon containers with improved spacing
   &__icon-left {
     display: flex;
     align-items: center;
@@ -130,37 +105,33 @@
   }
 
   &__search-icon {
-    color: #6b7280;
+    color: var(--mantine-color-dimmed);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &--focused &__search-icon {
-    color: #3b82f6;
+    color: var(--mantine-color-blue-5);
     transform: scale(1.1);
   }
 
-  // Enhanced input field
   &__input {
     flex: 1;
     background: transparent;
     border: none;
     outline: none;
-    color: #1f2937;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--mantine-color-text);
+    font-family: inherit;
     line-height: 1.5;
-    font-weight: 400;
-    letter-spacing: 0.01em;
+    font-weight: 500;
     
     &::placeholder {
-      color: #9ca3af;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-weight: 400;
+      color: var(--mantine-color-dimmed);
+      transition: all 0.3s ease;
     }
     
     &:focus::placeholder {
-      color: #d1d5db;
-      opacity: 0.8;
       transform: translateX(4px);
+      opacity: 0.6;
     }
   }
 
@@ -180,7 +151,7 @@
     opacity: 0.7;
     
     &:hover {
-      background: #f3f4f6;
+      background: var(--mantine-color-default-hover);
       opacity: 1;
       transform: scale(1.05);
     }

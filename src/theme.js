@@ -28,8 +28,8 @@ export const theme = createTheme({
     },
   },
   other: {
-    glassBackground: "rgba(255, 255, 255, 0.1)",
-    glassBorder: "1px solid rgba(255, 255, 255, 0.2)",
+    glassBackground: "rgba(255, 255, 255, 0.05)",
+    glassBorder: "1px solid rgba(255, 255, 255, 0.08)",
     glassBlur: "12px",
   },
 });

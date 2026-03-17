@@ -76,9 +76,9 @@
 }
 
 .podium-card {
-  background: rgba(var(--mantine-color-body-rgb), 0.4);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(var(--mantine-color-default-border-rgb), 0.5);
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
   padding: 3rem 2rem;
   text-align: center;
   position: relative;
@@ -94,7 +94,7 @@
     inset: -1px;
     border-radius: 24px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 50%, rgba(255,255,255,0.05));
+    background: linear-gradient(135deg, rgba(var(--mantine-color-text-rgb), 0.1), transparent 50%, rgba(var(--mantine-color-text-rgb), 0.05));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -104,16 +104,16 @@
 
   &.rank-1 {
     height: 520px;
-    background: rgba(var(--mantine-color-blue-filled-rgb), 0.03);
-    border-color: rgba(var(--mantine-color-yellow-filled-rgb), 0.3);
-    box-shadow: 0 30px 60px -12px rgba(255, 215, 0, 0.1);
+    background: rgba(var(--mantine-color-blue-filled-rgb), 0.05);
+    border-color: rgba(var(--mantine-color-yellow-filled-rgb), 0.4);
+    box-shadow: 0 30px 60px -12px rgba(255, 215, 0, 0.15);
     order: 2;
     z-index: 2;
     transform: scale(1.05);
 
     .podium-avatar {
       border-color: var(--mantine-color-yellow-filled);
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
     }
 
     .rank-aura {
@@ -123,7 +123,7 @@
       transform: translateX(-50%);
       width: 250px;
       height: 250px;
-      background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
       pointer-events: none;
       z-index: -1;
     }
@@ -134,14 +134,14 @@
   &.rank-2 {
     height: 440px;
     order: 1;
-    border-color: rgba(var(--mantine-color-gray-filled-rgb), 0.3);
+    border-color: rgba(var(--mantine-color-gray-filled-rgb), 0.4);
     @media (max-width: 1100px) { order: 2; height: auto; }
   }
 
   &.rank-3 {
     height: 420px;
     order: 3;
-    border-color: rgba(var(--mantine-color-orange-filled-rgb), 0.3);
+    border-color: rgba(var(--mantine-color-orange-filled-rgb), 0.4);
     @media (max-width: 1100px) { order: 3; height: auto; }
   }
 
@@ -220,9 +220,9 @@
 }
 
 .leaderboard-row {
-  background: rgba(var(--mantine-color-body-rgb), 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(var(--mantine-color-default-border-rgb), 0.3);
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
   padding: 1.25rem 2rem;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;

@@ -1,7 +1,7 @@
 .calendar-page {
   background: var(--mantine-color-body);
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Outfit', 'Inter', sans-serif;
   padding: 2rem 0;
 
   // Header Section
@@ -10,67 +10,33 @@
     z-index: 2;
 
     .calendar-hero-content {
-      background: var(--mantine-color-body);
-      border: 1px solid var(--mantine-color-default-border);
+      background: var(--mantine-glass-bg);
+      backdrop-filter: blur(var(--mantine-glass-blur));
+      border: 1px solid var(--mantine-glass-border);
       border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-      transition: box-shadow 0.3s ease;
-
-      &:hover {
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
-      }
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .hero-title {
       color: var(--mantine-color-text);
       font-size: 2.25rem;
-      letter-spacing: -0.5px;
-      
-      @media (max-width: 768px) {
-        font-size: 1.75rem;
-      }
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
 
     .hero-subtitle {
       color: var(--mantine-color-dimmed);
       font-size: 1.05rem;
     }
-
-    .filter-btn {
-      position: relative;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-
-      &:hover {
-        transform: scale(1.05);
-      }
-      
-      .filter-dot {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        width: 8px;
-        height: 8px;
-        background-color: #f03e3e;
-        border: 2px solid white;
-        border-radius: 50%;
-      }
-    }
-  }
-
-  // Filter drawer styles
-  .filter-summary-box {
-    background: var(--mantine-color-default);
-    border-color: var(--mantine-color-default-border);
-  }
-
-  .subject-badge-drawer {
-    font-weight: 600;
   }
 
   // Main Calendar Container
   .calendar-main-container {
-    background: var(--mantine-color-body);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    background: var(--mantine-glass-bg);
+    backdrop-filter: blur(var(--mantine-glass-blur));
+    border: 1px solid var(--mantine-glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     
     .calendar-wrapper {
       padding: 1.5rem;
@@ -81,316 +47,143 @@
   .fc {
     background: transparent;
     border: none;
-    font-family: inherit;
 
-    // Remove harsh borders on edges
     .fc-scrollgrid {
-      border: 1px solid var(--mantine-color-default-border);
+      border: 1px solid var(--mantine-glass-border);
       border-radius: 12px;
       overflow: hidden;
     }
 
     th, td, .fc-scrollgrid-section > * {
-      border-color: var(--mantine-color-default-border);
+      border-color: var(--mantine-glass-border);
     }
     
     .fc-theme-standard td, .fc-theme-standard th {
-      border: 1px solid var(--mantine-color-default-border);
+      border: 1px solid var(--mantine-glass-border);
     }
 
     // Header Toolbar
-    .fc-toolbar {
-      margin-bottom: 2rem;
-      align-items: center;
-    }
-
     .fc-toolbar-title {
-      font-size: 1.75rem;
       font-weight: 800;
       color: var(--mantine-color-text);
-      text-transform: capitalize;
-      letter-spacing: -0.5px;
-      
-      @media (max-width: 768px) {
-        font-size: 1.35rem;
-      }
+      letter-spacing: -0.02em;
     }
 
     // Modern Button Styling
     .fc-button {
-      background: var(--mantine-color-default);
-      border: 1px solid var(--mantine-color-default-border);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: var(--mantine-color-text);
-      font-weight: 600;
-      border-radius: 8px;
-      padding: 0.6rem 1.25rem;
-      font-size: 0.9rem;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-      text-transform: capitalize;
+      font-weight: 700;
+      border-radius: 10px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: var(--mantine-color-default-hover);
-        border-color: var(--mantine-color-default-border);
-        color: var(--mantine-color-text);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--mantine-color-blue-5);
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      }
-
-      &:focus {
-        box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.2);
-        outline: none;
-      }
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
       }
 
       &.fc-button-active {
-        background: #eef2ff;
-        border-color: #bac8ff;
-        color: #3b5bdb;
-        box-shadow: inset 0 2px 4px rgba(59, 91, 219, 0.05);
-
-        &:hover {
-          background: #e0e7ff;
-          border-color: #a5b4fc;
-        }
-      }
-    }
-    
-    // Grouped buttons (prev/next)
-    .fc-button-group {
-      .fc-button {
-        border-radius: 0;
-        &:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-        &:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        background: var(--mantine-color-blue-filled);
+        border-color: var(--mantine-color-blue-filled);
+        color: white;
       }
     }
 
     // Day Headers
     .fc-col-header-cell {
-      padding: 12px 0;
-      background: var(--mantine-color-default);
+      background: rgba(0, 0, 0, 0.2);
       
       .fc-col-header-cell-cushion {
         color: var(--mantine-color-dimmed);
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
       }
     }
 
     // Day Cells
     .fc-daygrid-day {
-      transition: background-color 0.2s ease;
-
       &:hover {
-        background: rgba(248, 249, 250, 0.6);
-        cursor: pointer;
+        background: rgba(255, 255, 255, 0.03);
       }
-    }
-
-    .fc-daygrid-day-top {
-      flex-direction: row;
-      justify-content: flex-end;
-      padding: 8px;
     }
 
     .fc-daygrid-day-number {
       color: var(--mantine-color-text);
-      font-weight: 600;
-      font-size: 0.95rem;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      text-decoration: none;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: var(--mantine-color-default-hover);
-        color: var(--mantine-color-text);
-      }
+      font-weight: 700;
+      opacity: 0.8;
     }
 
     // Today highlight
     .fc-day-today {
-      background: var(--mantine-color-default) !important;
+      background: rgba(34, 139, 230, 0.05) !important;
       
       .fc-daygrid-day-number {
-        background: linear-gradient(135deg, #4c6ef5, #3b5bdb);
+        background: var(--mantine-color-blue-filled);
         color: white;
-        box-shadow: 0 4px 10px rgba(59, 91, 219, 0.3);
+        opacity: 1;
+        box-shadow: 0 4px 12px rgba(34, 139, 230, 0.4);
       }
-    }
-
-    // Weekend background
-    .fc-day-sat, .fc-day-sun {
-      background: var(--mantine-color-default);
-    }
-    
-    // Day cell constraints limits wrapper
-    .fc-daygrid-day-events {
-        min-height: 2em;
-        margin-bottom: 4px;
     }
 
     // Modern Event Styling
-    .fc-event {
-      border: none;
-      background: transparent;
-      margin: 1px 4px 4px;
-      cursor: pointer;
-    }
-
     .fc-event-content-modern {
-      background: var(--mantine-color-default);
-      border-radius: 6px;
-      padding: 4px 8px;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      background: rgba(var(--mantine-color-body-rgb), 0.2);
+      border: 1px solid var(--mantine-glass-border);
+      border-radius: 8px;
+      padding: 6px 10px;
       
       &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-        filter: brightness(0.95);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       }
 
-      .fc-event-main {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .fc-event-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        
-        &.exam { background: #fa5252; }
-        &.event { background: #3b5bdb; }
-      }
-      
-      .fc-event-time {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: #868e96;
-        opacity: 0;
-        width: 0;
-        overflow: hidden;
-        transition: opacity 0.2s, width 0.2s;
-        white-space: nowrap;
-      }
-      
       .fc-event-title {
-        font-weight: 600;
-        font-size: 0.75rem;
+        font-weight: 700;
         color: var(--mantine-color-text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex: 1;
       }
       
       .fc-event-subject {
-        font-size: 0.6rem;
-        color: #868e96;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-left: 12px; // aligned with title
+        color: var(--mantine-color-dimmed);
+        font-weight: 600;
       }
     }
-    
-    // Hover effect to show time
-    .fc-event:hover .fc-event-time {
-        opacity: 1;
-        width: auto;
-        margin-right: 2px;
-    }
 
-    // Type specific styling
+    // Type specific styling - Using semi-transparent backgrounds
     .fc-event-regular-type .fc-event-content-modern {
-      background: #edf2ff;
+      background: rgba(76, 110, 245, 0.15);
       border-left: 3px solid #748ffc;
-      
-      .fc-event-title { color: #364fc7; }
-      .fc-event-subject { color: #748ffc; }
+      .fc-event-title { color: #edf2ff; }
     }
 
     .fc-event-exam-type .fc-event-content-modern {
-      background: #fff5f5;
+      background: rgba(250, 82, 82, 0.15);
       border-left: 3px solid #ff8787;
-      
-      .fc-event-title { color: #c92a2a; }
-      .fc-event-subject { color: #ff8787; }
+      .fc-event-title { color: #fff5f5; }
     }
     
-    // Color Subject Specific overrides
-    .fc-event-mathematics .fc-event-content-modern {
-        background: #f3f0ff; border-left-color: #b197fc;
-        .fc-event-title { color: #6741d9; }
+    // Subject specific overrides
+    .fc-event-mathematics .fc-event-content-modern { 
+      background: rgba(103, 65, 217, 0.15); border-left-color: #b197fc; 
     }
-    
-    .fc-event-physics .fc-event-content-modern {
-        background: #fff4e6; border-left-color: #ffa94d;
-        .fc-event-title { color: #d9480f; }
+    .fc-event-physics .fc-event-content-modern { 
+      background: rgba(217, 72, 15, 0.15); border-left-color: #ffa94d; 
     }
-    
-    .fc-event-chemistry .fc-event-content-modern {
-        background: #e6fcf5; border-left-color: #63e6be;
-        .fc-event-title { color: #0ca678; }
+    .fc-event-chemistry .fc-event-content-modern { 
+      background: rgba(12, 166, 120, 0.15); border-left-color: #63e6be; 
     }
 
-    // "More" link styling
-    .fc-more-link {
-      background: var(--mantine-color-default);
-      color: var(--mantine-color-text);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 4px;
-      text-decoration: none;
-      display: inline-block;
-      margin: 4px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: var(--mantine-color-default-hover);
-        color: var(--mantine-color-text);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-    }
-    
     // Popover styling
     .fc-popover {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        overflow: hidden;
+        background: var(--mantine-color-body);
+        border: 1px solid var(--mantine-glass-border);
+        backdrop-filter: blur(20px);
         
         .fc-popover-header {
             background: var(--mantine-color-default);
-            padding: 12px 16px;
-            font-weight: 600;
             color: var(--mantine-color-text);
-        }
-        
-        .fc-popover-body {
-            padding: 8px;
         }
     }
   }

@@ -108,7 +108,7 @@ const OrganizerLayout = () => {
           style={{ 
             minHeight: 'calc(100vh - 64px)', 
             backgroundColor: 'var(--mantine-color-body)',
-            backgroundImage: 'radial-gradient(circle at top right, rgba(var(--mantine-color-blue-6), 0.03), transparent 600px)',
+            backgroundImage: 'radial-gradient(circle at top right, var(--mantine-color-blue-light), transparent 600px)',
             transition: 'all 0.3s ease'
           }}
         >
