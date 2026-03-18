@@ -1,28 +1,53 @@
 import { Card, Text, Group, Badge, Stack, Flex, Button, Skeleton } from "@mantine/core";
 import { IconStar } from "@tabler/icons-react";
+import { Trophy, Medal, Award, Crown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../../../context/auth-store.js";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../../../utils/api.jsx";
 import "./leaderboard.scss";
 
+const getRankIcon = (rank) => {
+  switch (rank) {
+    case 1: return <Trophy size={20} color="#FFD700" strokeWidth={2.5} />;
+    case 2: return <Medal size={20} color="#C0C0C0" strokeWidth={2.5} />;
+    case 3: return <Medal size={20} color="#CD7F32" strokeWidth={2.5} />;
+    default: return <Award size={20} color="#8C8C8C" />;
+  }
+};
+
 const getScoreBadgeColor = (rank) => {
   switch (rank) {
-    case 1: return "#4A90E2";
-    case 2: return "#5BA3F5";
-    case 3: return "#20B2AA";
-    case 4: return "#48CAE4";
-    case 5: return "#52C41A";
-    default: return "#8C8C8C";
+    case 1: return "#FFD700";
+    case 2: return "#C0C0C0";
+    case 3: return "#CD7F32";
+    default: return "#4A90E2";
   }
 };
 
 const getRankSuffix = (rank) => {
-  switch (rank) {
-    case 1: return "st";
-    case 2: return "nd";
-    case 3: return "rd";
-    default: return "th";
+  const j = rank % 10, k = rank % 100;
+  if (j === 1 && k !== 11) return "st";
+  if (j === 2 && k !== 12) return "nd";
+  if (j === 3 && k !== 13) return "rd";
+  return "th";
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100 }
   }
 };
 
@@ -45,183 +70,192 @@ export default function Leaderboard() {
   if (isLoading) {
     return (
       <div className="leaderboard-container">
-        {/* Header */}
         <div className="leaderboard-header">
-          <Skeleton height={24} width={220} radius="sm" />
-          <Skeleton height={16} width={320} mt={8} radius="sm" />
+          <Skeleton height={40} width={300} mx="auto" radius="md" />
+          <Skeleton height={20} width={400} mx="auto" mt={16} radius="sm" />
         </div>
 
-        <div className="leaderboard-content">
-          {/* Left Panel - Top Performer Skeleton */}
-          <Card className="featured-card" radius="xl" shadow="lg">
-            <Stack align="center" gap="md">
-              <Skeleton height={30} width={100} radius="xl" />
-              <Skeleton circle height={120} width={120} />
-              <Group className="stars" gap="xs">
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} height={24} width={24} radius="xl" />
-                ))}
+        <div className="leaderboard-content" style={{ opacity: 0.6 }}>
+          <Card className="featured-card" radius="xl">
+            <Stack align="center" gap="xl">
+              <Skeleton height={36} width={120} radius="xl" />
+              <Skeleton circle height={160} width={160} />
+              <Group gap="xs">
+                {[1, 2, 3].map((i) => <Skeleton key={i} height={32} width={32} radius="xl" />)}
               </Group>
-              <Skeleton height={20} width={140} radius="sm" />
-              <Skeleton height={40} width={80} radius="sm" />
+              <Skeleton height={30} width={180} radius="sm" />
+              <Skeleton height={80} width={120} radius="md" />
             </Stack>
           </Card>
 
-          {/* Right Panel - Rankings List Skeleton */}
-          <Stack className="leaderboard-list" gap="sm">
+          <Stack className="leaderboard-list" gap="md">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <Card key={idx} className="leaderboard-item" radius="lg" shadow="sm" withBorder>
+              <Card key={idx} className="leaderboard-item" radius="lg">
                 <Group justify="space-between" align="center">
-                  <Group gap="md" align="center">
-                    <Skeleton height={30} width={30} radius="md" />
-                    <Skeleton circle height={40} width={40} />
+                  <Group gap="lg">
+                    <Skeleton height={45} width={45} radius="md" />
+                    <Skeleton height={55} width={55} radius="md" />
                     <Stack gap="xs">
-                      <Skeleton height={16} width={100} radius="sm" />
-                      <Skeleton height={12} width={60} radius="sm" />
+                      <Skeleton height={20} width={140} radius="sm" />
+                      <Skeleton height={14} width={80} radius="sm" />
                     </Stack>
                   </Group>
-                  <Skeleton height={24} width={60} radius="md" />
+                  <Skeleton height={40} width={100} radius="md" />
                 </Group>
               </Card>
             ))}
-
-            <Flex justify="center" mt="md" w="100%">
-              <Skeleton height={36} width={120} radius="md" />
-            </Flex>
           </Stack>
         </div>
       </div>
     );
   }
 
-  if (error || !data?.success) return <div>Failed to load leaderboard</div>;
+  if (error || !data?.success) return <div className="leaderboard-container"><Text c="red" ta="center">Failed to load leaderboard</Text></div>;
 
   const leaderboardData = data.data || [];
   const topPerformer = leaderboardData[0];
 
-  if (data.data.length === 0) return <div>No data available</div>;
+  if (leaderboardData.length === 0) return <div className="leaderboard-container"><Text ta="center">No data available yet</Text></div>;
 
   return (
-    <div className="leaderboard-container">
-      {/* Header */}
-      <div className="leaderboard-header">
+    <motion.div 
+      className="leaderboard-container"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div className="leaderboard-header" variants={itemVariants}>
         <Text className="leaderboard-title">STUDENT LEADERBOARD</Text>
         <Text className="leaderboard-subtitle">
-          Top performing students based on their latest assessment scores.
+          Celebrating excellence: Our top performers in the latest assessment.
         </Text>
-      </div>
+      </motion.div>
 
       <div className="leaderboard-content">
-        {/* Left Panel - Top Performer */}
-        {topPerformer && (
-          <Card className="featured-card" radius="xl" shadow="lg">
-            <Stack align="center" gap="md">
-              <Badge
-                className="rank-badge"
-                style={{ backgroundColor: "#4A90E2" }}
-                size="lg"
-                radius="xl"
-              >
-                1<sup>st</sup> Rank
-              </Badge>
-
-              <img
-                src={user?.organization?.logoUrl || user?.organization?.logo}
-                alt={`${topPerformer.name}'s profile`}
-                className="profile-circle"
-              />
-
-              <Group className="stars" gap="xs">
-                {[1, 2, 3].map((star) => (
-                  <IconStar key={star} size={24} fill="#FFD700" color="#FFD700" />
-                ))}
-              </Group>
-
-              <Stack align="center" gap="xs">
-                <Text className="featured-name" fw={700}>
-                  {topPerformer.name}
-                </Text>
-              </Stack>
-
-              <div className="featured-score">
-                <Text className="score-number" size="4rem" fw={700}>
-                  {topPerformer.score}
-                </Text>
-                <Text c="dimmed" size="sm">
-                  Points
-                </Text>
-              </div>
-            </Stack>
-          </Card>
-        )}
-
-        {/* Right Panel - Rankings List */}
-        <Stack className="leaderboard-list" gap="sm">
-          {leaderboardData.slice(1).map((student) => (
-            <Card
-              key={student.rank}
-              className="leaderboard-item"
-              radius="lg"
-              shadow="sm"
-              withBorder
+        <AnimatePresence>
+          {topPerformer && (
+            <motion.div
+              layoutId="top-performer"
+              variants={itemVariants}
+              whileHover={{ y: -5 }}
             >
-              <Group justify="space-between" align="center">
-                <Group gap="md" align="center">
-                  <div className="rank-number">
-                    <Text size="xl" fw={700} c="dimmed">
-                      {student.rank}
-                    </Text>
-                    <Text size="xs" className="rank-suffix">
-                      {getRankSuffix(student.rank)}
-                    </Text>
+              <Card className="featured-card" radius="xl">
+                <Stack align="center" gap="lg">
+                  <Badge
+                    className="rank-badge"
+                    variant="gradient"
+                    gradient={{ from: "#FFD700", to: "#FFA500", deg: 45 }}
+                    size="xl"
+                    radius="md"
+                    leftSection={<Crown size={16} />}
+                  >
+                    1<sup>st</sup> POSITION
+                  </Badge>
+
+                  <div className="profile-circle-container">
+                    <img
+                      src={user?.organization?.logoUrl || user?.organization?.logo}
+                      alt={`${topPerformer.name}`}
+                      className="profile-circle"
+                    />
                   </div>
 
-                  <img
-                    src={user?.organization?.logoUrl || user?.organization?.logo}
-                    alt={`${student.name}'s avatar`}
-                    className="profile-placeholder"
-                  />
+                  <Group className="stars" gap="xs">
+                    {[1, 2, 3].map((star) => (
+                      <IconStar key={star} size={28} fill="#FFD700" color="#FFD700" />
+                    ))}
+                  </Group>
 
-                  <Stack gap="xs">
-                    <Text className="entry-name" fw={600} size="md">
-                      {student.name}
+                  <Text className="featured-name" fw={800} ta="center">
+                    {topPerformer.name}
+                  </Text>
+
+                  <div className="featured-score">
+                    <Text className="score-number" size="5rem" fw={900} ta="center">
+                      {topPerformer.score}
                     </Text>
-                    <Group gap="md">
-                      <Text className="duration" size="sm">
-                        {student.time}
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Group>
+                    <Text ta="center" fw={600} c="dimmed" style={{ letterSpacing: 2, textTransform: 'uppercase', fontSize: '10px' }}>
+                      Performance Points
+                    </Text>
+                  </div>
+                </Stack>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-                <Stack align="center" gap="xs">
+        <motion.div className="leaderboard-list" variants={containerVariants}>
+          {leaderboardData.slice(1).filter(Boolean).map((student, index) => (
+            <motion.div
+              key={student.rank}
+              variants={itemVariants}
+              whileHover={{ x: 5 }}
+            >
+              <Card
+                className={`leaderboard-item rank-${student.rank}`}
+                radius="lg"
+              >
+                <Group justify="space-between" align="center">
+                  <Group gap="xl" align="center">
+                    <div className="rank-number-box">
+                      <Text size="xl" fw={800} className="rank-text">
+                        {student.rank}
+                      </Text>
+                      <Text className="rank-suffix">
+                        {getRankSuffix(student.rank)}
+                      </Text>
+                    </div>
+
+                    <img
+                      src={user?.organization?.logoUrl || user?.organization?.logo}
+                      alt={student.name}
+                      className="profile-placeholder"
+                    />
+
+                    <Stack gap={4}>
+                      <Text className="entry-name" fw={700}>
+                        {student.name}
+                      </Text>
+                      <Group gap="xs">
+                        {getRankIcon(student.rank)}
+                        <Text className="duration" fw={600}>
+                          {student.time}
+                        </Text>
+                      </Group>
+                    </Stack>
+                  </Group>
+
                   <Badge
                     className="score-badge"
                     style={{ backgroundColor: getScoreBadgeColor(student.rank) }}
-                    size="lg"
+                    size="xl"
                     radius="md"
                   >
-                    <Stack align="center" gap={2}>
-                      <Text fw={700} size="lg">
-                        {student.score}
-                      </Text>
-                    </Stack>
+                    <Text fw={900} size="lg" style={{ color: student.rank <= 3 ? '#000' : '#fff' }}>
+                      {student.score}
+                    </Text>
                   </Badge>
-                </Stack>
-              </Group>
-            </Card>
+                </Group>
+              </Card>
+            </motion.div>
           ))}
 
-          <Flex justify="center" mt="md" w="100%">
+          <motion.div 
+            variants={itemVariants} 
+            className="flex-center"
+            style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}
+          >
             <Button
               className="view-button"
               onClick={() => navigate("/organization/leaderboard")}
+              leftSection={<Award size={18} />}
             >
-              View in Detail
+              View Full Leaderboard
             </Button>
-          </Flex>
-        </Stack>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
+

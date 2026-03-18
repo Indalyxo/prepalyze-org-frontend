@@ -95,7 +95,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: var(--spacing-sm) 0;
+      padding: 0.35rem 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
       .exam-branding {
@@ -105,7 +105,7 @@
 
         .exam-icon {
           background: rgba(255, 255, 255, 0.15);
-          padding: var(--spacing-sm);
+          padding: 0.25rem;
           border-radius: var(--radius-lg);
           backdrop-filter: blur(10px);
         }
@@ -113,7 +113,7 @@
         .exam-details {
           .exam-title {
             color: white;
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 700;
             margin: 0;
             line-height: 1.2;
@@ -121,7 +121,7 @@
 
           .exam-subtitle {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             margin: 0;
             font-weight: 500;
           }
@@ -138,9 +138,9 @@
           align-items: center;
           gap: var(--spacing-xs);
           background: rgba(255, 255, 255, 0.1);
-          padding: var(--spacing-sm) var(--spacing-md);
+          padding: 0.25rem 0.6rem;
           border-radius: var(--radius-md);
-          font-size: 0.875rem;
+          font-size: 0.78rem;
           font-weight: 500;
         }
 
@@ -154,9 +154,9 @@
         .timer-container {
           display: flex;
           align-items: center;
-          gap: var(--spacing-sm);
+          gap: 0.4rem;
           background: rgba(255, 255, 255, 0.15);
-          padding: var(--spacing-md) var(--spacing-lg);
+          padding: 0.3rem 0.75rem;
           border-radius: var(--radius-xl);
           border: 2px solid rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(15px);
@@ -184,7 +184,7 @@
             .timer-text {
               color: white;
               font-weight: 700;
-              font-size: 1.25rem;
+              font-size: 1rem;
               line-height: 1;
               margin: 0;
             }
@@ -206,11 +206,11 @@
     }
 
     .section-navigation {
-      padding: var(--spacing-sm) 0;
+      padding: 0.25rem 0;
 
       .section-tabs {
         display: flex;
-        gap: var(--spacing-lg);
+        gap: var(--spacing-sm);
         justify-content: center;
         flex-wrap: wrap;
         max-width: 1000px;
@@ -222,10 +222,10 @@
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           backdrop-filter: blur(10px);
-          min-width: 160px;
+          min-width: 100px;
           position: relative;
           overflow: hidden;
-          border-radius: 10px;
+          border-radius: 8px;
 
           &::before {
             content: "";
@@ -277,13 +277,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: var(--spacing-xs);
-            padding: var(--spacing-xs);
+            gap: 0.4rem;
+            margin-bottom: 0;
+            padding: 0.2rem 0.4rem;
             border-radius: var(--radius-md);
 
             .section-name {
               color: white;
-              font-size: 1rem;
+              font-size: 0.8rem;
               font-weight: 600;
               margin: 0;
             }
@@ -512,17 +513,19 @@
 
       .question-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+        grid-template-columns: repeat(7, 1fr);
         gap: var(--spacing-sm);
 
         .question-btn {
-          width: 48px;
-          height: 48px;
+          min-width: 44px;
+          min-height: 44px;
+          width: 100%;
           border-radius: var(--radius-lg);
-          font-size: 0.875rem;
+          font-size: 0.8rem;
           font-weight: 700;
           transition: all 0.2s ease;
           border: 2px solid transparent;
+          padding: 0 4px;
 
           &:hover {
             transform: scale(1.05);
@@ -688,11 +691,11 @@
 
       .question-navigation {
         .question-grid {
-          grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+          grid-template-columns: repeat(7, 1fr);
 
           .question-btn {
-            width: 44px;
-            height: 44px;
+            min-width: unset;
+            min-height: 40px;
           }
         }
       }
@@ -717,9 +720,8 @@
           grid-template-columns: repeat(6, 1fr);
 
           .question-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 0.75rem;
+            min-height: 38px;
+            font-size: 0.72rem;
           }
         }
       }

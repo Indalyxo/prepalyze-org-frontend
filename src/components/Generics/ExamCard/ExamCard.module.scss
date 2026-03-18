@@ -2,13 +2,16 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
-  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
 }
 
 .examCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(34, 139, 230, 0.3);
 }
 
 .cardHeader {
@@ -18,57 +21,88 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between; // updated to push dots to right
-  padding: 10px;
+  justify-content: space-between;
+  padding: 16px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent 60%);
+    pointer-events: none;
+  }
 }
 
 .examTypeBadge {
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 4px 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 10px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  background: rgba(34, 139, 230, 0.2);
+  border: 1px solid rgba(34, 139, 230, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 1;
 }
 
 .actionMenu {
+  z-index: 1;
   .mantine-ActionIcon-root {
     color: #fff;
-    transition: background 0.2s ease;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+    
     &:hover {
       background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
     }
   }
 }
 
 .cardBody {
-  padding: 14px;
+  padding: 20px;
   flex: 1;
+  background: transparent;
 }
 
 .examTitle {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--mantine-color-text);
+  margin-bottom: 4px;
 }
 
 .subTitle {
-  font-size: 0.9rem;
-  color: #64748b;
+  font-size: 0.85rem;
+  color: var(--mantine-color-dimmed);
+  line-height: 1.4;
 }
 
 .metaInfo {
-  margin-top: 0.5rem;
-  color: #475569;
-  font-weight: 500;
+  margin-top: 1.5rem;
+  color: var(--mantine-color-blue-4);
+  font-weight: 600;
+  font-size: 0.85rem;
+  
+  svg {
+    opacity: 0.8;
+  }
 }
 
 .secondaryText {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: #6b7280;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mantine-color-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .cardFooter {
   margin-top: auto;
-  padding: 0.75rem 1rem 1rem;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  padding: 16px 20px 20px;
+  background: rgba(var(--mantine-color-body-rgb), 0.2);
+  border-top: 1px solid var(--mantine-glass-border);
 }

@@ -30,9 +30,11 @@ import {
   IconChevronDown,
   IconBell,
 } from "@tabler/icons-react";
-import "./sidebar.scss";
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../../utils/api";
+import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
+import { motion, AnimatePresence } from "framer-motion";
+import "./sidebar.scss";
 
 const Sidebar = ({
   data = [],
@@ -44,12 +46,15 @@ const Sidebar = ({
   loading = false,
   mobileOpen = false,
   onMobileToggle,
+  layout = "vertical", // "vertical" | "horizontal"
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
   const { logout, user } = useAuthStore();
+
+  const isHorizontal = layout === "horizontal" && !isMobile;
 
   const fetchNotificationCount = async () => {
     try {
@@ -168,18 +173,21 @@ const Sidebar = ({
   };
 
   const renderUserProfile = () => {
-    const showCollapsed = !isMobile && isCollapsed;
+    const showCollapsed = !isMobile && isCollapsed && layout === "vertical";
     const userName = user?.name || user?.email || "User";
     const userRole = user?.role || "Member";
     const userAvatar =
       user?.organization?.logo || user?.organization?.logoUrl || null;
 
     const initials = userName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+      ? userName
+          .split(" ")
+          .filter(Boolean)
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2)
+      : "??";
 
     if (showCollapsed) {
       return (
@@ -258,51 +266,59 @@ const Sidebar = ({
     }
 
     return (
-      <Menu shadow="lg" width={280} zIndex={1000} position="bottom-start">
+      <Menu shadow="lg" width={280} zIndex={2000} position="bottom-end">
         <Menu.Target>
           <UnstyledButton
+            className="user-profile-btn"
             style={{
-              padding: "12px",
-              borderRadius: "8px",
-              width: "100%",
-              border: "1px solid var(--mantine-color-gray-3)",
-              backgroundColor: "var(--mantine-color-gray-0)",
+              padding: isHorizontal ? "4px 12px" : "12px",
+              borderRadius: "12px",
+              width: isHorizontal ? "auto" : "100%",
+              height: isHorizontal ? "44px" : "auto",
             }}
           >
-            <Group gap="md" wrap="nowrap" align="center" w="100%">
+            <Group gap="sm" wrap="nowrap" align="center" h="100%">
               {user?.role === "organizer" && notificationCount > 0 ? (
                 <Indicator
                   inline
-                  size={16}
-                  offset={4}
+                  size={14}
+                  offset={2}
                   color="red"
                   label={notificationCount > 0 ? notificationCount : null}
+                  withBorder
                 >
-                  <Avatar src={userAvatar} size="md" radius="xl">
+                  <Avatar src={userAvatar} size={isHorizontal ? 28 : "sm"} radius="xl" style={{ border: '2px solid var(--mantine-color-blue-1)' }}>
                     {initials}
                   </Avatar>
                 </Indicator>
               ) : (
-                <Avatar src={userAvatar} size="md" radius="xl">
+                <Avatar src={userAvatar} size={isHorizontal ? 28 : "sm"} radius="xl" style={{ border: '2px solid var(--mantine-color-gray-1)' }}>
                   {initials}
                 </Avatar>
               )}
-              <Box style={{ flex: 1, minWidth: 0 }}>
-                <Text size="sm" fw={600} truncate>
-                  {userName}
-                </Text>
-                <Text size="xs" c="dimmed" truncate>
-                  {userRole === "organizer" ? "Organization" : "Student"}
-                </Text>
-              </Box>
-              <ActionIcon variant="subtle" size="sm">
-                <IconChevronDown size={16} />
-              </ActionIcon>
+              {!isHorizontal && (
+                <Box style={{ flex: 1, minWidth: 0 }}>
+                  <Text size="sm" fw={700} truncate>
+                    {userName}
+                  </Text>
+                  <Text size="xs" c="dimmed" truncate>
+                    {userRole === "organizer" ? "Organization" : "Student"}
+                  </Text>
+                </Box>
+              )}
+              <IconChevronDown size={14} style={{ opacity: 0.7 }} />
             </Group>
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Label>Actions</Menu.Label>
+          <Menu.Label>Personal</Menu.Label>
+          <Menu.Item
+            leftSection={<IconUser size={16} />}
+            onClick={() => handleProfileAction("profile")}
+          >
+            My Profile
+          </Menu.Item>
+          <Menu.Label>Organization</Menu.Label>
           {user?.role === "organizer" && (
             <>
               <Menu.Item
@@ -334,42 +350,43 @@ const Sidebar = ({
 
   const renderNavItem = (item, index) => {
     const active = isActive(item.redirectTo);
-    const showCollapsed = !isMobile && isCollapsed;
+    const showCollapsed = !isMobile && isCollapsed && layout === "vertical";
 
     const navButton = (
       <UnstyledButton
         key={index}
+        component={motion.div}
+        whileHover={{ y: isHorizontal ? -2 : 0, scale: isHorizontal ? 1.02 : 1 }}
+        whileTap={{ scale: 0.98 }}
         onClick={() => handleRedirect(item.redirectTo)}
-        w="100%"
+        className={`nav-item ${active ? 'active' : ''}`}
+        w={isHorizontal ? "auto" : "100%"}
         disabled={loading}
         style={{
-          padding: "12px",
-          borderRadius: "8px",
-          backgroundColor: active
-            ? "var(--mantine-color-blue-0)"
-            : "transparent",
-          border: active
-            ? "1px solid var(--mantine-color-blue-3)"
-            : "1px solid transparent",
+          padding: isHorizontal ? "8px 16px" : "12px",
+          borderRadius: "12px",
           color: active ? "var(--mantine-color-blue-7)" : "inherit",
+          whiteSpace: isHorizontal ? "nowrap" : "normal",
         }}
       >
-        <Group gap="md" wrap="nowrap" align="center">
-          <Box style={{ color: "inherit" }}>{item.icon}</Box>
+        <Group gap="sm" wrap="nowrap" align="center">
+          <Box style={{ color: "inherit", display: "flex", alignItems: "center" }}>
+            {item.icon}
+          </Box>
           {!showCollapsed && (
             <Box style={{ flex: 1 }}>
-              <Text size="sm" fw={active ? 600 : 400}>
+              <Text size="sm" fw={active ? 700 : 500}>
                 {item.name}
               </Text>
-              {item.description && (
+              {!isHorizontal && item.description && (
                 <Text size="xs" c="dimmed">
                   {item.description}
                 </Text>
               )}
             </Box>
           )}
-          {!showCollapsed && item.badge && (
-            <Badge size="sm" variant="filled">
+          {!showCollapsed && item.badge && !isHorizontal && (
+            <Badge size="xs" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
               {item.badge}
             </Badge>
           )}
@@ -408,23 +425,31 @@ const Sidebar = ({
   };
 
   const renderSection = (section, sectionIndex) => {
-    const showCollapsed = !isMobile && isCollapsed;
+    const showCollapsed = !isMobile && isCollapsed && layout === "vertical";
 
     return (
       <Box key={sectionIndex}>
-        {!showCollapsed && section.title && (
+        {!showCollapsed && section.title && !isHorizontal && (
           <>
-            <Text size="xs" fw={600} c="dimmed" mb="sm" tt="uppercase">
+            <Text size="xs" fw={700} c="dimmed" mb="sm" tt="uppercase" lts={1}>
               {section.title}
             </Text>
             <Divider mb="md" />
           </>
         )}
-        <Stack gap="xs">
-          {section.items.map((item, itemIndex) =>
-            renderNavItem(item, `${sectionIndex}-${itemIndex}`)
-          )}
-        </Stack>
+        {isHorizontal ? (
+          <Group gap="xs">
+            {section.items.map((item, itemIndex) =>
+              renderNavItem(item, `${sectionIndex}-${itemIndex}`)
+            )}
+          </Group>
+        ) : (
+          <Stack gap="xs">
+            {section.items.map((item, itemIndex) =>
+              renderNavItem(item, `${sectionIndex}-${itemIndex}`)
+            )}
+          </Stack>
+        )}
       </Box>
     );
   };
@@ -436,11 +461,9 @@ const Sidebar = ({
           {Array.from({ length: 6 }).map((_, index) => (
             <Box
               key={index}
+              className="sidebar-loading-item"
               style={{
                 height: !isMobile && isCollapsed ? 48 : 60,
-                backgroundColor: "var(--mantine-color-gray-1)",
-                borderRadius: "8px",
-                opacity: 0.5,
               }}
             />
           ))}
@@ -451,15 +474,27 @@ const Sidebar = ({
     // Handle array of sections
     if (Array.isArray(data) && data.length > 0 && data[0]?.items) {
       return (
-        <Stack gap="xl">
-          {data.map((section, index) => renderSection(section, index))}
-        </Stack>
+        <Box>
+          {isHorizontal ? (
+            <Group gap="lg">
+              {data.map((section, index) => renderSection(section, index))}
+            </Group>
+          ) : (
+            <Stack gap="lg">
+              {data.map((section, index) => renderSection(section, index))}
+            </Stack>
+          )}
+        </Box>
       );
     }
 
     // Handle flat array of items
     if (Array.isArray(data) && data.length > 0) {
-      return (
+      return isHorizontal ? (
+        <Group gap="xs">
+          {data.map((item, index) => renderNavItem(item, index))}
+        </Group>
+      ) : (
         <Stack gap="xs">
           {data.map((item, index) => renderNavItem(item, index))}
         </Stack>
@@ -472,45 +507,60 @@ const Sidebar = ({
     }
 
     return (
-      <Box style={{ textAlign: "center", padding: "40px 20px" }}>
+      <Box style={{ textAlign: "center", padding: isHorizontal ? "0 20px" : "40px 20px" }}>
         <IconSparkles
-          size={48}
-          style={{ opacity: 0.5, marginBottom: "16px" }}
+          size={isHorizontal ? 24 : 48}
+          style={{ opacity: 0.5, marginBottom: isHorizontal ? "0" : "16px" }}
         />
-        <Text c="dimmed" size="sm">
-          No navigation items
-        </Text>
+        {!isHorizontal && (
+          <Text c="dimmed" size="sm">
+            No navigation items
+          </Text>
+        )}
       </Box>
     );
   };
 
   const sidebarStyles = {
-    width: isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width,
-    height: "100vh",
-    backgroundColor: "var(--mantine-color-white)",
-    borderRight: "1px solid var(--mantine-color-gray-3)",
+    width: isHorizontal ? "100%" : isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width,
+    height: isHorizontal ? "64px" : "100vh",
+    backgroundColor: "var(--mantine-color-body)",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: isHorizontal ? "row" : "column",
+    alignItems: isHorizontal ? "center" : "stretch",
+    padding: isHorizontal ? "0 32px" : "0",
   };
 
   const sidebarContent = (
-    <Box style={sidebarStyles}>
+    <Box className={`sidebar-component ${isHorizontal ? 'horizontal-nav' : ''}`} style={sidebarStyles}>
       {/* Header */}
       <Group
-        bg="#0e1521"
-        color="white"
+        bg={isHorizontal ? "transparent" : "#0e1521"}
         justify="space-between"
-        p="lg"
-        style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}
+        p={isHorizontal ? "0" : "lg"}
+        h={isHorizontal ? "100%" : "auto"}
+        style={{ 
+          borderBottom: isHorizontal ? "none" : "1px solid var(--mantine-color-default-border)",
+          paddingRight: isHorizontal ? "32px" : "lg",
+          marginRight: isHorizontal ? "32px" : "0",
+        }}
       >
-        {(!isCollapsed || isMobile) && (
-          <Text fw={700} size="lg" c={"white"}>
+        {((!isCollapsed && layout === "vertical") || isMobile || isHorizontal) && (
+          <Text 
+            fw={900} 
+            size={isHorizontal ? "xl" : "24px"} 
+            c={isHorizontal ? "blue" : "white"} 
+            style={{ 
+              letterSpacing: -0.5, 
+              fontFamily: 'Outfit, sans-serif' 
+            }}
+          >
             {title}
           </Text>
         )}
 
         {/* Desktop toggle button */}
-        {!isMobile && (
+        {!isMobile && !isHorizontal && (
           <ActionIcon
             variant="subtle"
             onClick={handleToggle}
@@ -540,29 +590,47 @@ const Sidebar = ({
         )}
       </Group>
 
-      {/* User Profile Section */}
-      <Box p="lg" pb="md">
-        {renderUserProfile()}
-      </Box>
+      {/* Logic for Horizontal layout items order */}
+      {isHorizontal ? (
+        <>
+          <Box style={{ flex: 1, display: "flex", alignItems: "center", height: "100%" }}>
+            {renderContent()}
+          </Box>
+          <Group gap="xl" align="center">
+            <ThemeToggle />
+            {renderUserProfile()}
+          </Group>
+        </>
+      ) : (
+        <>
+          {/* User Profile Section */}
+          <Box p="lg" pb="md">
+            {renderUserProfile()}
+          </Box>
 
-      {/* Content */}
-      <ScrollArea style={{ flex: 1 }} scrollbarSize={4} scrollHideDelay={1000}>
-        <Box p="lg" pt="md">
-          {renderContent()}
-        </Box>
-      </ScrollArea>
+          {/* Content */}
+          <ScrollArea style={{ flex: 1 }} scrollbarSize={4} scrollHideDelay={1000}>
+            <Box p="lg" pt="md">
+              {renderContent()}
+            </Box>
+          </ScrollArea>
 
-      {/* Footer */}
-      <Box
-        p="lg"
-        style={{ borderTop: "1px solid var(--mantine-color-gray-3)" }}
-      >
-        {(isMobile || !isCollapsed) && (
-          <Text size="xs" c="dimmed" ta="center" fw={500}>
-            © 2026 Prepalyze
-          </Text>
-        )}
-      </Box>
+          {/* Footer */}
+          <Box
+            p="lg"
+            style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}
+          >
+            <Group justify={isCollapsed ? "center" : "space-between"} align="center">
+              {(isMobile || !isCollapsed) && (
+                 <Text size="xs" c="dimmed" ta="center" fw={500}>
+                   © 2026 Prepalyze
+                 </Text>
+              )}
+              <ThemeToggle />
+            </Group>
+          </Box>
+        </>
+      )}
     </Box>
   );
 

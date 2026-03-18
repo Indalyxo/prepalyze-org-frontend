@@ -1,446 +1,270 @@
 .calendar-page {
-  background: #f8f9fa;
+  background: var(--mantine-color-body);
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Outfit', 'Inter', sans-serif;
   padding: 2rem 0;
 
   // Header Section
-  .calendar-hero {
-    padding: 0rem 0;
-    margin-bottom: 2rem;
-    background: white;
-    border-bottom: 1px solid #e9ecef;
+  .calendar-hero-wrapper {
+    position: relative;
+    z-index: 2;
+
+    .calendar-hero-content {
+      background: var(--mantine-glass-bg);
+      backdrop-filter: blur(var(--mantine-glass-blur));
+      border: 1px solid var(--mantine-glass-border);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 
     .hero-title {
-      color: #212529;
-      font-size: 2rem;
-      font-weight: 700;
-      margin: 0;
-      
-      @media (max-width: 768px) {
-        font-size: 1.5rem;
-      }
+      color: var(--mantine-color-text);
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
 
     .hero-subtitle {
-      color: #6c757d;
-      font-size: 1rem;
-    }
-
-    .stats-container {
-      justify-content: flex-start;
-      
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-    }
-
-    .stat-card {
-      background: white;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      .mantine-Text-root {
-        color: #212529;
-        
-        &[data-dimmed] {
-          color: #6c757d;
-        }
-      }
+      color: var(--mantine-color-dimmed);
+      font-size: 1.05rem;
     }
   }
 
-  // Filter drawer styles
-  .filter-summary {
-    background: #f8f9fa;
-    border-radius: 6px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-  }
-
-  .subject-badge {
-    background: #495057;
-    color: white;
-    border: none;
-    font-weight: 500;
-  }
-
-  // Calendar Container
-  .calendar-container {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
+  // Main Calendar Container
+  .calendar-main-container {
+    background: var(--mantine-glass-bg);
+    backdrop-filter: blur(var(--mantine-glass-blur));
+    border: 1px solid var(--mantine-glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    
     .calendar-wrapper {
       padding: 1.5rem;
     }
   }
 
+  // FullCalendar Styling Overrides
   .fc {
     background: transparent;
     border: none;
-    font-family: inherit;
-  }
 
-  .fc-toolbar-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #212529;
-    text-align: center;
+    .fc-scrollgrid {
+      border: 1px solid var(--mantine-glass-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td, .fc-scrollgrid-section > * {
+      border-color: var(--mantine-glass-border);
+    }
     
-    @media (max-width: 768px) {
-      font-size: 1.25rem;
-    }
-  }
-
-  .fc-button {
-    background: white;
-    border: 1px solid #ced4da;
-    color: #495057;
-    font-weight: 500;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      background: #f8f9fa;
-      border-color: #adb5bd;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    .fc-theme-standard td, .fc-theme-standard th {
+      border: 1px solid var(--mantine-glass-border);
     }
 
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
-      outline: none;
+    // Header Toolbar
+    .fc-toolbar-title {
+      font-weight: 800;
+      color: var(--mantine-color-text);
+      letter-spacing: -0.02em;
     }
 
-    &.fc-button-active {
-      background: #495057;
-      border-color: #495057;
-      color: white;
-      box-shadow: 0 2px 6px rgba(73, 80, 87, 0.3);
+    // Modern Button Styling
+    .fc-button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--mantine-color-text);
+      font-weight: 700;
+      border-radius: 10px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: #343a40;
-        border-color: #343a40;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--mantine-color-blue-5);
+        transform: translateY(-1px);
+      }
+
+      &.fc-button-active {
+        background: var(--mantine-color-blue-filled);
+        border-color: var(--mantine-color-blue-filled);
+        color: white;
       }
     }
-  }
 
-  .fc-daygrid-day {
-    transition: all 0.2s ease;
-    border-color: #dee2e6;
-
-    &:hover {
-      background: #f8f9fa;
-      cursor: pointer;
-    }
-  }
-
-  .fc-daygrid-day-number {
-    color: #495057;
-    font-weight: 600;
-    padding: 6px 8px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: #e9ecef;
-      color: #212529;
-    }
-  }
-
-  .fc-event {
-    border: none;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    font-weight: 500;
-    margin-bottom: 1px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    min-height: 20px;
-    max-height: 32px;
-    overflow: hidden;
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      z-index: 10;
-    }
-  }
-
-  .fc-event-content-compact {
-    padding: 4px 6px;
-    
-    .fc-event-main {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .fc-event-type-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      
-      &.exam {
-        background: rgba(255, 255, 255, 0.9);
-      }
-      
-      &.event {
-        background: rgba(255, 255, 255, 0.7);
-      }
-    }
-    
-    .fc-event-title {
-      font-weight: 600;
-      font-size: 0.7rem;
-      line-height: 1.1;
-      color: white;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
-    
-    .fc-event-subject {
-      font-size: 0.6rem;
-      color: rgba(255, 255, 255, 0.8);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  // More link styling
-  .fc-more-link {
-    background: rgba(0, 0, 0, 0.1);
-    color: #495057;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 3px;
-    text-decoration: none;
-    display: block;
-    text-align: center;
-    margin-top: 2px;
-    transition: all 0.2s ease;
-
-    &:hover {
+    // Day Headers
+    .fc-col-header-cell {
       background: rgba(0, 0, 0, 0.2);
-      color: #212529;
+      
+      .fc-col-header-cell-cushion {
+        color: var(--mantine-color-dimmed);
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+      }
     }
-  }
 
-  .fc-event-regular {
-    background: #007bff;
-    color: white;
-  }
+    // Day Cells
+    .fc-daygrid-day {
+      &:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+    }
 
-  .fc-event-exam {
-    background: #dc3545;
-    color: white;
-  }
-
-  // Subject-specific colors
-  .fc-event-mathematics {
-    background: #6f42c1;
-    color: white;
-  }
-
-  .fc-event-physics {
-    background: #fd7e14;
-    color: white;
-  }
-
-  .fc-event-chemistry {
-    background: #20c997;
-    color: white;
-  }
-
-  .fc-event-computer-science {
-    background: #0dcaf0;
-    color: white;
-  }
-
-  .fc-event-history {
-    background: #ffc107;
-    color: #212529;
-  }
-
-  .fc-event-organic-chemistry {
-    background: #198754;
-    color: white;
-  }
-
-  .fc-day-today {
-    background: #e3f2fd !important;
-    
     .fc-daygrid-day-number {
-      background: #495057;
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: var(--mantine-color-text);
       font-weight: 700;
+      opacity: 0.8;
+    }
+
+    // Today highlight
+    .fc-day-today {
+      background: rgba(34, 139, 230, 0.05) !important;
+      
+      .fc-daygrid-day-number {
+        background: var(--mantine-color-blue-filled);
+        color: white;
+        opacity: 1;
+        box-shadow: 0 4px 12px rgba(34, 139, 230, 0.4);
+      }
+    }
+
+    // Modern Event Styling
+    .fc-event-content-modern {
+      background: rgba(var(--mantine-color-body-rgb), 0.2);
+      border: 1px solid var(--mantine-glass-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      
+      &:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .fc-event-title {
+        font-weight: 700;
+        color: var(--mantine-color-text);
+      }
+      
+      .fc-event-subject {
+        color: var(--mantine-color-dimmed);
+        font-weight: 600;
+      }
+    }
+
+    // Type specific styling - Using semi-transparent backgrounds
+    .fc-event-regular-type .fc-event-content-modern {
+      background: rgba(76, 110, 245, 0.15);
+      border-left: 3px solid #748ffc;
+      .fc-event-title { color: #edf2ff; }
+    }
+
+    .fc-event-exam-type .fc-event-content-modern {
+      background: rgba(250, 82, 82, 0.15);
+      border-left: 3px solid #ff8787;
+      .fc-event-title { color: #fff5f5; }
+    }
+    
+    // Subject specific overrides
+    .fc-event-mathematics .fc-event-content-modern { 
+      background: rgba(103, 65, 217, 0.15); border-left-color: #b197fc; 
+    }
+    .fc-event-physics .fc-event-content-modern { 
+      background: rgba(217, 72, 15, 0.15); border-left-color: #ffa94d; 
+    }
+    .fc-event-chemistry .fc-event-content-modern { 
+      background: rgba(12, 166, 120, 0.15); border-left-color: #63e6be; 
+    }
+
+    // Popover styling
+    .fc-popover {
+        background: var(--mantine-color-body);
+        border: 1px solid var(--mantine-glass-border);
+        backdrop-filter: blur(20px);
+        
+        .fc-popover-header {
+            background: var(--mantine-color-default);
+            color: var(--mantine-color-text);
+        }
     }
   }
 
-  .fc-day-sat,
-  .fc-day-sun {
-    background: #f8f9fa;
-  }
-
+  // Mobile Responsiveness
   @media (max-width: 768px) {
     padding: 1rem 0;
 
-    .calendar-hero {
-      padding: 1.5rem 0 2rem;
-      
-      .hero-title {
-        font-size: 1.5rem;
-      }
-      
-      .stats-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
+    .calendar-hero-wrapper {
+      .calendar-hero-content {
+        padding: 1.5rem;
+        border-radius: 16px;
       }
     }
 
-    // Filter drawer handled by Mantine
-
-    .calendar-container {
-      margin: 0 1rem;
+    .calendar-main-container {
+      border-radius: 16px;
       
       .calendar-wrapper {
         padding: 1rem;
       }
     }
 
-    .fc-toolbar {
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .fc-toolbar-chunk {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .fc-button {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.8rem;
-    }
-
-    .fc-event-content-modern {
-      padding: 4px 6px;
-      
-      .fc-event-title {
-        font-size: 0.7rem;
+    .fc {
+      .fc-toolbar {
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
       }
-      
-      .fc-subject-tag {
-        font-size: 0.55rem;
-        padding: 1px 3px;
-      }
-    }
 
-    .fc-daygrid-day-number {
-      width: 24px;
-      height: 24px;
-      font-size: 0.8rem;
+      .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .fc-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .fc-daygrid-day-number {
+        width: 24px;
+        height: 24px;
+        font-size: 0.85rem;
+      }
     }
   }
 }
 
-// Event card styling
-.event-card {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
+// Custom Modal Event Card Styling
+.modal-event-card {
   transition: all 0.2s ease;
   cursor: pointer;
+  border-width: 1px;
+  border-color: #f1f3f5;
 
   &:hover {
-    background: #f8f9fa;
-    border-color: #adb5bd;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border-color: #e9ecef;
+  }
+  
+  &.exam-type:hover {
+      border-color: #ffc9c9;
+      background-color: #fffafb;
+  }
+  
+  &.regular-type:hover {
+      border-color: #d0bfff;
+      background-color: #f8f7ff;
   }
 
   .event-title {
-    color: #212529;
-    font-weight: 600;
-  }
-
-  .event-id {
-    font-family: 'Monaco', 'Menlo', monospace;
-    background: #f8f9fa;
-    color: #6c757d;
-    padding: 2px 6px;
-    border-radius: 4px;
-    display: inline-block;
-    font-size: 0.75rem;
-  }
-
-  .subject-tag {
-    background: #e9ecef;
-    border: 1px solid #ced4da;
-    color: #495057;
-    font-weight: 500;
-  }
-
-  .event-type-badge {
-    background: #495057;
-    border: none;
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #1c212d;
+    line-height: 1.2;
   }
 }
 
-// Modal styling
-.mantine-Modal-content {
-  border-radius: 8px;
-  background: white;
-  border: 1px solid #dee2e6;
-  
-  .mantine-Modal-header {
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .mantine-Modal-title {
-    font-weight: 600;
-    font-size: 1.125rem;
-    color: #212529;
-  }
-
-  .mantine-Badge-root {
-    text-transform: capitalize;
-  }
+// Override Mantine Modal Overlay
+.mantine-Modal-overlay {
+    backdrop-filter: blur(4px);
 }
