@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./fees.scss";
+import "./Fees.scss";
 import jsPDF from "jspdf";
 import apiClient from "../../utils/api";
 import useAuthStore from "../../context/auth-store";
