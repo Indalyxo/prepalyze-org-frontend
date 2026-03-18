@@ -160,7 +160,7 @@ export default function ExamCard({ exam, route = "organization" }) {
               radius="md"
               disabled={examStatus === "Scheduled"}
               onClick={() =>
-                navigate(`/exams/start/${exam.examId}`, {
+                navigate(`/${route}/exams/start/${exam.examId}`, {
                   state: {
                     examTitle: exam.examTitle,
                     examId: exam.examId,

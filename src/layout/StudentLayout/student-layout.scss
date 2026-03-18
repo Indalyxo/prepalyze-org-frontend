@@ -1,0 +1,11 @@
+.mantine-AppShell-main {
+  background-color: var(--mantine-color-body);
+  transition: background-color 0.3s ease;
+  min-height: 100vh;
+}
+
+[data-mantine-color-scheme="dark"] {
+  .mantine-AppShell-navbar {
+    border-right: 1px solid var(--mantine-glass-border);
+  }
+}

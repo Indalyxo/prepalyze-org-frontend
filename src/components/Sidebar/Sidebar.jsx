@@ -524,23 +524,26 @@ const Sidebar = ({
   const sidebarStyles = {
     width: isHorizontal ? "100%" : isMobile ? 280 : !isMobile && isCollapsed ? collapsedWidth : width,
     height: isHorizontal ? "64px" : "100vh",
-    backgroundColor: "var(--mantine-color-body)",
+    backgroundColor: "var(--mantine-glass-bg)",
+    backdropFilter: "blur(var(--mantine-glass-blur))",
     display: "flex",
     flexDirection: isHorizontal ? "row" : "column",
     alignItems: isHorizontal ? "center" : "stretch",
     padding: isHorizontal ? "0 32px" : "0",
+    borderRight: isHorizontal ? "none" : "1px solid var(--mantine-glass-border)",
+    borderBottom: isHorizontal ? "1px solid var(--mantine-glass-border)" : "none",
   };
 
   const sidebarContent = (
     <Box className={`sidebar-component ${isHorizontal ? 'horizontal-nav' : ''}`} style={sidebarStyles}>
       {/* Header */}
       <Group
-        bg={isHorizontal ? "transparent" : "#0e1521"}
+        bg="transparent"
         justify="space-between"
         p={isHorizontal ? "0" : "lg"}
         h={isHorizontal ? "100%" : "auto"}
         style={{ 
-          borderBottom: isHorizontal ? "none" : "1px solid var(--mantine-color-default-border)",
+          borderBottom: isHorizontal ? "none" : "1px solid var(--mantine-glass-border)",
           paddingRight: isHorizontal ? "32px" : "lg",
           marginRight: isHorizontal ? "32px" : "0",
         }}
@@ -549,7 +552,8 @@ const Sidebar = ({
           <Text 
             fw={900} 
             size={isHorizontal ? "xl" : "24px"} 
-            c={isHorizontal ? "blue" : "white"} 
+            variant="gradient"
+            gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
             style={{ 
               letterSpacing: -0.5, 
               fontFamily: 'Outfit, sans-serif' 
@@ -618,7 +622,7 @@ const Sidebar = ({
           {/* Footer */}
           <Box
             p="lg"
-            style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}
+            style={{ borderTop: "1px solid var(--mantine-glass-border)" }}
           >
             <Group justify={isCollapsed ? "center" : "space-between"} align="center">
               {(isMobile || !isCollapsed) && (

@@ -7,11 +7,8 @@ import { Container } from "@mantine/core";
 
 const StudentIntellihub = () => {
   return (
-    <div
-      className="dashboard invisible-scrollbar"
-      style={{ backgroundColor: "#f7f9fc", overflow: "scroll" }}
-    >
-      <Container size="xl" py="xl" style={{ backgroundColor: "#f7f9fc" }}>
+    <div className="dashboard">
+      <Container size="xl" py="xl">
         <IntellihubHeader />
         <StudentProgressChart />
       </Container>

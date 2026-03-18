@@ -228,7 +228,7 @@ export default function ExamPage() {
               details.
             </Text>
             <Button
-              onClick={() => navigate("/exams")}
+              onClick={() => navigate("/student/exams")}
               size="lg"
               leftSection={<IconBook size={20} />}
             >

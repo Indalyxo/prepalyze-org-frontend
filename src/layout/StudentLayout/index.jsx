@@ -66,7 +66,7 @@ const StudentLayout = () => {
           </Group>
         </AppShell.Header>
       )}
-      <AppShell.Navbar p={0}>
+      <AppShell.Navbar p={0} style={{ backgroundColor: 'transparent', borderRight: 'none' }}>
         <Sidebar
           data={navItems}
           title="Student Zone"
