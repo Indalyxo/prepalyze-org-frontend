@@ -160,8 +160,8 @@ export default function StudentsViewDetailsPage() {
       <LoadingOverlay
         visible
         zIndex={1000}
-        loaderProps={{ color: "blue", type: "dots" }}
-        overlayProps={{ radius: "sm", blur: 2 }}
+        loaderProps={{ variant: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2, backgroundOpacity: 0.3 }}
       />
     );
 

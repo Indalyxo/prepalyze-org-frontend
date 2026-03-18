@@ -1,11 +1,12 @@
 .dashboard {
-  max-height: 100vh;
+  min-height: calc(100vh - 80px);
+  padding: 1rem 0;
   
   .dashboard-header {
     margin-bottom: 2rem;
     
     h1 {
-      color: #212529;
+      color: var(--mantine-color-text);
       font-weight: 700;
     }
   }

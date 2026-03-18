@@ -54,10 +54,10 @@ const StudentProgressChart = () => {
   }
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="chart-container">
       <Stack gap="xl">
         <Card withBorder radius="lg" p="md" shadow="sm">
-          <Text fw={600} mb={10} size="lg">
+          <Text fw={600} mb={20} size="lg">
             Your Progress Over the Previous Exams
           </Text>
           <ResponsiveContainer width="100%" height={350}>
@@ -65,13 +65,48 @@ const StudentProgressChart = () => {
               data={data}
               margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-              <Tooltip formatter={(value) => `${value}%`} />
-              <Legend />
-              <Bar dataKey="score" fill="#4dabf7" radius={[6, 6, 0, 0]}>
-                <LabelList dataKey="score" position="top" formatter={(v) => `${v?.toFixed(2)}%`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--mantine-glass-border)" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                stroke="var(--mantine-color-text)" 
+                fontSize={12}
+                tick={{ fill: 'var(--mantine-color-text)', opacity: 0.7 }}
+                axisLine={{ stroke: 'var(--mantine-glass-border)' }}
+              />
+              <YAxis 
+                domain={[0, 100]} 
+                tickFormatter={(v) => `${v}%`}
+                stroke="var(--mantine-color-text)"
+                fontSize={12}
+                tick={{ fill: 'var(--mantine-color-text)', opacity: 0.7 }}
+                axisLine={{ stroke: 'var(--mantine-glass-border)' }}
+              />
+              <Tooltip 
+                cursor={{ fill: 'var(--mantine-glass-border)', opacity: 0.4 }}
+                contentStyle={{ 
+                  backgroundColor: 'var(--mantine-glass-bg)', 
+                  borderColor: 'var(--mantine-glass-border)',
+                  borderRadius: '12px',
+                  backdropFilter: 'blur(10px)',
+                  color: 'var(--mantine-color-text)'
+                }}
+                itemStyle={{ color: 'var(--mantine-color-text)' }}
+                formatter={(value) => [`${value}%`, 'Score']} 
+              />
+              <Legend verticalAlign="top" align="right" iconType="circle" height={36}/>
+              <Bar 
+                dataKey="score" 
+                fill="#4dabf7" 
+                radius={[6, 6, 0, 0]}
+                animationDuration={1500}
+                animationEasing="ease-out"
+              >
+                <LabelList 
+                  dataKey="score" 
+                  position="top" 
+                  formatter={(v) => `${v?.toFixed(1)}%`}
+                  style={{ fill: 'var(--mantine-color-text)', fontSize: '11px', fontWeight: 600 }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

@@ -68,7 +68,7 @@ const OrganizerLayout = () => {
       }}
       padding="0"
     >
-      <AppShell.Header h={isMobile ? 60 : 64} style={{ borderBottom: '1px solid var(--mantine-color-default-border)', background: 'transparent' }}>
+      <AppShell.Header h={isMobile ? 60 : 64} style={{ borderBottom: '1px solid var(--mantine-glass-border)', background: 'transparent', backdropFilter: 'blur(var(--mantine-glass-blur))' }}>
         {isMobile ? (
           <Group h="100%" px="md" justify="space-between">
             <MobileSidebarTrigger onToggle={() => setMobileSidebarOpen(true)} />
@@ -85,7 +85,7 @@ const OrganizerLayout = () => {
       </AppShell.Header>
 
       {!isMobile && (
-        <AppShell.Navbar p={0} style={{ borderRight: '1px solid var(--mantine-color-default-border)' }}>
+        <AppShell.Navbar p={0} style={{ borderRight: '1px solid var(--mantine-glass-border)', backgroundColor: 'var(--mantine-glass-bg)', backdropFilter: 'blur(var(--mantine-glass-blur))' }}>
           <ScrollArea h="calc(100vh - 64px)">
              <IntellihubHeader layout="vertical" />
           </ScrollArea>
