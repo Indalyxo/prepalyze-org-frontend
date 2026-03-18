@@ -1,26 +1,79 @@
 .dashboard-header-section {
   margin-bottom: 2.5rem;
-  padding: 1.5rem;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  h1 {
-    color: #212529;
-    font-weight: 700;
-    font-size: 2.2rem;
+  padding: 0;
+  border-radius: 16px;
+  
+  &.vertical-stats {
+    padding: 0;
+    margin-bottom: 0;
+    background: transparent;
   }
 
   .stat-card {
-    transition: all 0.2s ease;
-    border: 1px solid #e9ecef;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--mantine-glass-bg);
+    backdrop-filter: blur(var(--mantine-glass-blur));
+    border: 1px solid var(--mantine-glass-border);
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top left, var(--stat-glow, transparent), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
 
     &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      border-color: var(--stat-color, var(--mantine-color-blue-4));
+      
+      &::before {
+        opacity: 0.15;
+      }
+
+      .icon-container {
+        transform: scale(1.1) rotate(8deg);
+        box-shadow: 0 0 20px var(--stat-color);
+      }
+    }
+
+    .icon-container {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(var(--stat-color-rgb), 0.1);
+      color: var(--stat-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+    
+    .stat-label {
+      color: var(--mantine-color-dimmed);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.65rem;
+    }
+    
+    .stat-value {
+      color: var(--mantine-color-text);
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
     }
   }
 }
+
 
 @media (max-width: 768px) {
   .dashboard-header-section {

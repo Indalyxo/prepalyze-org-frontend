@@ -5,7 +5,7 @@
 
 .availableExams {
   min-height: 100vh;
-  background: var(--color-background);
+  background: var(--mantine-color-body);
   padding: 1.5rem 0;
 }
 
@@ -16,124 +16,118 @@
 .pageTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-foreground);
+  color: var(--mantine-color-text);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .addButton {
-  background: var(--color-primary);
+  background: var(--mantine-color-blue-6);
   border: none;
-  border-radius: 10px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(34, 139, 230, 0.3);
 
   &:hover {
-    background: var(--color-primary);
-    opacity: 0.9;
-    transform: translateY(-1px);
+    background: var(--mantine-color-blue-7);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 139, 230, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .searchFilterCard {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 24px !important;
 }
 
 .searchInput {
   .mantine-TextInput-input {
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    border: 1px solid var(--mantine-glass-border);
     font-weight: 500;
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
     font-size: 0.95rem;
     transition: all 0.2s ease;
-    background: var(--color-background);
+    background: rgba(var(--mantine-color-body-rgb), 0.2);
+    color: var(--mantine-color-text);
 
     &:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.1);
-    }
-
-    &::placeholder {
-      color: var(--color-muted-foreground);
+      border-color: var(--mantine-color-blue-5);
+      background: rgba(var(--mantine-color-body-rgb), 0.3);
+      box-shadow: 0 0 0 2px rgba(34, 139, 230, 0.1);
     }
   }
 }
 
 .filterRow {
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border);
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   flex-wrap: wrap;
+  gap: 12px;
 }
 
 .filterSelect {
-  min-width: 140px;
+  min-width: 160px;
   flex: 1;
 
   .mantine-Select-input {
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    font-weight: 500;
+    border-radius: 10px;
+    border: 1px solid var(--mantine-glass-border);
+    font-weight: 600;
     font-size: 0.875rem;
     transition: all 0.2s ease;
-    background: var(--color-background);
-    padding: 0.5rem 0.75rem;
+    background: rgba(var(--mantine-color-body-rgb), 0.2);
+    color: var(--mantine-color-text);
+    height: 40px;
 
     &:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.1);
+      border-color: var(--mantine-color-blue-5);
+      background: rgba(var(--mantine-color-body-rgb), 0.3);
     }
   }
 }
 
 .clearButton {
-  background: var(--color-secondary);
-  color: var(--color-secondary-foreground);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--mantine-color-blue-4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 0.875rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--color-secondary);
-    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
   }
 }
 
 .examGrid {
   padding: 0;
-  margin-bottom: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
 }
 
 .paginationContainer {
   display: flex;
   justify-content: center;
-  padding: 1.5rem 0;
-}
-
-.pagination {
-  .mantine-Pagination-control {
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    background: var(--color-background);
-
-    &:hover {
-      background: var(--color-muted);
-      border-color: var(--color-primary);
-    }
-
-    &[data-active] {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
-      color: var(--color-primary-foreground);
-    }
+  padding: 2rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  
+  p {
+    color: var(--mantine-color-dimmed);
+    font-weight: 600;
+    font-size: 0.9rem;
   }
 }
 
@@ -143,7 +137,8 @@
   }
 
   .searchFilterCard {
-    padding: 1rem !important;
+    padding: 20px !important;
+    border-radius: 16px;
   }
 
   .filterRow {

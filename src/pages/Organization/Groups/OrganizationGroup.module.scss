@@ -1,16 +1,11 @@
 // Variables
-$color-bg: #fafafa;
-$color-border: #e8eaed;
-$color-border-hover: #dadce0;
-$color-text-primary: #3b82f6;
-$color-text-secondary: #5f6368;
-$color-text-muted: #6c757d;
-$radius-md: 8px;
-$transition-fast: all 0.2s ease;
+$color-text-primary: var(--mantine-color-blue-filled);
+$radius-md: 12px;
+$transition-fast: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 .container {
   min-height: 100vh;
-  background-color: $color-bg;
+  background-color: transparent;
   padding: 2rem 0;
 }
 
@@ -29,19 +24,22 @@ $transition-fast: all 0.2s ease;
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-foreground);
+  color: var(--mantine-color-text);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .createButton {
-  background-color: $color-text-primary;
+  background-color: var(--mantine-color-blue-filled);
   color: #fff;
   border: none;
   transition: $transition-fast;
+  border-radius: 12px;
 
   &:hover {
-    background-color: #e8eaed;
+    background-color: var(--mantine-color-blue-filled-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 139, 230, 0.3);
   }
 
   @media (max-width: 768px) {
@@ -52,7 +50,7 @@ $transition-fast: all 0.2s ease;
 .sectionTitle {
   font-size: 1.125rem;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--mantine-color-text);
   margin-bottom: 0.75rem;
 }
 
@@ -64,34 +62,34 @@ $transition-fast: all 0.2s ease;
 
 .groupItem {
   padding: 1rem;
-  border: 1px solid $color-border;
+  border: 1px solid var(--mantine-color-default-border);
   border-radius: $radius-md;
-  background-color: white;
+  background-color: var(--mantine-color-body);
   cursor: pointer;
   transition: $transition-fast;
 
   &:hover {
-    background-color: #f8f9fa;
-    border-color: $color-border-hover;
+    background-color: var(--mantine-color-default-hover);
+    border-color: var(--mantine-color-default-border);
   }
 }
 
 .groupIcon {
-  color: $color-text-secondary;
+  color: var(--mantine-color-blue-4);
   flex-shrink: 0;
 }
 
 .groupName {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--mantine-color-text);
   margin: 0;
   line-height: 1.25;
 }
 
 .memberCount {
   font-size: 0.75rem;
-  color: $color-text-secondary;
+  color: var(--mantine-color-dimmed);
   margin: 0;
 }
 
@@ -106,7 +104,7 @@ $transition-fast: all 0.2s ease;
 
   .emptyTitle {
     margin-bottom: 0.5rem;
-    color: #495057;
+    color: var(--mantine-color-text);
     font-size: 1.25rem;
   }
 
@@ -115,6 +113,6 @@ $transition-fast: all 0.2s ease;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
-    color: $color-text-muted;
+    color: var(--mantine-color-dimmed);
   }
 }
