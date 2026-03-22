@@ -352,7 +352,13 @@ export default function AIPoweredExam() {
     setSubject(""); setChapter(""); setTopic("");
     setAvailableSubjects([]); setAvailableChapters([]); setAvailableTopics([]);
     if (exam) {
-      fetchUniqueFilter('subject', { exam }).then(setAvailableSubjects);
+      fetchUniqueFilter('subject', { exam }).then(subs => {
+        if (exam === "JEE-Main" || exam === "NEET-UG") {
+          setAvailableSubjects(["Full Mock Exam", ...subs]);
+        } else {
+          setAvailableSubjects(subs);
+        }
+      });
     }
   }, [exam]);
 
@@ -377,7 +383,8 @@ export default function AIPoweredExam() {
 
   const generate = async () => {
     if (generationMode === "database" || generationMode === "pyq") {
-      if (!exam || !subject || !chapter || (generationMode === "pyq" && !topic)) {
+      const isFullMock = subject === "Full Mock Exam";
+      if (!exam || !subject || (!isFullMock && !chapter) || (generationMode === "pyq" && !topic && !isFullMock)) {
         toast.error(`Please select ${generationMode === "pyq" ? "Exam, Subject, Chapter, and Topic" : "Exam, Subject, and Chapter at minimum"}.`, {
           position: "top-right",
         });
@@ -582,26 +589,50 @@ export default function AIPoweredExam() {
                     disabled={!exam}
                   />
 
-                  <ModernInput 
-                    type="select"
-                    icon={Hash} 
-                    label="Chapter" 
-                    required
-                    value={chapter} 
-                    options={availableChapters}
-                    onChange={(e) => setChapter(e.target.value)} 
-                    disabled={!subject}
-                  />
+                  {subject === "Full Mock Exam" && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl"
+                    >
+                      <div className="flex items-start gap-3">
+                        <BrainCircuit size={18} className="text-emerald-500 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">Mock Exam Guidance</p>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">
+                            {exam === "JEE-Main" 
+                              ? "Generates 30 questions (10 per subject: Phys, Chem, Math) targeting overall balance."
+                              : "Generates 40 questions (10 per subject: Phys, Chem, Bot, Zoo) for a complete feel."}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
 
-                  <ModernInput 
-                    type="select"
-                    icon={FileQuestion} 
-                    label="Topic" 
-                    value={topic} 
-                    options={availableTopics}
-                    onChange={(e) => setTopic(e.target.value)} 
-                    disabled={!chapter}
-                  />
+                  {subject !== "Full Mock Exam" && (
+                    <>
+                      <ModernInput 
+                        type="select"
+                        icon={Hash} 
+                        label="Chapter" 
+                        required
+                        value={chapter} 
+                        options={availableChapters}
+                        onChange={(e) => setChapter(e.target.value)} 
+                        disabled={!subject}
+                      />
+
+                      <ModernInput 
+                        type="select"
+                        icon={FileQuestion} 
+                        label="Topic" 
+                        value={topic} 
+                        options={availableTopics}
+                        onChange={(e) => setTopic(e.target.value)} 
+                        disabled={!chapter}
+                      />
+                    </>
+                  )}
                 </>
               )}
 
@@ -631,39 +662,45 @@ export default function AIPoweredExam() {
                     disabled={!exam}
                   />
 
-                  <ModernInput 
-                    type="select"
-                    icon={Hash} 
-                    label="Chapter" 
-                    required
-                    value={chapter} 
-                    options={availableChapters}
-                    onChange={(e) => setChapter(e.target.value)} 
-                    disabled={!subject}
-                  />
+                  {subject !== "Full Mock Exam" && (
+                    <>
+                      <ModernInput 
+                        type="select"
+                        icon={Hash} 
+                        label="Chapter" 
+                        required
+                        value={chapter} 
+                        options={availableChapters}
+                        onChange={(e) => setChapter(e.target.value)} 
+                        disabled={!subject}
+                      />
 
-                  <ModernInput 
-                    type="select"
-                    icon={FileQuestion} 
-                    label="Topic" 
-                    required
-                    value={topic} 
-                    options={availableTopics}
-                    onChange={(e) => setTopic(e.target.value)} 
-                    disabled={!chapter}
-                  />
+                      <ModernInput 
+                        type="select"
+                        icon={FileQuestion} 
+                        label="Topic" 
+                        required
+                        value={topic} 
+                        options={availableTopics}
+                        onChange={(e) => setTopic(e.target.value)} 
+                        disabled={!chapter}
+                      />
+                    </>
+                  )}
                 </>
               )}
 
-              <ModernInput 
-                type="select"
-                icon={Layers} 
-                label="Question Count" 
-                required
-                value={count} 
-                options={[5, 10, 15, 20, 25].map(v => ({ value: v, label: `${v} Questions${v === 25 ? ' (Max)' : ''}` }))}
-                onChange={(e) => setCount(Number(e.target.value))} 
-              />
+              {subject !== "Full Mock Exam" && (
+                <ModernInput 
+                  type="select"
+                  icon={Layers} 
+                  label="Question Count" 
+                  required
+                  value={count} 
+                  options={[5, 10, 15, 20, 25].map(v => ({ value: v, label: `${v} Questions${v === 25 ? ' (Max)' : ''}` }))}
+                  onChange={(e) => setCount(Number(e.target.value))} 
+                />
+              )}
 
               <button
                 onClick={generate}
