@@ -20,7 +20,6 @@ const fetchAttendance = async (examId) => {
 const ExamPage = () => {
   const { examId } = useParams();
 
-  // Query for exam data
   const {
     data: examData,
     isLoading: isExamLoading,
@@ -28,11 +27,12 @@ const ExamPage = () => {
   } = useQuery({
     queryKey: ["exam", examId],
     queryFn: () => fetchExamData(examId),
-    staleTime: 5 * 60 * 1000, // don’t refetch for 5 min
-    cacheTime: 25 * 60 * 1000, // keep in cache 30 min after unused
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    onError: () => toast.error("Failed to fetch exam data"),
+    onError: (err) => {
+      const msg = err.response?.data?.message || err.response?.data?.error || "Failed to fetch exam data";
+      toast.error(msg);
+    },
   });
 
   const {
@@ -42,11 +42,12 @@ const ExamPage = () => {
   } = useQuery({
     queryKey: ["attendance", examId],
     queryFn: () => fetchAttendance(examId),
-    staleTime: 2 * 60 * 1000, // shorter cache for attendance
-    cacheTime: 15 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    onError: () => toast.error("Failed to fetch attendance"),
+    onError: (err) => {
+      const msg = err.response?.data?.message || err.response?.data?.error || "Failed to fetch attendance";
+      toast.error(msg);
+    },
   });
 
   // Use useEffect to handle side effects like navigation and toasts

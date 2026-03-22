@@ -310,11 +310,11 @@ function InsightsSection({ result, aiInsights, isAiLoading }) {
         <Grid gutter="md">
           {[1, 2, 3, 4].map((i) => (
             <Grid.Col key={i} span={{ base: 12, sm: 6 }}>
-              <Paper withBorder radius="lg" p="lg" style={{ height: 120, borderStyle: 'dashed', backgroundColor: 'rgba(0,0,0,0.01)' }}>
+              <Paper withBorder radius="lg" p="lg" style={{ height: 120, borderStyle: 'dashed', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.01)' }}>
                 <Stack gap="md">
-                  <div style={{ height: 32, width: 32, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.05)' }} />
-                  <div style={{ height: 14, width: '60%', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: 4 }} />
-                  <div style={{ height: 10, width: '90%', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 4 }} />
+                  <div style={{ height: 32, width: 32, borderRadius: 8, backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.05)' }} />
+                  <div style={{ height: 14, width: '60%', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.05)', borderRadius: 4 }} />
+                  <div style={{ height: 10, width: '90%', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.03)', borderRadius: 4 }} />
                 </Stack>
               </Paper>
             </Grid.Col>
@@ -477,7 +477,7 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
 
           <Stack gap="sm">
             <Text size="lg" fw={600}>
-              <strong style={{ fontWeight: 700, color: "black" }}>
+              <strong style={{ fontWeight: 700, color: "var(--mantine-color-text)" }}>
                 {user.role === "organizer" ? result.userId.name : "You"}
               </strong>{" "}
               started the exam but did not complete or submit it.
