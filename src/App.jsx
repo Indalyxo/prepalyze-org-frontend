@@ -10,6 +10,7 @@ import PrintQuestionAnswersheet from "./pages/Generic/PrintQuestionAnswersheet/P
 
 // ✅ Lazy-loaded pages/layouts
 const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage"));
+const SignupPage = lazy(() => import("./pages/LoginPage/SignupPage"));
 const StudentLayout = lazy(() => import("./layout/StudentLayout"));
 const OrganizerLayout = lazy(() => import("./layout/OrganizerLayout"));
 const OrganizationIntellihub = lazy(() =>
@@ -62,6 +63,7 @@ const ExamStartPage = lazy(() =>
   import("./pages/Exam/ExamStartPage/ExamStartPage")
 );
 const Profile = lazy(() => import("./pages/Generic/Profile"));
+const ProfileEdit = lazy(() => import("./pages/Generic/Profile/ProfileEdit"));
 
 const CalendarPage = lazy(() => import("./components/Generics/Calendar/Calendar"));
 const Fees = lazy(() => import("./pages/FeesAmountBill/Fees"));
@@ -88,7 +90,10 @@ const App = () => {
 
           {/* Login Route */}
           {!isAuthenticated ? (
-            <Route path="/login" element={<LoginPage />} />
+            <>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+            </>
           ) : (
             <Route
               path="/login"
@@ -180,6 +185,8 @@ const App = () => {
               <Route path="/check" element={<CheckingPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<ProfileEdit />} />
+              <Route path="/profile/edit" element={<ProfileEdit />} />
 
             </>
           )}

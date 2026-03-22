@@ -138,6 +138,20 @@ export default function LoginForm() {
               >
                 Log in
               </Button>
+
+              <div className="toggle-auth" style={{ textAlign: "center", marginTop: "1rem" }}>
+                <Text size="sm" color="dimmed">
+                  Don't have an account?{" "}
+                  <Anchor
+                    component={Link}
+                    to="/signup"
+                    size="sm"
+                    fw={600}
+                  >
+                    Sign Up
+                  </Anchor>
+                </Text>
+              </div>
             </Stack>
           </Stack>
         </form>

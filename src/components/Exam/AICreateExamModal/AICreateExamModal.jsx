@@ -33,7 +33,8 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
     examMode: "Online",
     examCategory: "NEET-UG",
     selectedGroups: [],
-    isOpenExam: false,
+    // Online is the default mode → open exam by default (no groups required)
+    isOpenExam: true,
     totalMarks: 0,
   });
 
@@ -66,10 +67,13 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
       // Enforce mode rules
       if (field === "examMode") {
         if (value === "Online") {
-          next.isOpenExam = false;
-        } else if (value === "Offline") {
+          // Online exams default to open (no groups required).
+          // User can still uncheck if they want specific groups.
           next.isOpenExam = true;
           next.selectedGroups = [];
+        } else if (value === "Offline") {
+          // Offline exams always require specific groups.
+          next.isOpenExam = false;
         }
       }
       
@@ -79,8 +83,13 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
 
   const { mutate: handleUpload, isPending } = useMutation({
     mutationFn: async () => {
+      // Frontend validation before hitting the API
+      if (!formData.isOpenExam && (formData.selectedGroups || []).length === 0) {
+        throw new Error("At least one group must be selected");
+      }
       const res = await apiClient.post("/api/exam/create-from-ai", {
-        examMetadata: formData,
+        // Map selectedGroups → groups because the backend reads examMetadata.groups
+        examMetadata: { ...formData, groups: formData.selectedGroups },
         aiQuestions,
       });
       return res.data;
@@ -90,7 +99,7 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
       onClose();
     },
     onError: (error) => {
-      toast.error(error.response?.data?.error || "Failed to create exam");
+      toast.error(error.response?.data?.error || error.message || "Failed to create exam");
     },
   });
 
@@ -178,14 +187,14 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
             label="Open Exam (no specific participants required)"
             checked={formData.isOpenExam}
             onChange={(e) => handleInputChange("isOpenExam", e.currentTarget.checked)}
-            disabled={formData.examMode === "Offline" || formData.examMode === "Online"}
+            disabled={formData.examMode === "Offline"}
           />
-          
-          {(formData.examMode === "Online") && (
-            <Text size="xs" c="blue">Note: Online exams require specific participant groups.</Text>
+
+          {formData.examMode === "Online" && formData.isOpenExam && (
+            <Text size="xs" c="blue">Note: Open exams — any student with access can take this exam.</Text>
           )}
-          {(formData.examMode === "Offline") && (
-            <Text size="xs" c="dimmed">Note: Offline exams are always open.</Text>
+          {(formData.examMode === "Offline" || (formData.examMode === "Online" && !formData.isOpenExam)) && (
+            <Text size="xs" c="dimmed">Note: Select the groups/batches that should participate.</Text>
           )}
         </Stack>
 

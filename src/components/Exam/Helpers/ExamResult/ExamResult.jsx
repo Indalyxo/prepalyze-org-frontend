@@ -180,8 +180,9 @@ function SectionCard({ section }) {
   );
 }
 
-function InsightsSection({ result }) {
+function InsightsSection({ result, aiInsights, isAiLoading }) {
   const insights = useMemo(() => {
+    if (aiInsights && aiInsights.length > 0) return aiInsights;
     if (!result) return [];
 
     const { percentage, sections, metaCounts } = result;
@@ -288,39 +289,56 @@ function InsightsSection({ result }) {
   }, [result]);
 
   return (
-    <Card withBorder radius="md" padding="lg" className={styles.insightsCard}>
-      <Group mb="lg" align="center">
-        <ThemeIcon variant="light" color="blue" size="lg">
-          <IconBulb size={20} />
-        </ThemeIcon>
-        <Title order={4}>Performance Insights</Title>
+    <Card withBorder radius="lg" padding="xl" className={styles.insightsCard}>
+      <Group mb="xl" justify="space-between" align="center">
+        <Group gap="sm">
+          <ThemeIcon variant="gradient" gradient={{ from: 'blue', to: 'cyan' }} size="lg" radius="md">
+            <IconBulb size={20} />
+          </ThemeIcon>
+          <Stack gap={0}>
+            <Title order={4} fw={800}>Performance Insights</Title>
+            <Text size="xs" c="dimmed" fw={500}>Strategic AI analysis of your recent activity</Text>
+          </Stack>
+        </Group>
+        <div className={styles.aiBadge}>
+          <IconBulb size={12} fill="currentColor" />
+          <span>AI Powered</span>
+        </div>
       </Group>
 
-      <Grid>
-        {insights.map((insight, index) => (
-          <Grid.Col key={index} span={{ base: 12, sm: 6 }}>
-            <Alert
-              variant="light"
-              color={
-                insight.type === "positive"
-                  ? "green"
-                  : insight.type === "negative"
-                  ? "red"
-                  : "blue"
-              }
-              icon={insight.icon}
-              className={styles.insightAlert}
-            >
-              <Text fw={600} size="sm" mb={4}>
-                {insight.title}
-              </Text>
-              <Text size="xs" c="dimmed">
-                {insight.description}
-              </Text>
-            </Alert>
-          </Grid.Col>
-        ))}
-      </Grid>
+      {isAiLoading && !aiInsights ? (
+        <Grid gutter="md">
+          {[1, 2, 3, 4].map((i) => (
+            <Grid.Col key={i} span={{ base: 12, sm: 6 }}>
+              <Paper withBorder radius="lg" p="lg" style={{ height: 120, borderStyle: 'dashed', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.01)' }}>
+                <Stack gap="md">
+                  <div style={{ height: 32, width: 32, borderRadius: 8, backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.05)' }} />
+                  <div style={{ height: 14, width: '60%', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.05)', borderRadius: 4 }} />
+                  <div style={{ height: 10, width: '90%', backgroundColor: 'rgba(var(--mantine-color-text-rgb), 0.03)', borderRadius: 4 }} />
+                </Stack>
+              </Paper>
+            </Grid.Col>
+          ))}
+        </Grid>
+      ) : (
+        <Grid gutter="lg">
+          {insights.map((insight, index) => (
+            <Grid.Col key={index} span={{ base: 12, sm: 6 }}>
+              <div className={`${styles.insightCard} ${styles[insight.type] || styles.neutral}`}>
+                <div className={styles.iconBox}>
+                  {insight.icon || (
+                    insight.type === "positive" ? <IconTrendingUp size={20} /> :
+                    insight.type === "negative" ? <IconAlertCircle size={20} /> :
+                    <IconTarget size={20} />
+                  )}
+                </div>
+                <Text className={styles.cardTitle}>{insight.title}</Text>
+                <Text className={styles.cardDesc}>{insight.description}</Text>
+              </div>
+            </Grid.Col>
+          ))}
+        </Grid>
+      )}
     </Card>
   );
 }
@@ -358,6 +376,21 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
     queryKey: ["attendance", examId],
     queryFn: () => fetchAttendance(examId),
     onError: () => toast.error("Failed to fetch attendance"),
+  });
+
+  // Fetch AI Insights
+  const {
+      data: aiInsightsData,
+      isLoading: isAiLoading,
+  } = useQuery({
+      queryKey: ["aiInsights", result?._id],
+      queryFn: async () => {
+          if (!result?._id) return null;
+          const res = await apiClient.post(`/api/exam/ai/result/insights/${result._id}`);
+          return res.data.insights;
+      },
+      enabled: !!result?._id,
+      staleTime: Infinity, // Insights don't change for the same result
   });
 
   const scoreColor = useMemo(() => {
@@ -444,7 +477,7 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
 
           <Stack gap="sm">
             <Text size="lg" fw={600}>
-              <strong style={{ fontWeight: 700, color: "black" }}>
+              <strong style={{ fontWeight: 700, color: "var(--mantine-color-text)" }}>
                 {user.role === "organizer" ? result.userId.name : "You"}
               </strong>{" "}
               started the exam but did not complete or submit it.
@@ -631,7 +664,11 @@ export default function ExamResult({ primary = "blue", path = "student" }) {
                   </Stack>
                 </Paper>
 
-                <InsightsSection result={result} />
+                  <InsightsSection 
+                    result={result} 
+                    aiInsights={aiInsightsData} 
+                    isAiLoading={isAiLoading} 
+                  />
               </Stack>
             </Grid.Col>
           </Grid>

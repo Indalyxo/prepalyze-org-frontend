@@ -1,0 +1,152 @@
+.signup-form-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  padding: 40px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+}
+
+.background-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  .decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.1) 0%,
+      rgba(118, 75, 162, 0.1) 100%
+    );
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .decoration-dots {
+    position: absolute;
+    top: 20%;
+    right: 20%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+
+    .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.2);
+    }
+  }
+}
+
+.form-wrapper {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.logo-section {
+  margin-bottom: 20px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 12px;
+
+    .logo-icon {
+      width: 180px;
+      height: 45px;
+      object-fit: contain;
+    }
+  }
+}
+
+.form-content {
+  .welcome-section {
+    margin-bottom: 5px;
+
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+  }
+
+  .email-input,
+  .password-input,
+  .name-input,
+  .phone-input {
+    .mantine-TextInput-label,
+    .mantine-PasswordInput-label,
+    .mantine-Select-label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .mantine-TextInput-input,
+    .mantine-PasswordInput-input,
+    .mantine-Select-input {
+      height: 48px;
+      border: 1.5px solid rgba(229, 231, 235, 0.8);
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+      }
+    }
+  }
+
+  .signup-button {
+    height: 48px;
+    background: linear-gradient(90deg, #6dafff, #4297ff, #0073ff);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 115, 255, 0.2);
+    }
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
