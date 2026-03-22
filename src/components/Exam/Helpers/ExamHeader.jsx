@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Button, Text, Badge, Modal, Image } from "@mantine/core";
+import { Container, Button, Text, Badge, Modal, Image, Box } from "@mantine/core";
 import { IconClock, IconBook, IconInfoCircle } from "@tabler/icons-react";
 import useAuthStore from "../../../context/auth-store";
 
@@ -77,12 +77,15 @@ const ExamHeader = ({
           <div className="header-main">
             <div className="exam-branding">
               <div className="exam-icon">
-                <Image
-                  src={user.organization.logoUrl || user.organization.logo}
-                  alt="exam icon"
-                  width={40}
-                  height={40}
-                />
+                <Box w={36} h={36} style={{ flexShrink: 0, overflow: "hidden", borderRadius: 6 }}>
+                  <Image
+                    src={user.organization.logoUrl || user.organization.logo}
+                    alt="exam icon"
+                    w={36}
+                    h={36}
+                    fit="contain"
+                  />
+                </Box>
               </div>
               <div className="exam-details">
                 <Text className="exam-title">{examData.examTitle}</Text>
