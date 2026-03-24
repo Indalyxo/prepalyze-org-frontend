@@ -75,7 +75,7 @@ const ModalFrame = ({
           borderRadius: "16px",
           overflow: "hidden",
           boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
-          background: "white",
+          background: "var(--mantine-color-body)",
           zIndex: 300,
           animation: "fadeIn 0.2s ease-out",
         }}
@@ -85,7 +85,7 @@ const ModalFrame = ({
           className="modal-main modal-frame invisible-scrollbar"
           style={{
             flex: 1,
-            backgroundColor: "white",
+            backgroundColor: "var(--mantine-color-body)",
             padding: "2rem",
             overflowY: "auto",
             minHeight: 0, // Fixed: Allow flex child to shrink

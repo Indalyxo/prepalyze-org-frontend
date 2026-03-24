@@ -81,7 +81,7 @@ const AdvancedEditor = forwardRef(
         CodeBlock.configure({
           HTMLAttributes: {
             style:
-              "background: #f4f4f4; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 14px; margin: 0.5rem 0;",
+              "background: var(--mantine-color-dark-6); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 14px; margin: 0.5rem 0;",
           },
         }),
         Highlight.configure({ multicolor: true }),
@@ -99,7 +99,7 @@ const AdvancedEditor = forwardRef(
       content: value || "<p></p>",
       editorProps: {
         attributes: {
-          style: `min-height: ${minHeight}px; padding: 1rem; outline: none; font-size: 16px; line-height: 1.6; color: #212529;`,
+          style: `min-height: ${minHeight}px; padding: 1rem; outline: none; font-size: 16px; line-height: 1.6; color: inherit;`,
         },
       },
       onUpdate: ({ editor }) => {
@@ -314,9 +314,9 @@ const AdvancedEditor = forwardRef(
           mt="sm"
           p="xs"
           style={{
-            backgroundColor: error ? "#fff5f5" : "#f8f9fa",
+            backgroundColor: error ? "rgba(250, 82, 82, 0.1)" : "rgba(0,0,0,0.05)",
             borderRadius: "4px",
-            borderColor: error ? "#fa5252" : "transparent",
+            borderColor: error ? "var(--mantine-color-red-filled)" : "transparent",
             borderWidth: error ? "1px" : "0",
             borderStyle: "solid",
           }}

@@ -16,7 +16,7 @@ import {
   Download,
   PlusCircle
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { InlineMath, BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { jsPDF } from "jspdf";
@@ -25,6 +25,7 @@ import s from "./AIPoweredExam.module.scss";
 
 import { renderWithLatexAndImages } from "../../../utils/render/render";
 import AICreateExamModal from "../../../components/Exam/AICreateExamModal/AICreateExamModal";
+import apiClient from "../../../utils/api"
 
 // ErrorBoundary to catch KaTeX rendering crashes
 class ErrorBoundary extends Component {
@@ -331,13 +332,12 @@ export default function AIPoweredExam() {
   // Helper to fetch distinct core metadata fields from backend
   const fetchUniqueFilter = async (field, queryObj = {}) => {
     try {
-      const qs = new URLSearchParams(queryObj).toString();
-      const res = await fetch(`/api/exam/ai/unique/${field}?${qs}`);
-      const result = await res.json();
-      if (result.success) return result.data;
+      const res = await apiClient.get(`/exam/ai/unique/${field}`, { params: queryObj });
+      if (res.data.success) return res.data.data;
       return [];
     } catch (err) {
       console.error(`Failed to fetch ${field}s`, err);
+      // toast.error(`Failed to fetch ${field}s`);
       return [];
     }
   };
@@ -407,28 +407,20 @@ export default function AIPoweredExam() {
     try {
       let res;
       if (generationMode === "database") {
-        res = await fetch("/api/exam/ai/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            exam,
-            subject,
-            chapter,
-            topic: topic || undefined, 
-            count,
-          }),
+        res = await apiClient.post("/exam/ai/generate", {
+          exam,
+          subject,
+          chapter,
+          topic: topic || undefined, 
+          count,
         });
       } else if (generationMode === "pyq") {
-        res = await fetch("/api/exam/ai/generate-pyq", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            exam,
-            subject,
-            chapter,
-            topic,
-            count,
-          }),
+        res = await apiClient.post("/exam/ai/generate-pyq", {
+          exam,
+          subject,
+          chapter,
+          topic,
+          count,
         });
       } else {
         const formData = new FormData();
@@ -444,13 +436,10 @@ export default function AIPoweredExam() {
           formData.append("text", documentText);
         }
 
-        res = await fetch("/api/exam/ai/generate-from-document", {
-          method: "POST",
-          body: formData,
-        });
+        res = await apiClient.post("/exam/ai/generate-from-document", formData);
       }
 
-      const data = await res.json();
+      const data = res.data;
 
       if (!data.success) {
         throw new Error(data.error || "Failed to generate questions from server");
