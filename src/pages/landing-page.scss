@@ -39,6 +39,7 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   color: var(--color-foreground);
+  background: var(--color-muted);
 }
 .logo {
   width: 160px;
@@ -276,6 +277,11 @@
     position: relative;
     overflow: hidden;
     height: 100%;
+    color: var(--color-foreground);
+
+    .mantine-Text-root, .mantine-Title-root {
+      color: var(--color-foreground);
+    }
 
     &:hover {
       transform: translateY(-8px);
@@ -403,6 +409,10 @@
       );
       color: white;
       border: none;
+
+      .mantine-Text-root, .mantine-Title-root {
+        color: white;
+      }
     }
   }
 

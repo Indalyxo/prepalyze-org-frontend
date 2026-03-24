@@ -61,7 +61,7 @@ import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import "./landing-page.scss";
 import N8nChat from "./N8n/N8nChat";
-import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
+import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle.jsx";
 
 const appSections = [
   {
@@ -290,28 +290,27 @@ const handleContactSubmit = async (values) => {
               </Text>
             </Group>
 
-              <Group gap="sm">
-                <ThemeToggle />
-                <Button
-                  onClick={() => handleNavigation("/login")}
-                  variant="white"
-                  color="blue"
-                  size="sm"
-                  className="login-btn"
-                  visibleFrom="sm"
-                >
-                  Login
-                </Button>
-              </Group>
-
-              {/* Mobile Menu Button */}
-              <Burger
-                opened={drawerOpened}
-                onClick={toggleDrawer}
-                color="white"
-                hiddenFrom="md"
-              />
+            <Group gap="sm">
+              <ThemeToggle />
+              <Button
+                onClick={() => handleNavigation("/login")}
+                variant="white"
+                color="blue"
+                size="sm"
+                className="login-btn"
+                visibleFrom="sm"
+              >
+                Login
+              </Button>
             </Group>
+
+            {/* Mobile Menu Button */}
+            <Burger
+              opened={drawerOpened}
+              onClick={toggleDrawer}
+              color="white"
+              hiddenFrom="md"
+            />
           </Group>
         </Container>
 
