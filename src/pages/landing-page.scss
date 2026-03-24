@@ -2,14 +2,36 @@
 :root {
   --color-primary: #3b82f6;
   --color-accent: #10b981;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+
+  // Light theme colors
   --color-card: #ffffff;
   --color-border: #e5e7eb;
   --color-foreground: #1f2937;
   --color-muted-foreground: #6b7280;
   --color-muted: #f9fafb;
   --color-primary-foreground: #ffffff;
-  --radius-lg: 12px;
-  --radius-md: 8px;
+  --hero-bg-1: #ffffff;
+  --hero-bg-2: #f4f1f1;
+  --hero-bg-3: #6dd4f9;
+  --showcase-bg: #ffffff;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --header-grad-start: #cdebe1ff;
+}
+
+[data-mantine-color-scheme="dark"] {
+  --color-card: #1a1b1e;
+  --color-border: #373a40;
+  --color-foreground: #c1c2c5;
+  --color-muted-foreground: #909296;
+  --color-muted: #141517;
+  --hero-bg-1: #1a1b1e;
+  --hero-bg-2: #25262b;
+  --hero-bg-3: #1c7ed6;
+  --showcase-bg: #25262b;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --header-grad-start: #1e3a34;
 }
 
 // Base component
@@ -31,7 +53,7 @@
 
 // Header styles
 .prepalyze-header {
-  background: linear-gradient(135deg, #cdebe1ff 0%, var(--color-primary) 100%);
+  background: linear-gradient(135deg, var(--header-grad-start) 0%, var(--color-primary) 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
@@ -84,7 +106,7 @@
 
 // Hero section
 .prepalyze-hero {
-  background: linear-gradient(135deg, #fff 0%, #f4f1f1 50%, #6dd4f9 100%);
+  background: linear-gradient(135deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 50%, var(--hero-bg-3) 100%);
   min-height: 90vh;
   display: flex;
   align-items: center;
@@ -175,8 +197,8 @@
     height: auto;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px dashed #cbd5e1;
+    background: var(--showcase-bg);
+    border: 2px dashed var(--color-border);
 
     @media (max-width: 768px) {
       max-width: 100%;
@@ -249,7 +271,7 @@
     background: var(--color-card);
     border: 1px solid var(--color-border);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     overflow: hidden;
@@ -283,8 +305,8 @@
     position: relative;
     overflow: hidden;
     border-radius: 12px;
-    background: white;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: var(--color-card);
+    box-shadow: var(--card-shadow);
   }
 
   .slider-content {
@@ -311,9 +333,9 @@
     max-width: 500px;
     height: auto;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    background: white;
-    border: 1px solid #e5e7eb;
+    box-shadow: var(--card-shadow);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
   }
 
   .slider-indicators {
@@ -340,12 +362,12 @@
   .feature-preview {
     width: 100%;
     height: 400px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    background: var(--color-muted);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed #cbd5e1;
+    border: 2px dashed var(--color-border);
   }
 }
 
@@ -355,10 +377,10 @@
   background: var(--color-muted);
 
   .pricing-card {
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
     position: relative;
 
@@ -514,13 +536,13 @@ a:focus {
 // Available Exams Section
 .available-exams-section {
   padding: 80px 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, var(--color-muted) 0%, var(--hero-bg-2) 100%);
 
   .exam-card {
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--card-shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     height: 100%;
@@ -545,10 +567,10 @@ a:focus {
   }
 
   .feature-highlight-card {
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
     height: 100%;
 

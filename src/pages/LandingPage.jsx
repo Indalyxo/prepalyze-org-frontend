@@ -61,6 +61,7 @@ import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import "./landing-page.scss";
 import N8nChat from "./N8n/N8nChat";
+import { ThemeToggle } from "../components/ThemeToggle/ThemeToggle";
 
 const appSections = [
   {
@@ -289,17 +290,19 @@ const handleContactSubmit = async (values) => {
               </Text>
             </Group>
 
-            <Group>
-              <Button
-                onClick={() => handleNavigation("/login")}
-                variant="white"
-                color="blue"
-                size="sm"
-                className="login-btn"
-                visibleFrom="sm"
-              >
-                Login
-              </Button>
+              <Group gap="sm">
+                <ThemeToggle />
+                <Button
+                  onClick={() => handleNavigation("/login")}
+                  variant="white"
+                  color="blue"
+                  size="sm"
+                  className="login-btn"
+                  visibleFrom="sm"
+                >
+                  Login
+                </Button>
+              </Group>
 
               {/* Mobile Menu Button */}
               <Burger
@@ -373,15 +376,17 @@ const handleContactSubmit = async (values) => {
                 Pricing
               </Text>
               <Box p="md">
-                <Button
-                  onClick={() => handleNavigation("/login")}
-                  variant="filled"
-                  color="blue"
-                  fullWidth
-                  size="md"
-                >
-                  Login
-                </Button>
+                <Group grow>
+                  <ThemeToggle />
+                  <Button
+                    onClick={() => handleNavigation("/login")}
+                    variant="filled"
+                    color="blue"
+                    size="md"
+                  >
+                    Login
+                  </Button>
+                </Group>
               </Box>
             </Stack>
           </ScrollArea>
@@ -1125,7 +1130,7 @@ const handleContactSubmit = async (values) => {
                 ta="center"
                 mb="md"
                 className="pricing-price"
-                style={{ marginTop: "auto" }}
+                style={{ marginTop: "auto", color: "var(--color-primary)" }}
               >
                 Coming Soon...
               </Box>
