@@ -43,8 +43,8 @@
 }
 .logo {
   width: 160px;
-  height: 80px;
-  object-fit: cover;
+  height: 60px;
+  object-fit: contain;
   transition: transform 0.5s ease-in-out;
   &:hover {
     cursor: pointer;
@@ -60,6 +60,14 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(10px);
+  height: 80px;
+
+  > .mantine-Container-root {
+    height: 100%;
+    > .mantine-Group-root {
+      height: 100%;
+    }
+  }
 
   .nav-link {
     position: relative;

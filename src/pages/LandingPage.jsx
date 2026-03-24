@@ -271,46 +271,49 @@ const handleContactSubmit = async (values) => {
               />
             </Group>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation & Actions */}
             <Group gap="xl" visibleFrom="md">
-              <Text component="a" href="#home" className="nav-link">
-                Home
-              </Text>
-              <Text component="a" href="#features" className="nav-link">
-                Features
-              </Text>
-              <Text component="a" href="#available-exams" className="nav-link">
-                Exams
-              </Text>
-              <Text component="a" href="#app-showcase" className="nav-link">
-                App Showcase
-              </Text>
-              <Text component="a" href="#pricing" className="nav-link">
-                Pricing
-              </Text>
+              <Group gap="lg">
+                <Text component="a" href="#home" className="nav-link">
+                  Home
+                </Text>
+                <Text component="a" href="#features" className="nav-link">
+                  Features
+                </Text>
+                <Text component="a" href="#available-exams" className="nav-link">
+                  Exams
+                </Text>
+                <Text component="a" href="#app-showcase" className="nav-link">
+                  App Showcase
+                </Text>
+                <Text component="a" href="#pricing" className="nav-link">
+                  Pricing
+                </Text>
+              </Group>
+
+              <Group gap="sm">
+                <ThemeToggle />
+                <Button
+                  onClick={() => handleNavigation("/login")}
+                  variant="white"
+                  color="blue"
+                  size="sm"
+                  className="login-btn"
+                >
+                  Login
+                </Button>
+              </Group>
             </Group>
 
-            <Group gap="sm">
+            {/* Mobile Actions (Toggle + Burger) */}
+            <Group hiddenFrom="md" gap="sm">
               <ThemeToggle />
-              <Button
-                onClick={() => handleNavigation("/login")}
-                variant="white"
-                color="blue"
-                size="sm"
-                className="login-btn"
-                visibleFrom="sm"
-              >
-                Login
-              </Button>
+              <Burger
+                opened={drawerOpened}
+                onClick={toggleDrawer}
+                color="white"
+              />
             </Group>
-
-            {/* Mobile Menu Button */}
-            <Burger
-              opened={drawerOpened}
-              onClick={toggleDrawer}
-              color="white"
-              hiddenFrom="md"
-            />
           </Group>
         </Container>
 
