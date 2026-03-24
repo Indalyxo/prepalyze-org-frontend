@@ -332,7 +332,7 @@ export default function AIPoweredExam() {
   // Helper to fetch distinct core metadata fields from backend
   const fetchUniqueFilter = async (field, queryObj = {}) => {
     try {
-      const res = await apiClient.get(`/exam/ai/unique/${field}`, { params: queryObj });
+      const res = await apiClient.get(`/api/exam/ai/unique/${field}`, { params: queryObj });
       if (res.data.success) return res.data.data;
       return [];
     } catch (err) {
@@ -407,7 +407,7 @@ export default function AIPoweredExam() {
     try {
       let res;
       if (generationMode === "database") {
-        res = await apiClient.post("/exam/ai/generate", {
+        res = await apiClient.post("/api/exam/ai/generate", {
           exam,
           subject,
           chapter,
@@ -415,7 +415,7 @@ export default function AIPoweredExam() {
           count,
         });
       } else if (generationMode === "pyq") {
-        res = await apiClient.post("/exam/ai/generate-pyq", {
+        res = await apiClient.post("/api/exam/ai/generate-pyq", {
           exam,
           subject,
           chapter,
@@ -436,7 +436,7 @@ export default function AIPoweredExam() {
           formData.append("text", documentText);
         }
 
-        res = await apiClient.post("/exam/ai/generate-from-document", formData);
+        res = await apiClient.post("/api/exam/ai/generate-from-document", formData);
       }
 
       const data = res.data;
