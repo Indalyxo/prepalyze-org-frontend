@@ -261,7 +261,7 @@ const handleContactSubmit = async (values) => {
     <Box className="prepalyze-landing">
       {/* Header */}
       <header className="prepalyze-header">
-        <Container size="md">
+        <Container size="xl">
           <Group justify="space-between" align="center">
             <Group align="center" gap="xs">
               <Image
