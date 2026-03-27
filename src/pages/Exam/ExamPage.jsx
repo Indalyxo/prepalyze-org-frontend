@@ -78,12 +78,33 @@ const ExamPage = () => {
     );
   }
 
+  // Guard: data must be ready before rendering
+  if (!examData || !attendance) {
+    return (
+      <LoadingOverlay
+        visible
+        zIndex={1000}
+        loaderProps={{ color: "blue", type: "dots" }}
+        overlayProps={{ radius: "sm", blur: 2 }}
+      />
+    );
+  }
+
+  // Guard: exam must have at least one section with at least one question
+  if (!examData.sections || examData.sections.length === 0 || examData.sections[0]?.questions?.length === 0) {
+    return (
+      <div style={{ padding: "2rem", color: "red", fontWeight: 600 }}>
+        This exam has no questions configured yet. Please contact the organizer.
+      </div>
+    );
+  }
+
   // Correctly handle navigation before rendering the ExamInterface
-  if (attendance && attendance.submittedAt !== null) {
+  if (attendance.submittedAt !== null) {
     return <Navigate to={`/student/exams/details/${examId}`} />;
   }
 
-  if (examData && examData.examMode === "Offline") {
+  if (examData.examMode === "Offline") {
     return <Navigate to={`/student/exams/details/${examId}`} />;
   }
 
