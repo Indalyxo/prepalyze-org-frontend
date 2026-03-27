@@ -60,6 +60,7 @@ const QuestionContent = ({
               <Stack gap="md">
                 {questionData.options?.map((option, index) => {
                   const radioRef = useRef(null);
+                  const optIdStr = option._id?.toString() || `opt_${index}`;
                   
                   const handleCardClick = (e) => {
                     // Don't trigger if clicking the radio button itself
@@ -74,9 +75,9 @@ const QuestionContent = ({
 
                   return (
                     <div
-                      key={option._id}
+                      key={optIdStr}
                       className={`option-card ${
-                        currentAnswer === option._id ? "selected" : ""
+                        currentAnswer === optIdStr ? "selected" : ""
                       }`}
                       onClick={handleCardClick}
                       role="button"
@@ -91,7 +92,7 @@ const QuestionContent = ({
                     >
                       <Radio
                         ref={radioRef}
-                        value={option._id.toString()}
+                        value={optIdStr}
                         label={
                           <div className="option-content">
                             <div className="option-letter">
