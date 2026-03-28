@@ -256,6 +256,7 @@ export default function AIPoweredExam() {
 
   const questionsRef = useRef(null);
   const printableRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const handleDownloadPDF = async () => {
     if (!printableRef.current) return;
@@ -450,8 +451,10 @@ export default function AIPoweredExam() {
       toast.success(`Successfully generated ${data.questions.length} questions!`);
 
     } catch (err) {
-      setError(String(err));
-      toast.error("An error occurred during generation");
+      const errorMessage = err.response?.data?.error || err.message || String(err);
+      setError(errorMessage);
+      toast.error(errorMessage.length > 50 ? "Generation failed" : errorMessage);
+      console.error("Generation error:", err);
     } finally {
       setLoading(false);
     }
@@ -532,8 +535,12 @@ export default function AIPoweredExam() {
                   </label>
                   <input
                     type="file"
+                    ref={fileInputRef}
                     accept=".pdf,.txt"
-                    onChange={(e) => setDocumentFile(e.target.files[0])}
+                    onChange={(e) => {
+                      setDocumentFile(e.target.files[0]);
+                      if (e.target.files[0]) setDocumentText(""); // Clear text if file is uploaded
+                    }}
                     className={s.fileInputCustom}
                   />
                   
@@ -548,7 +555,13 @@ export default function AIPoweredExam() {
                   </label>
                   <textarea
                     value={documentText}
-                    onChange={(e) => setDocumentText(e.target.value)}
+                    onChange={(e) => {
+                      setDocumentText(e.target.value);
+                      if (e.target.value.trim() && documentFile) {
+                        setDocumentFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }
+                    }}
                     placeholder="Paste context here..."
                     className={s.docTextarea}
                   />
