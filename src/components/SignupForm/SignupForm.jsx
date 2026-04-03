@@ -30,9 +30,12 @@ export default function SignupForm() {
   const [organizations, setOrganizations] = useState([]);
   const [organizationId, setOrganizationId] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/organizations`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch organizations");
+        return res.json();
+      })
       .then(data => {
         if (data.success) {
           const formatted = data.organizations.map(org => ({ value: org.id, label: org.name }));
@@ -40,7 +43,10 @@ export default function SignupForm() {
           if (formatted.length > 0) setOrganizationId(formatted[0].value);
         }
       })
-      .catch(err => console.error("Failed to fetch organizations", err));
+      .catch(err => {
+        console.error("Failed to fetch organizations", err);
+        // toast.error("Could not load organizations. Please refresh.");
+      });
   }, []);
 
   const handleSubmit = async (e) => {
