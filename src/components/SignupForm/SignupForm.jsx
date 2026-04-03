@@ -1,6 +1,6 @@
 import { TextInput, PasswordInput, Button, Text, Stack, Anchor, Group, Select } from "@mantine/core";
 import { IconLock, IconMail, IconUser, IconPhone } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import "./signup-form.scss";
