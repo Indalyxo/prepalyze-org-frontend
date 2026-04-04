@@ -116,7 +116,7 @@ const DetentionModal = ({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const progressValue = detentionInfo.isActive
+  const progressValue = detentionInfo?.isActive
     ? ((detentionInfo.duration * 60 - timeRemaining) /
         (detentionInfo.duration * 60)) *
       100
