@@ -144,6 +144,14 @@ const ExamInterface = ({ examData, attendance }) => {
     setVisitedQuestions((prev) => new Set([...prev, questionKey]));
   }, [currentSection, currentQuestion]);
 
+  if (!examData || !examData.sections || examData.sections.length === 0) {
+    return (
+      <Container className="exam-interface flex items-center justify-center min-h-screen">
+        <Text size="xl" c="dimmed">No exam content available or the exam is improperly configured.</Text>
+      </Container>
+    );
+  }
+
   const getCurrentQuestionKey = () => `${currentSection}-${currentQuestion}`;
 
   const getQuestionStatus = (sectionIndex, questionIndex) => {
@@ -193,16 +201,16 @@ const ExamInterface = ({ examData, attendance }) => {
   };
 
   const handleViolation = async () => {
-    if (settings.detention.concludeOnDetention) {
+    if (settings?.detention?.concludeOnDetention) {
       toast.error("Exam concluded due to multiple tab switches.");
       handleSubmit();
       return;
     }
 
     const notificationInformation = {
-      watermark: settings.exam.watermark,
-      organization: user.organization.name,
-      studentName: user.name,
+      watermark: settings?.exam?.watermark,
+      organization: user?.organization?.name,
+      studentName: user?.name,
       exam: examData.examTitle,
     };
 
@@ -210,7 +218,7 @@ const ExamInterface = ({ examData, attendance }) => {
 
     await apiClient.post(`/api/exam/${examId}/detention`, {
       student: user,
-      duration: settings.detention.durationInMinutes,
+      duration: settings?.detention?.durationInMinutes || 15,
       reason: "Tab switching detected",
       startedAt: new Date().toISOString(),
       notificationInformation,
@@ -350,7 +358,7 @@ const ExamInterface = ({ examData, attendance }) => {
         gradeSchema={{}}
       />
       <TabSwitchTracker
-        maxViolations={settings.detention.maxTabs}
+        maxViolations={settings?.detention?.maxTabs || 3}
         disabled={disabled}
         onViolation={handleViolation}
         reset={reset}
@@ -359,7 +367,7 @@ const ExamInterface = ({ examData, attendance }) => {
       <DetentionModal
         opened={disabled}
         ruleViolated="Switching Tabs"
-        detentionMinutes={settings.detention.durationInMinutes}
+        detentionMinutes={settings?.detention?.durationInMinutes || 15}
         attendance={attendance}
         onClose={() => setDisabled(false)}
       />

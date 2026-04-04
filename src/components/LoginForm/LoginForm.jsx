@@ -39,19 +39,21 @@ export default function LoginForm() {
 
       try {
         setIsLoading(true);
-        const response = await login(email, password);
+        const result = await login(email, password);
 
-        if (response.user.role === "organizer") {
-          navigate("/organization");
+        if (result.success) {
+          toast.success("Login Successful");
+          if (result.user.role === "organizer") {
+            navigate("/organization");
+          } else {
+            navigate("/student");
+          }
         } else {
-          navigate("/student");
+          toast.error(result.message || "Login failed. Please try again.");
         }
-        toast.success(response?.data?.data || "Login Successful");
       } catch (error) {
-        console.error(error);
-        const errorMessage =
-          error.response?.data?.message || "Login failed. Please try again.";
-        toast.error(errorMessage);
+        console.error("LoginForm error:", error);
+        toast.error("An unexpected error occurred.");
       } finally {
         setIsLoading(false);
       }
