@@ -32,23 +32,15 @@ const useAuthStore = create(
           get().loadSettings();
           return { success: true, user };
         } catch (error) {
-          console.error(error);
-          set({ isLoading: false }); // Make sure to reset loading state
-
-          // Don't logout on network errors
-          if (
-            error.code === "NETWORK_ERROR" ||
-            error.message === "Network Error"
-          ) {
-            return {
-              success: false,
-              message: "Network error. Please check your connection.",
-            };
-          }
-
-          const message =
-            error.response?.data?.message || "An error occurred during login.";
-          return { success: false, message };
+          console.error("Login catch error:", error);
+          set({ isLoading: false, user: null, isAuthenticated: false });
+          
+          const errorMessage = error.response?.data?.message || error.message || "An error occurred during login.";
+          return { 
+            success: false, 
+            message: errorMessage,
+            error: error
+          };
         }
       },
 

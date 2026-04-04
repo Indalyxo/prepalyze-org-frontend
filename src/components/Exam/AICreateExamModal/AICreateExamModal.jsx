@@ -35,6 +35,7 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
     selectedGroups: [],
     // Online is the default mode → open exam by default (no groups required)
     isOpenExam: true,
+    grade: "10th",
     totalMarks: 0,
   });
 
@@ -55,6 +56,7 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
       const marksPerQuestion = formData.examCategory === "JEE-Main" ? 4 : 4;
       setFormData((prev) => ({
         ...prev,
+        grade: aiQuestions[0]?.grade || prev.grade,
         totalMarks: aiQuestions.length * marksPerQuestion,
       }));
     }
@@ -178,6 +180,13 @@ const AICreateExamModal = ({ opened, onClose, aiQuestions }) => {
             ]}
             value={formData.examMode}
             onChange={(val) => handleInputChange("examMode", val)}
+            required
+          />
+          <Select
+            label="Grade"
+            data={["6th", "7th", "8th", "9th", "10th", "11th", "12th"]}
+            value={formData.grade}
+            onChange={(val) => handleInputChange("grade", val)}
             required
           />
         </Group>

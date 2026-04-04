@@ -52,14 +52,14 @@ const ExamPage = () => {
 
   // Use useEffect to handle side effects like navigation and toasts
   useEffect(() => {
-    if (attendance && attendance.submittedAt !== null) {
+    if (attendance && attendance.submittedAt) {
       toast.info("You have already submitted this exam.");
     }
 
     if (examData && examData.examMode === "Offline") {
       toast.info("This exam is in offline mode.");
     }
-  }, [attendance]);
+  }, [attendance, examData]);
 
   if (isExamLoading || isAttendanceLoading) {
     return (
@@ -79,7 +79,7 @@ const ExamPage = () => {
   }
 
   // Correctly handle navigation before rendering the ExamInterface
-  if (attendance && attendance.submittedAt !== null) {
+  if (attendance && attendance.submittedAt) {
     return <Navigate to={`/student/exams/details/${examId}`} />;
   }
 

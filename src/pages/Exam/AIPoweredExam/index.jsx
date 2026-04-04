@@ -247,6 +247,7 @@ export default function AIPoweredExam() {
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
   const [topic, setTopic] = useState("");
+  const [grade, setGrade] = useState("10th");
   const [count, setCount] = useState(5);
 
   // Document Generation State
@@ -413,6 +414,7 @@ export default function AIPoweredExam() {
           subject,
           chapter,
           topic: topic || undefined, 
+          grade,
           count,
         });
       } else if (generationMode === "pyq") {
@@ -421,6 +423,7 @@ export default function AIPoweredExam() {
           subject,
           chapter,
           topic,
+          grade,
           count,
         });
       } else {
@@ -429,6 +432,7 @@ export default function AIPoweredExam() {
         formData.append("subject", subject || "General");
         formData.append("chapter", chapter || "Various");
         formData.append("topic", topic || "Document Content");
+        formData.append("grade", grade || "10th");
         formData.append("count", count);
 
         if (documentFile) {
@@ -530,6 +534,16 @@ export default function AIPoweredExam() {
 
               {generationMode === "document" && (
                 <div className={s.docUploadBox}>
+                  <ModernInput 
+                    type="select"
+                    icon={Layers} 
+                    label="Target Grade" 
+                    required
+                    value={grade} 
+                    options={["6th", "7th", "8th", "9th", "10th", "11th", "12th"]}
+                    onChange={(e) => setGrade(e.target.value)} 
+                  />
+
                   <label className={s.docLabel}>
                     Upload PDF Document
                   </label>
@@ -578,6 +592,16 @@ export default function AIPoweredExam() {
                     value={exam} 
                     options={availableExams}
                     onChange={(e) => setExam(e.target.value)} 
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={Layers} 
+                    label="Target Grade" 
+                    required
+                    value={grade} 
+                    options={["6th", "7th", "8th", "9th", "10th", "11th", "12th"]}
+                    onChange={(e) => setGrade(e.target.value)} 
                   />
                   
                   <ModernInput 
@@ -651,6 +675,16 @@ export default function AIPoweredExam() {
                     value={exam} 
                     options={availableExams}
                     onChange={(e) => setExam(e.target.value)} 
+                  />
+
+                  <ModernInput 
+                    type="select"
+                    icon={Layers} 
+                    label="Target Grade" 
+                    required
+                    value={grade} 
+                    options={["6th", "7th", "8th", "9th", "10th", "11th", "12th"]}
+                    onChange={(e) => setGrade(e.target.value)} 
                   />
                   
                   <ModernInput 
