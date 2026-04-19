@@ -56,13 +56,8 @@ const PrepalyzeChat = () => {
               placeholder: "Type Your Query...",
               maxChars: 50,
             },
-
+            showBranding: false,
           },
-           theme: {
-    chatWindow: {
-      showBranding: false, // 👈 try this
-    }
-  }
         },
       });
     };

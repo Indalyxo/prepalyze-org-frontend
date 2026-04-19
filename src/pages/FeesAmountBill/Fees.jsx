@@ -3,6 +3,22 @@ import "./Fees.scss";
 import jsPDF from "jspdf";
 import apiClient from "../../utils/api";
 import useAuthStore from "../../context/auth-store";
+import { 
+  TextInput, 
+  NumberInput, 
+  Select, 
+  Checkbox, 
+  Container, 
+  Paper, 
+  Title, 
+  Button, 
+  Stack, 
+  Group, 
+  Box,
+  Text,
+  Divider
+} from "@mantine/core";
+import { IconReceipt, IconUser, IconPhone, IconAt, IconSchool, IconCreditCard } from "@tabler/icons-react";
 
 function urlToBase64(url) {
   return new Promise((resolve, reject) => {
@@ -156,6 +172,34 @@ const Fees = () => {
     generatePDF();
   };
 
+  const addWatermark = (doc) => {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const watermarkText = "OFFICIAL RECEIPT - PREPALYZE";
+    
+    doc.saveGraphicsState();
+    
+    const GState = doc.GState || (jsPDF && jsPDF.GState);
+    if (GState) {
+      doc.setGState(new GState({ opacity: 0.15 }));
+    } else {
+      doc.setTextColor(230, 230, 230);
+    }
+
+    doc.setFontSize(50);
+    doc.setFont("helvetica", "bold");
+    
+    const x = pageWidth / 2;
+    const y = pageHeight / 2;
+    const angle = 45;
+
+    doc.text(watermarkText, x, y, { align: "center", angle: angle });
+    doc.text(watermarkText, x - 200, y - 250, { align: "center", angle: angle });
+    doc.text(watermarkText, x + 200, y + 250, { align: "center", angle: angle });
+    
+    doc.restoreGraphicsState();
+  };
+
   const generatePDF = () => {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -168,6 +212,8 @@ const Fees = () => {
     // Blue header background
     doc.setFillColor(59, 130, 246);
     doc.rect(0, 0, pageWidth, 120, "F");
+
+    addWatermark(doc);
 
     // Logo - only add if available
     let logoX = 40;
@@ -391,133 +437,171 @@ const Fees = () => {
     doc.save(`Fees-Receipt-${form.name.replace(/\s+/g, "-")}-${invoiceNo}.pdf`);
   };
 
+  const setFieldValue = (name, value) => {
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
-    <div className="fees-container">
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '1rem', color: '#6b7280' }}>
-          Loading organization details...
-        </div>
-      )}
-      {orgLogo && (
-        <div className="fees-logo-area">
-          <img src={orgLogo} alt="Organization Logo" className="fees-logo" />
-        </div>
-      )}
-      <h1 className="fees-title">{orgName} - Fees Bill</h1>
-      <form className="fees-form" onSubmit={handleSubmit}>
-        <div className="fees-row">
-          <div className="fees-field">
-            <label>Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="fees-field">
-            <label>Phone Number:</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
-        <div className="fees-row">
-          <div className="fees-field">
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="fees-field">
-            <label>Exam Option:</label>
-            <select
-              name="examType"
-              value={form.examType}
-              onChange={handleChange}
-            >
-              <option value="JEE">JEE</option>
-              <option value="NEET">NEET</option>
-              <option value="Others">Others</option>
-            </select>
-          </div>
-        </div>
-        <div className="fees-row">
-          <div className="fees-field">
-            <label>Course Type:</label>
-            <select
-              name="courseType"
-              value={form.courseType}
-              onChange={handleChange}
-            >
-              <option value="Crash Course">Crash Course</option>
-              <option value="Full Course">Full Course</option>
-              <option value="Part-time Course">Part-time Course</option>
-            </select>
-          </div>
-          <div className="fees-field">
-            <label>Total Fees Amount:</label>
-            <input
-              type="number"
-              name="totalFees"
-              value={form.totalFees}
-              onChange={handleChange}
-              placeholder="Enter total fees"
-              required
-            />
-          </div>
-        </div>
-        <div className="fees-row">
-          <div className="fees-field">
-            <label>Amount Paid:</label>
-            <input
-              type="number"
-              name="amountPaid"
-              value={form.amountPaid}
-              onChange={handleChange}
-              placeholder="Enter amount paid"
-              disabled={form.fullPayment}
-              required
-            />
-          </div>
-          <div className="fees-field checkbox-label">
-            <input
-              type="checkbox"
-              name="fullPayment"
-              checked={form.fullPayment}
-              onChange={handleChange}
-            />
-            <label>Full Fees Payment</label>
-          </div>
-        </div>
-        <div className="fees-summary">
-          <div className="fees-summary-row">
-            <span className="fees-summary-label">Total Fees:</span>
-            <span className="fees-summary-value">₹{(parseFloat(form.totalFees) || 0).toLocaleString('en-IN')}</span>
-          </div>
-          <div className="fees-summary-row fees-summary-total">
-            <span className="fees-summary-label">Amount Paid:</span>
-            <span className="fees-summary-value">₹{(parseFloat(form.amountPaid) || 0).toLocaleString('en-IN')}</span>
-          </div>
-          <div className="fees-summary-row fees-summary-remaining">
-            <span className="fees-summary-label">Remaining Amount:</span>
-            <span className="fees-summary-value">₹{calculateRemainingAmount().toLocaleString('en-IN')}</span>
-          </div>
-        </div>
-        <button className="fees-generate-btn" type="submit">
-          Generate Bill
-        </button>
-      </form>
-    </div>
+    <Container size="sm" py="xl">
+      <Paper shadow="md" p="xl" radius="lg" withBorder className="fees-modern-card">
+        <Stack gap="lg">
+          <Group justify="space-between" align="center">
+            <Stack gap={0}>
+              <Title order={2} className="fees-title-modern">Fees Bill Generation</Title>
+              <Text size="sm" c="dimmed">Generate professional receipts for student payments</Text>
+            </Stack>
+            {orgLogo && (
+              <Box className="fees-logo-badge">
+                <img src={orgLogo} alt="Org Logo" style={{ height: 40, width: 'auto' }} />
+              </Box>
+            )}
+          </Group>
+
+          <Divider />
+
+          <form onSubmit={handleSubmit}>
+            <Stack gap="md">
+              <Group grow>
+                <TextInput
+                  label="Student Name"
+                  placeholder="John Doe"
+                  required
+                  leftSection={<IconUser size={16} />}
+                  value={form.name}
+                  onChange={(e) => setFieldValue("name", e.target.value)}
+                />
+                <TextInput
+                  label="Phone Number"
+                  placeholder="+91 9876543210"
+                  required
+                  leftSection={<IconPhone size={16} />}
+                  value={form.phoneNumber}
+                  onChange={(e) => setFieldValue("phoneNumber", e.target.value)}
+                />
+              </Group>
+
+              <TextInput
+                label="Email Address"
+                placeholder="john@example.com"
+                required
+                leftSection={<IconAt size={16} />}
+                value={form.email}
+                onChange={(e) => setFieldValue("email", e.target.value)}
+              />
+
+              <Group grow align="flex-end">
+                <Select
+                  label="Exam Option"
+                  placeholder="Pick one"
+                  data={[
+                    { value: 'JEE', label: 'JEE' },
+                    { value: 'NEET', label: 'NEET' },
+                    { value: 'Others', label: 'Others' },
+                  ]}
+                  value={form.examType}
+                  onChange={(val) => {
+                    setFieldValue("examType", val);
+                  }}
+                  leftSection={<IconSchool size={16} />}
+                />
+                
+                {form.examType === "Others" ? (
+                  <TextInput
+                    label="Custom Course Name"
+                    placeholder="Enter course name"
+                    required
+                    value={form.courseType}
+                    onChange={(e) => setFieldValue("courseType", e.target.value)}
+                  />
+                ) : (
+                  <Select
+                    label="Course Type"
+                    placeholder="Select course"
+                    data={[
+                      { value: 'Crash Course', label: 'Crash Course' },
+                      { value: 'Full Course', label: 'Full Course' },
+                      { value: 'Part-time Course', label: 'Part-time Course' },
+                    ]}
+                    value={form.courseType}
+                    onChange={(val) => setFieldValue("courseType", val)}
+                  />
+                )}
+              </Group>
+
+              <Divider variant="dashed" label="Payment Details" labelPosition="center" />
+
+              <Group grow>
+                <NumberInput
+                  label="Total Fees Amount"
+                  placeholder="0.00"
+                  prefix="₹ "
+                  required
+                  thousandSeparator=","
+                  hideControls
+                  value={form.totalFees}
+                  onChange={(val) => setFieldValue("totalFees", val)}
+                  leftSection={<IconCreditCard size={16} />}
+                />
+                <NumberInput
+                  label="Amount Paid"
+                  placeholder="0.00"
+                  prefix="₹ "
+                  required
+                  thousandSeparator=","
+                  hideControls
+                  disabled={form.fullPayment}
+                  value={form.amountPaid}
+                  onChange={(val) => setFieldValue("amountPaid", val)}
+                  leftSection={<IconReceipt size={16} />}
+                />
+              </Group>
+
+              <Checkbox
+                label="Full Fees Payment"
+                checked={form.fullPayment}
+                onChange={(e) => {
+                  const checked = e.currentTarget.checked;
+                  setForm(prev => ({
+                    ...prev,
+                    fullPayment: checked,
+                    amountPaid: checked ? prev.totalFees : prev.amountPaid
+                  }));
+                }}
+              />
+
+              <Paper p="md" radius="md" withBorder style={{ background: 'var(--mantine-color-gray-0)' }}>
+                <Stack gap="xs">
+                  <Group justify="space-between">
+                    <Text size="sm" fw={500}>Total Fees:</Text>
+                    <Text fw={700}>₹{(parseFloat(form.totalFees) || 0).toLocaleString('en-IN')}</Text>
+                  </Group>
+                  <Group justify="space-between">
+                    <Text size="sm" fw={500}>Amount Paid:</Text>
+                    <Text fw={700} c="green">₹{(parseFloat(form.amountPaid) || 0).toLocaleString('en-IN')}</Text>
+                  </Group>
+                  <Divider />
+                  <Group justify="space-between">
+                    <Text size="sm" fw={700}>Remaining Balance:</Text>
+                    <Text fw={900} c="red" size="lg">₹{calculateRemainingAmount().toLocaleString('en-IN')}</Text>
+                  </Group>
+                </Stack>
+              </Paper>
+
+              <Button 
+                fullWidth 
+                size="lg" 
+                radius="md" 
+                type="submit"
+                leftSection={<IconReceipt size={18} />}
+                className="fees-generate-btn-modern"
+              >
+                Generate Professional Bill
+              </Button>
+            </Stack>
+          </form>
+        </Stack>
+      </Paper>
+    </Container>
   );
 };
 

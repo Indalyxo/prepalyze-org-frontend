@@ -201,6 +201,7 @@ const Profile = () => {
                     fullWidth 
                     className="action-btn"
                     rightSection={<IconExternalLink size={14} />}
+                    onClick={() => navigate('/settings')}
                   >
                     Privacy Settings
                   </Button>
@@ -211,7 +212,12 @@ const Profile = () => {
                   <Text size="sm" c="dimmed" mb="md">
                     Having trouble with your profile? Our support team is here to help.
                   </Text>
-                  <Button variant="subtle" fullWidth c="blue.4">
+                  <Button 
+                    variant="subtle" 
+                    fullWidth 
+                    c="blue.4"
+                    onClick={() => window.location.href = 'mailto:support@prepalyze.com'}
+                  >
                     Contact Support
                   </Button>
                 </Card>

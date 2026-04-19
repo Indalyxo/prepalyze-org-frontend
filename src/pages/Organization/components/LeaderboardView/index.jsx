@@ -25,6 +25,13 @@ const getRankSuffix = (rank) => {
   return "th";
 };
 
+const getRankLabel = (rank) => {
+  if (rank <= 3) return "Elite Performer";
+  if (rank <= 10) return "Top 10 Finalist";
+  if (rank <= 20) return "Rising Star";
+  return "Participant";
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -167,7 +174,7 @@ export default function LeaderboardView() {
                       <Text className="user-name">{s.name}</Text>
                       <Group gap={4}>
                         <TrendingUp size={12} color="#4A90E2" />
-                        <Text size="xs" c="dimmed" fw={600}>Top Performer</Text>
+                        <Text size="xs" c="dimmed" fw={600}>{getRankLabel(s.rank)}</Text>
                       </Group>
                     </Stack>
                   </div>

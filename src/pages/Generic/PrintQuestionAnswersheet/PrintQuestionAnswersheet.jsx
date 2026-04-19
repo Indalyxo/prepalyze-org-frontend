@@ -144,6 +144,36 @@ export default function PrintQuestionAnswersheet() {
     queryFn: fetchExamsQuestions,
   });
 
+  const addWatermark = (pdf) => {
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const watermarkText = "PREPALYZE COPYRIGHT PROTECTED";
+    
+    pdf.saveGraphicsState();
+    
+    // Use GState for transparency if available, fallback to light color
+    const GState = pdf.GState || (jsPDF && jsPDF.GState);
+    if (GState) {
+      pdf.setGState(new GState({ opacity: 0.25 }));
+    } else {
+      pdf.setTextColor(220, 220, 220);
+    }
+    
+    pdf.setFontSize(40);
+    pdf.setFont("helvetica", "bold");
+    
+    const x = pageWidth / 2;
+    const y = pageHeight / 2;
+    const angle = 45;
+
+    // Multi-position watermark for better protection
+    pdf.text(watermarkText, x, y, { align: "center", angle: angle });
+    pdf.text(watermarkText, x - 150, y - 250, { align: "center", angle: angle });
+    pdf.text(watermarkText, x + 150, y + 250, { align: "center", angle: angle });
+    
+    pdf.restoreGraphicsState();
+  };
+
   const generatePDF = async () => {
     setIsPDFLoading(true);
     const pdf = new jsPDF("p", "pt", "a4");
@@ -154,17 +184,27 @@ export default function PrintQuestionAnswersheet() {
     let yOffset = margin;
 
     // Add title page
-    pdf.setFontSize(20);
-    pdf.text(data?.examTitle || "Exam", pageWidth / 2, pageHeight / 2 - 20, {
+    pdf.setFontSize(24);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(data?.examTitle || "Exam", pageWidth / 2, pageHeight / 2 - 40, {
       align: "center",
     });
-    pdf.setFontSize(12);
+    
+    pdf.setFontSize(14);
+    pdf.setTextColor(100, 100, 100);
     pdf.text(
       `Date: ${new Date().toLocaleDateString()}`,
       pageWidth / 2,
       pageHeight / 2,
       { align: "center" }
     );
+    
+    pdf.setFontSize(10);
+    pdf.text("© Prepalyze. All rights reserved.", pageWidth / 2, pageHeight - 50, {
+      align: "center",
+    });
+
+    addWatermark(pdf);
     pdf.addPage();
     yOffset = margin;
 
@@ -172,7 +212,15 @@ export default function PrintQuestionAnswersheet() {
       const el = exportRef.current[i];
       if (!el) continue;
 
-      const dataUrl = await htmlToImage.toPng(el, { quality: 1 });
+      // Small delay for rendering stability
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const dataUrl = await htmlToImage.toPng(el, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
       const imgProps = pdf.getImageProperties(dataUrl);
 
       const imgWidth = pageWidth - margin * 2;
@@ -181,11 +229,12 @@ export default function PrintQuestionAnswersheet() {
       // Check if question fits on current page, if not add new page
       if (yOffset + imgHeight > maxContentHeight) {
         pdf.addPage();
+        addWatermark(pdf);
         yOffset = margin;
       }
 
       pdf.addImage(dataUrl, "PNG", margin, yOffset, imgWidth, imgHeight);
-      yOffset += imgHeight + 15; // Reduced spacing between questions
+      yOffset += imgHeight + 20; // Improved spacing
     }
 
     pdf.save("exam-questions.pdf");

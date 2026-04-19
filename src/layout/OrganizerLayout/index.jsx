@@ -68,27 +68,22 @@ const OrganizerLayout = () => {
       }}
       padding="0"
     >
-      <AppShell.Header h={isMobile ? 60 : 64} style={{ borderBottom: '1px solid var(--mantine-glass-border)', background: 'transparent', backdropFilter: 'blur(var(--mantine-glass-blur))' }}>
-        {isMobile ? (
-          <Group h="100%" px="md" justify="space-between">
-            <MobileSidebarTrigger onToggle={() => setMobileSidebarOpen(true)} />
-            <Title order={4}>Prepalyze</Title>
-            <div />
+      <AppShell.Header h={isMobile ? 60 : 64} style={{ borderBottom: '1px solid var(--mantine-glass-border)', background: 'var(--mantine-glass-bg)', backdropFilter: 'blur(var(--mantine-glass-blur))' }}>
+        <Group h="100%" px="xl" justify="space-between">
+          <Group gap="md">
+            {isMobile && <MobileSidebarTrigger onToggle={() => setMobileSidebarOpen(true)} />}
+            <Title order={3} fw={900} variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>Prepalyze</Title>
           </Group>
-        ) : (
-          <Sidebar
-            data={navItems}
-            title="Prepalyze"
-            layout="horizontal"
-          />
-        )}
+        </Group>
       </AppShell.Header>
 
       {!isMobile && (
         <AppShell.Navbar p={0} style={{ borderRight: '1px solid var(--mantine-glass-border)', backgroundColor: 'var(--mantine-glass-bg)', backdropFilter: 'blur(var(--mantine-glass-blur))' }}>
-          <ScrollArea h="calc(100vh - 64px)">
-             <IntellihubHeader layout="vertical" />
-          </ScrollArea>
+          <Sidebar
+            data={navItems}
+            title="Organizer"
+            layout="vertical"
+          />
         </AppShell.Navbar>
       )}
 

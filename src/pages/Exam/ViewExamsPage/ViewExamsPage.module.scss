@@ -131,6 +131,78 @@
   }
 }
 
+.choiceCard {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 18px;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-glass-border);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: var(--mantine-color-blue-4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    background: var(--mantine-color-gray-0);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .choiceIcon {
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}
+
+.choiceIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.modalCustom {
+  .mantine-Modal-header {
+    background: var(--mantine-color-body);
+    border-bottom: 1px solid var(--mantine-glass-border);
+    padding: 20px 24px;
+  }
+
+  .mantine-Modal-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .mantine-Modal-body {
+    padding: 24px;
+    background: var(--mantine-color-body);
+  }
+}
+
 @media (max-width: 768px) {
   .pageTitle {
     font-size: 1.75rem;

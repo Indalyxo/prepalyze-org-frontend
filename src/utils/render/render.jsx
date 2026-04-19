@@ -41,23 +41,18 @@ const isLikelyLatex = (content) => {
 };
 
 const cleanLatexText = (text) => {
+  if (!text) return "";
   return text
-    .replace(/\{\[\}\s*([^{}]+?)\s*\{\]\}/g, "[$1]")
-    .replace(/([A-Za-z])\{\[\]\}/g, "[$1]")
-    .replace(/\{\[\}/g, "[")
-    .replace(/\{\]\}/g, "]")
+    .replace(/\\_/g, "_")
+    .replace(/\\\{/g, "{")
+    .replace(/\\\}/g, "}")
+    .replace(/\\text{[^}]*}/g, (match) => match.replace(/\\/g, ""))
     .replace(/\\textgreater\{\}/g, ">")
     .replace(/\\textless\{\}/g, "<")
     .replace(/\\textdegree\{\}/g, "°")
-    .replace(/\s*\\,\s*/g, " ")
-    .replace(/\s*\\\s+/g, " ")
-    .replace(/\s+\\([a-zA-Z]+)/g, "\\$1")
-    .replace(/\\([a-zA-Z]+)\s+/g, "\\$1 ")
     .replace(/\\\$/g, "$")
     .replace(/\\\&/g, "&")
-    .replace(/\\\%/g, "%")
-    .replace(/(?<!\\)%/g, "\\%")
-    .replace(/\s*([=<>±×÷])\s*/g, " $1 ");
+    .replace(/\\\%/g, "%");
 };
 
 const parseListEnvironment = (text) => {
@@ -286,14 +281,12 @@ const renderWithLatexAndImages = (text, imageStyles) => {
     // Updated regex patterns to better handle includegraphics with whitespace and newlines
     const patterns = [
       /\\includegraphics(?:\[[^\]]*\])?\s*\{([^}]+)\}/gs,
-      /\$\$([^$]+)\$\$/g,        // Block math with $$
-      /\\\[([^\]]+)\\\]/g,       // Block math with \[ \]
-      /\$([^$]+)\$/g,            // Inline math
-      /\\\(([^\\]*(?:\\[^)]*)*[^\\]*)\\\)/g, // Inline math with \( \)
-      /\|([^|]+)\|/g,
+      /\$\$(.*?)\$\$/gs,
+      /\\\[(.*?)\\\]/gs,
+      /\$(.*?)\$/g,
+      /\\\((.*?)\\\)/gs,
+      /\\begin\{(?:equation|align|gather|math|displaymath)\*?\}(.*?)\\end\{(?:equation|align|gather|math|displaymath)\*?\}/gs,
       /\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}[^{}]*)*\})+/g,
-      /[a-zA-Z]+(?:\s*\\?\s*[_^]\s*\{\s*[^}]+\s*\})+/g,
-      /\\[a-zA-Z]+(?!\{)/g,
     ];
 
     const parts = [];
@@ -384,7 +377,7 @@ const renderWithLatexAndImages = (text, imageStyles) => {
     }
 
     if (parts.length === 0) {
-      parts.push({ type: "text", value: cleanedText });
+      parts.push({ type: "text", value: content });
     }
 
     return parts.map((part, i) => {

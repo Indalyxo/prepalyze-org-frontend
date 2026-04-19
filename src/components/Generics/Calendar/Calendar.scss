@@ -132,12 +132,15 @@
     .fc-event-content-modern {
       background: rgba(var(--mantine-color-body-rgb), 0.2);
       border: 1px solid var(--mantine-glass-border);
-      border-radius: 8px;
-      padding: 6px 10px;
+      border-radius: 12px;
+      padding: 8px 12px;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       
       &:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px) scale(1.04);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.1);
+        z-index: 100;
       }
 
       .fc-event-title {
@@ -235,33 +238,60 @@
   }
 }
 
-// Custom Modal Event Card Styling
 .modal-event-card {
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
-  border-width: 1px;
-  border-color: #f1f3f5;
+  background: var(--mantine-glass-bg);
+  border: 1px solid var(--mantine-glass-border);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    border-color: #e9ecef;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    border-color: var(--mantine-color-blue-4);
+    background: rgba(255, 255, 255, 0.05);
   }
   
   &.exam-type:hover {
-      border-color: #ffc9c9;
-      background-color: #fffafb;
-  }
-  
-  &.regular-type:hover {
-      border-color: #d0bfff;
-      background-color: #f8f7ff;
+      border-color: var(--mantine-color-red-4);
+      background: var(--mantine-color-red-light);
   }
 
   .event-title {
-    color: #1c212d;
+    color: var(--mantine-color-text);
     line-height: 1.2;
+    font-weight: 700;
   }
+}
+
+.no-data-paper {
+  background: var(--mantine-glass-bg) !important;
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px dashed var(--mantine-glass-border) !important;
+  text-align: center;
+  box-shadow: none !important;
+}
+
+.action-button-calendar {
+  font-weight: 700;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(34, 139, 230, 0.3);
+  }
+}
+
+.pulse-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 // Override Mantine Modal Overlay

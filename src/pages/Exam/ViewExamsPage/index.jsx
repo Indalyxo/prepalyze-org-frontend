@@ -13,6 +13,7 @@ import {
   Modal,
   Center,
   Loader,
+  Text,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -159,22 +160,23 @@ export default function ViewExamsPage() {
     <div className={styles.availableExams}>
       <Container size="xl" py="xl">
         <div className={styles.headerSection}>
-          <Group justify="space-between" align="center" mb="xl">
-            <Box>
+          <Box style={{ position: 'relative', width: '100%' }} mb="xl">
+            <Center>
               <Title order={1} className={styles.pageTitle}>
                 Exams
               </Title>
+            </Center>
+            <Box style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}>
+              <Button
+                leftSection={<IconPlus size={18} />}
+                className={styles.addButton}
+                onClick={() => setOpenChoiceModal(true)}
+                size="md"
+              >
+                Add Exam
+              </Button>
             </Box>
-            <Button
-              leftSection={<IconPlus size={18} />}
-              className={styles.addButton}
-              onClick={() => setOpenChoiceModal(true)}
-              size="md"
-            >
-              Add Exam
-            </Button>
-
-          </Group>
+          </Box>
         </div>
         <Paper className={styles.searchFilterCard} p="md" mb="xl" shadow="xs">
           <Stack gap="md">
@@ -220,6 +222,8 @@ export default function ViewExamsPage() {
                 onChange={setSelectedExamType}
                 className={styles.filterSelect}
                 size="sm"
+                searchable
+                clearable
               />
               {/* <Select
                   placeholder="All Levels"
@@ -247,32 +251,57 @@ export default function ViewExamsPage() {
         <Modal
           opened={openChoiceModal}
           onClose={() => setOpenChoiceModal(false)}
-          title="Choose Exam Type"
+          title="Create New Exam"
           centered
+          size="md"
+          radius="xl"
+          className={styles.modalCustom}
+          overlayProps={{ 
+            blur: 8, 
+            opacity: 0.4,
+            color: 'var(--mantine-color-dark-9)'
+          }}
         >
-          <Stack gap="md">
-            <Button
-              fullWidth
-              leftSection={<IconBook size={18} />}
+          <Stack gap="lg">
+            <Paper 
+              withBorder 
+              p="md" 
+              className={styles.choiceCard} 
               onClick={() => {
                 setOpenChoiceModal(false);
-                setOpenCreateModal(true); // open normal exam form
+                setOpenCreateModal(true);
               }}
             >
-              Manual Exam
-            </Button>
+              <Group wrap="nowrap" gap="lg">
+                <Box className={styles.choiceIcon} style={{ background: 'var(--mantine-color-blue-0)' }}>
+                  <IconBook size={32} color="var(--mantine-color-blue-6)" stroke={1.5} />
+                </Box>
+                <div style={{ flex: 1 }}>
+                  <Text fw={700} size="lg" mb={2}>Manual Exam</Text>
+                  <Text size="sm" c="dimmed">Customize every question and setting yourself.</Text>
+                </div>
+              </Group>
+            </Paper>
 
-            <Button
-              fullWidth
-              variant="outline"
-              leftSection={<IconRobot size={18} />}
+            <Paper 
+              withBorder 
+              p="md" 
+              className={styles.choiceCard}
               onClick={() => {
                 setOpenChoiceModal(false);
-                navigate("/organization/exams/ai"); // blank AI page
+                navigate("/organization/exams/ai");
               }}
             >
-              AI Powered Exam
-            </Button>
+              <Group wrap="nowrap" gap="lg">
+                <Box className={styles.choiceIcon} style={{ background: 'var(--mantine-color-grape-0)' }}>
+                  <IconRobot size={32} color="var(--mantine-color-grape-6)" stroke={1.5} />
+                </Box>
+                <div style={{ flex: 1 }}>
+                  <Text fw={700} size="lg" mb={2}>AI Powered Exam</Text>
+                  <Text size="sm" c="dimmed">Generate high-quality questions instantly using AI.</Text>
+                </div>
+              </Group>
+            </Paper>
           </Stack>
         </Modal>
 

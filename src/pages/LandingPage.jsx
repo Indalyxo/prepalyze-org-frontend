@@ -138,9 +138,18 @@ export default function PrepalyzeLanding() {
 
   // GSAP refs
   const availableExamsRef = useRef(null);
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
     const timer = setTimeout(() => setIsVisible(true), 100);
-    return () => clearTimeout(timer);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
+    };
   }, []);
 
   // Auto-rotate slides
@@ -260,7 +269,7 @@ const handleContactSubmit = async (values) => {
   return (
     <Box className="prepalyze-landing">
       {/* Header */}
-      <header className="prepalyze-header">
+      <header className={`prepalyze-header ${scrolled ? "scrolled" : ""}`}>
         <Container size="xl">
           <Group justify="space-between" align="center">
             <Group align="center" gap="xs">
@@ -398,19 +407,17 @@ const handleContactSubmit = async (values) => {
       {/* Hero Section */}
       <section className="prepalyze-hero" id="home">
         <Container size="xl">
-          <Grid>
+          <Grid align="center" gutter={50}>
             <Grid.Col span={{ base: 12, md: 6 }}>
-              <Stack gap="xl">
+              <Stack gap="xl" style={{ position: 'relative', zIndex: 10 }}>
                 <div>
                   <Title
                     className={`hero-title ${isVisible ? "fade-in" : ""}`}
-                    fw={800}
-                    c="var(--color-foreground)"
+                    fw={900}
                   >
                     Revolutionize Your{" "}
                     <Text
                       span
-                      c="var(--color-primary)"
                       inherit
                       className="gradient-text"
                     >
@@ -420,7 +427,6 @@ const handleContactSubmit = async (values) => {
 
                   <Text
                     className={`hero-subtitle ${isVisible ? "fade-in" : ""}`}
-                    c="var(--color-muted-foreground)"
                   >
                     Seamless question paper generation, online testing, and
                     comprehensive analytics for students and organizations.
@@ -430,39 +436,48 @@ const handleContactSubmit = async (values) => {
                 </div>
 
                 <Group
-                  className={`hero-buttons mobile-stack ${
+                  className={`hero-buttons ${
                     isVisible ? "fade-in" : ""
                   }`}
+                  gap="md"
                 >
                   <Button
-                    size="lg"
+                    size="xl"
+                    variant="filled"
+                    color="blue"
                     onClick={() => handleNavigation("/login")}
-                    className="pulse-btn responsive-button"
-                    leftSection={<IconRocket size={20} />}
-                    style={{ background: "var(--color-primary)" }}
+                    className="pulse-btn"
+                    leftSection={<IconRocket size={24} />}
+                    style={{ 
+                      height: '60px',
+                      padding: '0 40px',
+                      fontSize: '1.1rem',
+                      zIndex: 10
+                    }}
                   >
-                    Get Started
+                    Get Started Now
                   </Button>
                 </Group>
 
                 <Group
                   gap="xl"
                   mt="xl"
-                  justify={{ base: "center", md: "flex-start" }}
+                  className={isVisible ? "fade-in" : ""}
+                  style={{ transitionDelay: '0.6s' }}
                 >
                   <Group gap="xs">
-                    <ThemeIcon size="sm" color="green" variant="light">
-                      <IconShield size={16} />
+                    <ThemeIcon size="lg" color="blue" variant="light" radius="xl">
+                      <IconShield size={20} />
                     </ThemeIcon>
-                    <Text size="sm" c="var(--color-muted-foreground)" fw={500}>
+                    <Text size="md" fw={600} c="dimmed">
                       Secure & Reliable
                     </Text>
                   </Group>
                   <Group gap="xs">
-                    <ThemeIcon size="sm" color="orange" variant="light">
-                      <IconBrain size={16} />
+                    <ThemeIcon size="lg" color="violet" variant="light" radius="xl">
+                      <IconBrain size={20} />
                     </ThemeIcon>
-                    <Text size="sm" c="var(--color-muted-foreground)" fw={500}>
+                    <Text size="md" fw={600} c="dimmed">
                       AI-Powered
                     </Text>
                   </Group>
@@ -471,19 +486,15 @@ const handleContactSubmit = async (values) => {
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, md: 6 }}>
-              <Box ta="center">
-                <Box className="hero-video">
-                  <Stack align="center" gap="md" p="xl">
-                    <video
-                      src="/prepowl animation.mp4"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      style={{ width: "100%", borderRadius: "8px" }}
-                    />
-                  </Stack>
-                </Box>
+              <Box className={`hero-video ${isVisible ? "fade-in" : ""}`} style={{ transitionDelay: '0.4s' }}>
+                <video
+                  src="/prepowl animation.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  style={{ width: "100%", borderRadius: "20px" }}
+                />
               </Box>
             </Grid.Col>
           </Grid>
@@ -641,53 +652,51 @@ const handleContactSubmit = async (values) => {
           </Stack>
 
           {/* Competitive Exams */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "stretch",
-              justifyContent: "center",
-              gap: "1rem",
-              width: "100%",
-              maxWidth: "600px", // optional, to control total width
-              margin: "0 auto",
-            }}
+          <SimpleGrid 
+            cols={{ base: 1, sm: 2 }} 
+            spacing="xl" 
+            maw={800} 
+            mx="auto"
+            mb="xl"
           >
-            <Card className="exam-card" p="md" ta="center" style={{ flex: 1 }}>
+            <Card className="exam-card" p="xl" ta="center">
               <ThemeIcon
-                size="lg"
+                size="xl"
                 color="blue"
                 variant="light"
                 mx="auto"
-                mb="sm"
+                mb="md"
+                radius="md"
               >
-                <IconSchool size={24} />
+                <IconSchool size={32} />
               </ThemeIcon>
-              <Text fw={600} size="sm">
+              <Text fw={700} size="lg">
                 JEE
               </Text>
-              <Text size="xs" c="dimmed">
-                Engineering
+              <Text size="sm" c="dimmed">
+                Engineering Entrance
               </Text>
             </Card>
 
-            <Card className="exam-card" p="md" ta="center" style={{ flex: 1 }}>
+            <Card className="exam-card" p="xl" ta="center">
               <ThemeIcon
-                size="lg"
+                size="xl"
                 color="red"
                 variant="light"
                 mx="auto"
-                mb="sm"
+                mb="md"
+                radius="md"
               >
-                <IconMedicalCross size={24} />
+                <IconMedicalCross size={32} />
               </ThemeIcon>
-              <Text fw={600} size="sm">
+              <Text fw={700} size="lg">
                 NEET
               </Text>
-              <Text size="xs" c="dimmed">
-                Medical
+              <Text size="sm" c="dimmed">
+                Medical Entrance
               </Text>
             </Card>
-          </div>
+          </SimpleGrid>
 
           {/* Academic Subjects */}
           {/* <Box mb="xl">
@@ -960,14 +969,16 @@ const handleContactSubmit = async (values) => {
 
                     <Box style={{ flex: 1 }} ta="center">
                       <Box className="feature-preview">
-                        <Stack align="center" gap="md">
-                          <img
+                        <Stack align="center" gap="md" p="md">
+                          <Image
                             src={section.image}
                             alt={section.title}
                             className="feature-image"
+                            radius="lg"
+                            fallbackSrc="https://placehold.co/600x400?text=Feature+Preview"
                           />
-                          <Text c="#64748b" fw={500}>
-                            {section.title} Preview
+                          <Text c="dimmed" fw={600} size="sm">
+                            {section.title} Interface
                           </Text>
                         </Stack>
                       </Box>
@@ -1130,11 +1141,16 @@ const handleContactSubmit = async (values) => {
               </Stack>
               <Box
                 ta="center"
-                mb="md"
-                className="pricing-price"
-                style={{ marginTop: "auto", color: "var(--color-primary)" }}
+                mt="auto"
+                p="sm"
+                style={{ 
+                  borderRadius: '12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  color: 'var(--color-primary)',
+                  fontWeight: 700
+                }}
               >
-                Coming Soon...
+                Coming Soon
               </Box>
             </Card>
 
@@ -1197,14 +1213,19 @@ const handleContactSubmit = async (values) => {
               </Button> */}
               <Box
                 ta="center"
-                mb="md"
-                className="pricing-price"
-                style={{ color: "white", marginTop: "auto" }}
+                mt="auto"
+                p="sm"
+                style={{ 
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontWeight: 700,
+                  backdropFilter: 'blur(5px)'
+                }}
               >
-                Coming Soon...
+                Coming Soon
               </Box>
             </Card>
-            <Card></Card>
           </SimpleGrid>
 
           {/* <Stack align="center" mt="xl" pt="xl">
@@ -1264,22 +1285,21 @@ const handleContactSubmit = async (values) => {
         </Container>
       </section>
 
-      {/* CTA Section */}
       <section
         id="contact"
-        style={{
-          background: "#3b82f6",
-          padding: "6rem 1rem",
-        }}
+        className="cta-section-enhanced"
       >
-        <Container size="xl">
+        <div className="cta-overlay"></div>
+        <Container size="xl" style={{ position: 'relative', zIndex: 2 }}>
           <Stack align="center" gap="xl" ta="center">
             <Title
-              c="white"
-              fw={800}
-              style={{ fontSize: "2.5rem", letterSpacing: "-0.5px" }}
+              className="cta-title"
+              fw={900}
             >
-              Ready to Transform Your Exam Process?
+              Ready to Transform Your{" "}
+              <Text span inherit className="gradient-text-white">
+                Exam Process?
+              </Text>
             </Title>
 
             <Text
@@ -1301,25 +1321,7 @@ const handleContactSubmit = async (values) => {
             >
               {/* Email Card */}
               <Card
-                p="xl"
-                ta="center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
-                  borderRadius: "1rem",
-                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-6px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 12px 28px rgba(0, 0, 0, 0.35)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 8px 20px rgba(0, 0, 0, 0.25)";
-                }}
+                className="cta-card"
               >
                 <ThemeIcon
                   size="xl"
@@ -1363,25 +1365,7 @@ const handleContactSubmit = async (values) => {
 
               {/* Phone Card */}
               <Card
-                p="xl"
-                ta="center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
-                  borderRadius: "1rem",
-                  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-6px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 12px 28px rgba(0, 0, 0, 0.35)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 8px 20px rgba(0, 0, 0, 0.25)";
-                }}
+                className="cta-card"
               >
                 <ThemeIcon
                   size="xl"

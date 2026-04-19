@@ -47,17 +47,15 @@
 }
 
 .actionMenu {
-  z-index: 1;
-  .mantine-ActionIcon-root {
-    color: #fff;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(4px);
-    transition: all 0.2s ease;
-    
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.1);
-    }
+  z-index: 10;
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.7) !important;
+    transform: scale(1.1);
   }
 }
 

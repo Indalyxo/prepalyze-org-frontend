@@ -4,8 +4,7 @@ import './login-page.scss'
 
 export default function LoginPage() {
   return (
-    <div>
-    <div className="login-page">
+    <div className="login-page auth-page">
       <div className="login-container">
         <div className="form-section">
           <LoginForm />
@@ -14,9 +13,6 @@ export default function LoginPage() {
           <LoginImageSection />
         </div>
       </div>
-
     </div>
-  
-    </div>
-  )
+  );
 }

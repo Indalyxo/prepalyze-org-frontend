@@ -1,24 +1,63 @@
-.dashboard {
-  max-height: 100vh;
-  
-  .dashboard-header {
-    margin-bottom: 2rem;
-    
-    h1 {
-      color: var(--mantine-color-text);
-      font-weight: 700;
-    }
+.dashboard-content-area {
+  min-height: 100vh;
+  background-color: transparent;
+  width: 100%;
+}
+
+.welcome-hero {
+  .hero-title {
+    color: var(--mantine-color-text);
+    font-weight: 900;
   }
 }
 
-@media (max-width: 768px) {
-  .dashboard {
-    .dashboard-header {
-      margin-bottom: 1.5rem;
-      
-      h1 {
-        font-size: 1.8rem;
-      }
-    }
+.stat-quick-card {
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  min-width: 140px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.quick-action-card {
+  background: var(--mantine-glass-bg);
+  backdrop-filter: blur(var(--mantine-glass-blur));
+  border: 1px solid var(--mantine-glass-border);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--mantine-color-blue-4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .mantine-ThemeIcon-root {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .mantine-ThemeIcon-root {
+    transform: scale(1.1);
+  }
+}
+
+.chart-wrapper-card {
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-glass-border);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--mantine-color-blue-2);
   }
 }

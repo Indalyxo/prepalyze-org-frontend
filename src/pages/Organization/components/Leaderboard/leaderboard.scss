@@ -7,15 +7,14 @@
 }
 
 .leaderboard-container {
-  padding: 3rem 2rem;
-  min-height: 100vh;
+  padding: 0;
   font-family: 'Inter', sans-serif;
-  background: radial-gradient(circle at 50% 0%, rgba(74, 144, 226, 0.08) 0%, transparent 50%);
+  background: transparent;
 }
 
 .leaderboard-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2.5rem;
   position: relative;
 
   &::after {
@@ -32,15 +31,12 @@
 }
 
 .leaderboard-title {
-  font-size: 3.5rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--mantine-color-text) 30%, #4A90E2 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--mantine-color-text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
 }
 
 .leaderboard-subtitle {
@@ -69,7 +65,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  padding: 3rem 2rem;
+  padding: 2rem 1.5rem;
   position: relative;
   overflow: visible;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -150,10 +146,7 @@
 }
 
 .score-number {
-  background: linear-gradient(135deg, #4A90E2, #667eea);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--mantine-color-blue-6);
   line-height: 1;
   margin-bottom: 0.5rem;
 }

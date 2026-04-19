@@ -192,8 +192,9 @@ const IntellihubHeader = ({ layout = "horizontal" }) => {
     <div className={`${isVertical ? "vertical-stats" : "dashboard-header-section"}`}>
       {isVertical ? (
         <motion.div variants={container} initial="hidden" animate="show">
-          <Stack gap="lg" p="md">
-            <Text fw={900} size="xs" c="dimmed" tt="uppercase" px="xs" mb={-10} lts={2.5}>Analytics</Text>
+          <Stack gap="xl" p="lg">
+            <Box px="xs">
+            </Box>
             {content}
           </Stack>
         </motion.div>

@@ -6,9 +6,12 @@ import {
   Group,
   Button,
   Stack,
-  Menu,
+  Modal,
   ActionIcon,
+  Loader,
+  Menu,
 } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import {
   IconClock,
   IconCalendar,
@@ -19,14 +22,21 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { useState } from "react";
+import { notifications } from "@mantine/notifications";
+import apiClient from "../../../utils/api";
 import styles from "./ExamCard.module.scss";
 
 export default function ExamCard({ exam, route = "organization" }) {
   const navigate = useNavigate();
+  const [isPostponeModalOpen, setIsPostponeModalOpen] = useState(false);
+  const [newStartDate, setNewStartDate] = useState(exam?.timing?.start ? new Date(exam.timing.start) : new Date());
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
   // ✅ Compute exam status
   const now = dayjs();
-  const start = dayjs(exam.timing.start);
-  const end = dayjs(exam.timing.end);
+  const start = dayjs(exam?.timing?.start);
+  const end = dayjs(exam?.timing?.end);
 
   let examStatus = "Scheduled";
   if (now.isAfter(end)) {
@@ -35,13 +45,73 @@ export default function ExamCard({ exam, route = "organization" }) {
     examStatus = "Ongoing";
   }
 
+  const handleCancelExam = async () => {
+    try {
+      setIsCanceling(true);
+      const response = await apiClient.patch(`/api/exam/${exam.examId}/cancel`);
+      if (response.data.success) {
+        notifications.show({
+          title: "Success",
+          message: "Exam cancelled successfully",
+          color: "green"
+        });
+        // We'd ideally want to refetch the exams list here. For now, a reload will work.
+        window.location.reload();
+      }
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: error.response?.data?.error || "Failed to cancel exam",
+        color: "red"
+      });
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const handlePostponeExam = async () => {
+    if (!newStartDate) return;
+    
+    try {
+      setIsUpdating(true);
+      const newStart = dayjs(newStartDate);
+      const newEnd = newStart.add(exam.duration, "minute");
+      
+      const payload = {
+        timing: {
+          start: newStart.toISOString(),
+          end: newEnd.toISOString(),
+        }
+      };
+
+      const response = await apiClient.patch(`/api/exam/${exam.examId}/update`, payload);
+      if (response.data.success) {
+        notifications.show({
+          title: "Success",
+          message: "Exam postponed successfully",
+          color: "green"
+        });
+        setIsPostponeModalOpen(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: error.response?.data?.error || "Failed to postpone exam",
+        color: "red"
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <Card shadow="md" radius="lg" className={styles.examCard} withBorder>
       {/* Header Background */}
       <div
         className={styles.cardHeader}
         style={{
-          backgroundImage: `url(/images/${exam.subjects[0].toLowerCase()}.webp)`,
+          backgroundImage: `url(/images/${exam?.subjects?.[0]?.toLowerCase() || 'default'}.webp)`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition:
@@ -56,34 +126,37 @@ export default function ExamCard({ exam, route = "organization" }) {
           {exam.examType}
         </Badge>
 
-        {/* Three dot menu */}
-        <Menu shadow="md" width={180} position="bottom-end">
-          <Menu.Target>
-            <ActionIcon
-              variant="subtle"
-              radius="xl"
-              size="lg"
-              className={styles.actionMenu}
-            >
-              <IconDots size={20} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item
-              leftSection={<IconEdit size={16} />}
-              onClick={() => navigate(`/exam/${exam.examId}/edit`)}
-            >
-              Postpone Exam
-            </Menu.Item>
-            <Menu.Item
-              color="red"
-              leftSection={<IconTrash size={16} />}
-              onClick={() => console.log("Delete exam", exam.examId)}
-            >
-              Cancel Exam
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        {/* Three dot menu (Organization only) */}
+        {route === "organization" && (
+          <Menu shadow="md" width={180} position="bottom-end">
+            <Menu.Target>
+              <ActionIcon
+                variant="subtle"
+                radius="xl"
+                size="lg"
+                className={styles.actionMenu}
+              >
+                <IconDots size={20} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconEdit size={16} />}
+                onClick={() => setIsPostponeModalOpen(true)}
+              >
+                Postpone Exam
+              </Menu.Item>
+              <Menu.Item
+                color="red"
+                leftSection={isCanceling ? <Loader size={16} /> : <IconTrash size={16} />}
+                onClick={handleCancelExam}
+                disabled={isCanceling}
+              >
+                Cancel Exam
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </div>
 
       {/* Content */}
@@ -104,7 +177,7 @@ export default function ExamCard({ exam, route = "organization" }) {
           <Group gap={4}>
             <IconCalendar size={16} />
             <Text size="sm">
-              {dayjs(exam.timing.start).format("DD MMM, YYYY hh:mm A")}
+              {dayjs(exam?.timing?.start).format("DD MMM, YYYY hh:mm A")}
             </Text>
           </Group>
 
@@ -116,7 +189,7 @@ export default function ExamCard({ exam, route = "organization" }) {
           ) : (
             <Group gap={4}>
               <IconUsers size={16} />
-              <Text size="sm">{exam.participants.length} Participants</Text>
+              <Text size="sm">{exam?.participants?.length || 0} Participants</Text>
             </Group>
           )}
           {/* Exam Status Badge */}
@@ -137,7 +210,7 @@ export default function ExamCard({ exam, route = "organization" }) {
 
         {/* Chapters & Topics */}
         <Text size="sm" className={styles.secondaryText}>
-          📘 {exam.chapters.length} Chapters · {exam.topics.length} Topics
+          📘 {exam?.chapters?.length || 0} Chapters · {exam?.topics?.length || 0} Topics
         </Text>
       </Stack>
 
@@ -178,6 +251,39 @@ export default function ExamCard({ exam, route = "organization" }) {
             </Button>
           )}
       </Group>
+
+      {/* Postpone Exam Modal */}
+      <Modal
+        opened={isPostponeModalOpen}
+        onClose={() => setIsPostponeModalOpen(false)}
+        title="Postpone Exam"
+        centered
+        radius="md"
+      >
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">
+            Select a new start date and time for the exam. The duration ({exam.duration} mins) will be preserved.
+          </Text>
+          
+          <DateTimePicker
+            label="New Start Time"
+            placeholder="Pick date and time"
+            value={newStartDate}
+            onChange={setNewStartDate}
+            minDate={new Date()}
+            required
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={() => setIsPostponeModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button loading={isUpdating} onClick={handlePostponeExam}>
+              Confirm Postpone
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Card>
   );
 }

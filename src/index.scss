@@ -13,6 +13,31 @@
   --mantine-glass-bg: rgba(var(--mantine-color-body-rgb), 0.7);
   --mantine-glass-border: rgba(var(--mantine-color-text-rgb), 0.08);
   --mantine-glass-blur: 16px;
+
+  // Prepalyze Design Tokens
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-accent: #8b5cf6;
+  --color-accent-dark: #7c3aed;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-xl: 32px;
+
+  // Light theme colors
+  --color-card: rgba(255, 255, 255, 0.7);
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-foreground: #0f172a;
+  --color-muted-foreground: #64748b;
+  --color-muted: #f8fafc;
+  --color-primary-foreground: #ffffff;
+  --hero-bg-1: #f8fafc;
+  --hero-bg-2: #f1f5f9;
+  --hero-bg-3: #e2e8f0;
+  --showcase-bg: #ffffff;
+  --card-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+  --header-grad-start: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
 }
 
 .dark, [data-mantine-color-scheme="dark"] {
@@ -59,6 +84,21 @@
   // Mantine RGB Helpers for Glassmorphism (Dark Mode)
   --mantine-glass-bg: rgba(20, 26, 38, 0.6);
   --mantine-glass-border: rgba(255, 255, 255, 0.1);
+
+  // Prepalyze Dark Theme Design Tokens
+  --color-card: rgba(15, 23, 42, 0.6);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-foreground: #f8fafc;
+  --color-muted-foreground: #94a3b8;
+  --color-muted: #020617;
+  --hero-bg-1: #020617;
+  --hero-bg-2: #0f172a;
+  --hero-bg-3: #1e293b;
+  --showcase-bg: #0f172a;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --header-grad-start: rgba(2, 6, 23, 0.2);
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 [data-mantine-color-scheme="dark"] {
@@ -66,13 +106,15 @@
   --mantine-color-text: #ffffff;
 }
 
-// Global Component Theme Integration
-.mantine-Paper-root, .mantine-Card-root {
-  background-color: var(--mantine-glass-bg) !important;
-  backdrop-filter: blur(var(--mantine-glass-blur));
-  border-color: var(--mantine-glass-border) !important;
-  color: var(--mantine-color-text) !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+// Global Component Theme Integration (Applied to Org Portal and specific sections)
+.prepalyze-portal, .auth-page {
+  .mantine-Paper-root, .mantine-Card-root {
+    background-color: var(--mantine-glass-bg);
+    backdrop-filter: blur(var(--mantine-glass-blur));
+    border-color: var(--mantine-glass-border);
+    color: var(--mantine-color-text);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 }
 
 html[data-mantine-color-scheme="dark"] {

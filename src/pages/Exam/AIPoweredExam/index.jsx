@@ -259,18 +259,47 @@ export default function AIPoweredExam() {
   const printableRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  const addWatermark = (pdf) => {
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const watermarkText = "PREPALYZE AI PROTECTED";
+    
+    pdf.saveGraphicsState();
+    
+    const GState = pdf.GState || (jsPDF && jsPDF.GState);
+    if (GState) {
+      pdf.setGState(new GState({ opacity: 0.2 }));
+    } else {
+      pdf.setTextColor(210, 210, 210);
+    }
+
+    pdf.setFontSize(50);
+    pdf.setFont("helvetica", "bold");
+    
+    const x = pageWidth / 2;
+    const y = pageHeight / 2;
+    const angle = 45;
+
+    pdf.text(watermarkText, x, y, { align: "center", angle: angle });
+    pdf.text(watermarkText, x - 150, y - 300, { align: "center", angle: angle });
+    pdf.text(watermarkText, x + 150, y + 300, { align: "center", angle: angle });
+    
+    pdf.restoreGraphicsState();
+  };
+
   const handleDownloadPDF = async () => {
     if (!printableRef.current) return;
     
     const id = toast.loading("Generating your professional PDF...");
     try {
-      // Small delay to ensure any layout shifts are settled
-      await new Promise(resolve => setTimeout(resolve, 300));
-
+      // Ensure images/math are settled
+      await new Promise(resolve => setTimeout(resolve, 500));
+ 
       const dataUrl = await toPng(printableRef.current, {
         backgroundColor: '#ffffff',
         quality: 1.0,
-        pixelRatio: 2,
+        pixelRatio: 2.5, // Increased for better clarity
+        cacheBust: true,
       });
 
       const pdf = new jsPDF({
@@ -289,6 +318,7 @@ export default function AIPoweredExam() {
 
       // Add the first page
       pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, contentHeight);
+      addWatermark(pdf);
       heightLeft -= pdfHeight;
 
       // Add subsequent pages if content overflows
@@ -296,6 +326,7 @@ export default function AIPoweredExam() {
         position = heightLeft - contentHeight;
         pdf.addPage();
         pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, contentHeight);
+        addWatermark(pdf);
         heightLeft -= pdfHeight;
       }
 
@@ -346,7 +377,15 @@ export default function AIPoweredExam() {
 
   // 1. Fetch Exams on mount
   useEffect(() => {
-    fetchUniqueFilter('exam').then(setAvailableExams);
+    fetchUniqueFilter('exam').then(exams => {
+      // Filter out internal markers or confusing categories
+      const filteredExams = exams.filter(e => 
+        e !== "Document Upload" && 
+        e !== "PYQ Standard" && 
+        e !== "General"
+      );
+      setAvailableExams(filteredExams);
+    });
   }, []);
 
   // 2. Fetch Subjects when Exam changes + reset downward
@@ -355,7 +394,10 @@ export default function AIPoweredExam() {
     setAvailableSubjects([]); setAvailableChapters([]); setAvailableTopics([]);
     if (exam) {
       fetchUniqueFilter('subject', { exam }).then(subs => {
-        if (exam === "JEE-Main" || exam === "NEET-UG") {
+        const isJEE = exam.toLowerCase().includes("jee");
+        const isNEET = exam.toLowerCase().includes("neet");
+        
+        if (isJEE || isNEET) {
           setAvailableSubjects(["Full Mock Exam", ...subs]);
         } else {
           setAvailableSubjects(subs);

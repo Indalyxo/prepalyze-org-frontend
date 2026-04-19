@@ -366,11 +366,12 @@ export default function CalendarPage({ path = "student" }) {
         styles={{
           header: {
             padding: "24px 24px 16px",
-            borderBottom: "1px solid #f1f3f5",
+            borderBottom: "1px solid var(--mantine-glass-border)",
+            background: "var(--mantine-color-body)",
           },
           body: {
             padding: "24px",
-            backgroundColor: "#f8f9fa"
+            backgroundColor: "var(--mantine-color-body)"
           }
         }}
       >
@@ -465,15 +466,18 @@ export default function CalendarPage({ path = "student" }) {
                     <Box mt="md" pt="md" style={{ borderTop: '1px dashed #dee2e6' }}>
                         <Button
                             fullWidth
-                            variant="light"
-                            color="indigo"
-                            leftSection={<IconVideo size={18} />}
+                            variant="gradient"
+                            gradient={{ from: 'indigo.6', to: 'violet.6', deg: 45 }}
+                            size="md"
+                            radius="md"
+                            leftSection={<IconVideo size={20} />}
+                            className="join-meeting-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleJoin(event);
                             }}
                         >
-                            Join Video Meeting
+                            Join Video Session
                         </Button>
                     </Box>
                   )}
@@ -481,23 +485,39 @@ export default function CalendarPage({ path = "student" }) {
               ))}
             </Stack>
           ) : (
-            <Paper p="xl" radius="md" style={{ backgroundColor: 'white', textAlign: 'center', borderStyle: 'dashed', borderWidth: '2px', borderColor: '#e9ecef' }}>
-                <ThemeIcon size={64} radius="xl" variant="light" color="gray" mx="auto" mb="md">
-                    <IconCalendarEvent size={32} />
+            <Paper p="xl" radius="xl" withBorder className="no-data-paper">
+                <ThemeIcon size={72} radius="xl" variant="light" color="gray" mx="auto" mb="md" className="pulse-icon">
+                    <IconCalendarEvent size={36} />
                 </ThemeIcon>
-                <Text fw={600} size="lg" color="dark.4">Free Day!</Text>
-                <Text color="dimmed" size="sm" mt="xs">
+                <Text fw={800} size="xl" color="var(--mantine-color-text)">Free Day!</Text>
+                <Text color="dimmed" size="md" mt="xs" fw={500}>
                    There are no exams or sessions scheduled for this date.
                 </Text>
             </Paper>
           )}
 
           {path !== "student" && (
-            <Group position="center" justify="center" spacing="md" mt="xl" grow>
-              <Button onClick={handleCreateMeeting} variant="light" size="md" radius="md" color="indigo" leftSection={<IconVideo size={18} />}>
+            <Group justify="center" gap="md" mt="xl" grow>
+              <Button 
+                onClick={handleCreateMeeting} 
+                variant="light" 
+                size="lg" 
+                radius="xl" 
+                color="blue" 
+                leftSection={<IconVideo size={20} />}
+                className="action-button-calendar"
+              >
                 Schedule Meet
               </Button>
-              <Button onClick={handleCreateExam} color="red" variant="filled" size="md" radius="md" leftSection={<IconCheck size={18}/>}>
+              <Button 
+                onClick={handleCreateExam} 
+                color="blue" 
+                variant="filled" 
+                size="lg" 
+                radius="xl" 
+                leftSection={<IconCheck size={20}/>}
+                className="action-button-calendar"
+              >
                 Assign Exam
               </Button>
             </Group>

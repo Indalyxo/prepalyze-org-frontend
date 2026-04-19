@@ -1,4 +1,4 @@
-import { PasswordInput, Button, Text, Stack } from "@mantine/core";
+import { PasswordInput, Button, Text, Stack, Title } from "@mantine/core";
 import { IconLock } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import apiClient from "../../utils/api";
 import "../LoginForm/login-form.scss";
+import "../../pages/LoginPage/login-page.scss";
 
 export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
@@ -52,70 +53,76 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="login-form-container">
-      {/* Decorative background elements */}
-      <div className="background-decoration">
-        <div className="decoration-circle decoration-circle-1"></div>
-        <div className="decoration-circle decoration-circle-2"></div>
-        <div className="decoration-circle decoration-circle-3"></div>
-        <div className="decoration-circle decoration-circle-4"></div>
-        <div className="decoration-circle decoration-circle-5"></div>
-        <div className="decoration-dots">
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-          <div className="dot"></div>
-        </div>
-      </div>
-
-      <div className="form-wrapper">
-        <div className="logo-section">
-          <div className="logo">
-            <img className="logo-icon" src="/Prepalyze-logo.svg" alt="" />
+    <div className="login-page auth-page">
+      <div className="auth-card">
+        <div className="login-form-container">
+          {/* Decorative background elements */}
+          <div className="background-decoration">
+            <div className="decoration-circle decoration-circle-1"></div>
+            <div className="decoration-circle decoration-circle-2"></div>
+            <div className="decoration-circle decoration-circle-3"></div>
+            <div className="decoration-circle decoration-circle-4"></div>
+            <div className="decoration-circle decoration-circle-5"></div>
+            <div className="decoration-dots">
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+            </div>
           </div>
-        </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="form-content">
-          <Stack gap="lg">
-            <div className="welcome-section">
-              <Text className="welcome-title">Reset Password</Text>
-              <Text className="welcome-subtitle">
-                Enter your new password.
-              </Text>
+          <div className="form-wrapper">
+            <div className="logo-section">
+              <div className="logo">
+                <img className="logo-icon" src="/Prepalyze-logo.svg" alt="" />
+              </div>
             </div>
 
-            <PasswordInput
-              label="New Password"
-              placeholder="••••••••"
-              leftSection={<IconLock size={18} />}
-              size="md"
-              radius="md"
-              {...form.getInputProps("password")}
-              required
-            />
+            <form onSubmit={(e) => e.preventDefault()} className="form-content">
+              <Stack gap="lg">
+                <div className="welcome-section">
+                  <Title className="welcome-title">Reset Password</Title>
+                  <Text className="welcome-subtitle">
+                    Enter your new password below.
+                  </Text>
+                </div>
 
-            <PasswordInput
-              label="Confirm Password"
-              placeholder="••••••••"
-              leftSection={<IconLock size={18} />}
-              size="md"
-              radius="md"
-              {...form.getInputProps("confirmPassword")}
-              required
-            />
+                <PasswordInput
+                  label="New Password"
+                  placeholder="••••••••"
+                  leftSection={<IconLock size={18} />}
+                  size="md"
+                  radius="md"
+                  {...form.getInputProps("password")}
+                  className="password-input"
+                  required
+                />
 
-            <Button
-              fullWidth
-              loading={loading}
-              onClick={handleSubmit}
-              className="login-button"
-            >
-              Reset Password
-            </Button>
-          </Stack>
-        </form>
+                <PasswordInput
+                  label="Confirm Password"
+                  placeholder="••••••••"
+                  leftSection={<IconLock size={18} />}
+                  size="md"
+                  radius="md"
+                  {...form.getInputProps("confirmPassword")}
+                  className="password-input"
+                  required
+                />
+
+                <Button
+                  fullWidth
+                  loading={loading}
+                  onClick={handleSubmit}
+                  className="login-button"
+                >
+                  Reset Password
+                </Button>
+              </Stack>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
